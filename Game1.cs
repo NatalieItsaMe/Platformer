@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
+using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.Sprites;
 
 namespace Platformer
@@ -42,6 +43,7 @@ namespace Platformer
             // TODO: use this.Content to load your game content here
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
             _ball.Attach(new Transform2());
+            _ball.Attach(new KeyboardListener());
             
         }
 
