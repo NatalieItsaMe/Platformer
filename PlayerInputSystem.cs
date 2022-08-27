@@ -10,17 +10,16 @@ namespace Platformer
 {
     internal class PlayerInputSystem : EntityUpdateSystem
     {
-        private const Keys up = Keys.W, down = Keys.S, left = Keys.A, right = Keys.D;
-        private ComponentMapper<InputListener> _inputListeners;
+        private ComponentMapper<KeyboardMapping> _keyboardMappings;
         private ComponentMapper<Transform2> _transforms;
 
-        public PlayerInputSystem() : base(Aspect.All(typeof(InputListener), typeof(Transform2)))
+        public PlayerInputSystem() : base(Aspect.All(typeof(Transform2)).One(typeof(KeyboardMapping)))
         {
         }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
-            _inputListeners = mapperService.GetMapper<InputListener>();
+            _keyboardMappings = mapperService.GetMapper<KeyboardMapping>();
             _transforms = mapperService.GetMapper<Transform2>();
         }
 
@@ -28,10 +27,20 @@ namespace Platformer
         {
             foreach(var entity in ActiveEntities)
             {
-                var state = Keyboard.GetState();
                 var transform = _transforms.Get(entity);
+                if(_keyboardMappings.Has(entity))
+                {
+                    var state = Keyboard.GetState();
+                    var mapping = _keyboardMappings.Get(entity);
 
-                if(state.IsKeyDown(up)) {
+                    if(state.IsKeyDown(mapping.Up)) 
+                        transform.Position -= Vector2.UnitY;
+                    if(state.IsKeyDown(mapping.Down))
+                        transform.Position += Vector2.UnitY;
+                    if (state.IsKeyDown(mapping.Right))
+                        transform.Position += Vector2.UnitX;
+                    if (state.IsKeyDown(mapping.Left))
+                        transform.Position -= Vector2.UnitX;
 
                 }
             }

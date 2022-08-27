@@ -29,6 +29,7 @@ namespace Platformer
 
             _world = new WorldBuilder()
                 .AddSystem(new RenderSystem(GraphicsDevice))
+                .AddSystem(new PlayerInputSystem())
                 .Build();
 
             _ball = _world.CreateEntity();
@@ -43,7 +44,7 @@ namespace Platformer
             // TODO: use this.Content to load your game content here
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
             _ball.Attach(new Transform2());
-            _ball.Attach(new KeyboardListener());
+            _ball.Attach(new KeyboardMapping());
             
         }
 
