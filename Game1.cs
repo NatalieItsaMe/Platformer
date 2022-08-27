@@ -1,8 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MonoGame.Extended;
 using MonoGame.Extended.Entities;
-
+using MonoGame.Extended.Sprites;
 
 namespace Platformer
 {
@@ -12,7 +13,7 @@ namespace Platformer
         private SpriteBatch _spriteBatch;
         private World _world;
 
-        private Entity ball;
+        private Entity _ball;
 
         public Game1()
         {
@@ -29,7 +30,7 @@ namespace Platformer
                 .AddSystem(new RenderSystem(GraphicsDevice))
                 .Build();
 
-            ball = _world.CreateEntity();
+            _ball = _world.CreateEntity();
 
             base.Initialize();
         }
@@ -39,7 +40,8 @@ namespace Platformer
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
-            ball.Attach(new Texture2DComponent(Content.Load<Texture2D>("ball")));
+            _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
+            _ball.Attach(new Transform2());
             
         }
 
@@ -48,7 +50,7 @@ namespace Platformer
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            _world.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -57,7 +59,7 @@ namespace Platformer
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
+            _world.Draw(gameTime);
 
             base.Draw(gameTime);
         }
