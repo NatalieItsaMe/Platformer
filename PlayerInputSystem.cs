@@ -13,7 +13,7 @@ namespace Platformer
         private ComponentMapper<KeyboardMapping> _keyboardMappings;
         private ComponentMapper<Transform2> _transforms;
 
-        public PlayerInputSystem() : base(Aspect.All(typeof(Transform2)).One(typeof(KeyboardMapping)))
+        public PlayerInputSystem() : base(Aspect.All(typeof(Transform2), typeof(Physics)).One(typeof(KeyboardMapping)))
         {
         }
 
@@ -34,7 +34,7 @@ namespace Platformer
                     var mapping = _keyboardMappings.Get(entity);
 
                     if(state.IsKeyDown(mapping.Up)) 
-                        transform.Position -= Vector2.UnitY;
+                        transform.Position -= Vector2.UnitY ;
                     if(state.IsKeyDown(mapping.Down))
                         transform.Position += Vector2.UnitY;
                     if (state.IsKeyDown(mapping.Right))

@@ -10,5 +10,6 @@ namespace Platformer
     internal class KeyboardMapping
     {
         public Keys Up = Keys.W, Down = Keys.S, Left = Keys.A, Right = Keys.D;
+
     }
 }
