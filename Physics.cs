@@ -6,6 +6,7 @@ namespace Platformer
 {
     internal class Physics
     {
-        public Vector2 Velocity, Acceleration;
+        public Vector2 Velocity { get; set; } = new Vector2();
+        public Vector2 Acceleration { get; set; } = new Vector2();
     }
 }
