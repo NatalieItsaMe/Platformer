@@ -3,25 +3,28 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
-using MonoGame.Extended.Input.InputListeners;
-using System;
+using Platformer.Components;
 
 namespace Platformer
 {
     internal class PlayerInputSystem : EntityUpdateSystem
     {
+        private Game _game;
         private ComponentMapper<KeyboardMapping> _keyboardMappings;
-        private ComponentMapper<Transform2> _transforms;
         private ComponentMapper<Physics> _physics;
 
-        public PlayerInputSystem() : base(Aspect.All(typeof(Transform2), typeof(Physics)).One(typeof(KeyboardMapping)))
+        public PlayerInputSystem() : base(Aspect.All(typeof(Physics)).One(typeof(KeyboardMapping))) { }
+
+        public PlayerInputSystem(Game game) : base(Aspect.All(typeof(Transform2), typeof(Physics)).One(typeof(KeyboardMapping)))
         {
+            _game = game;
         }
+
+        public Platformer Platformer { get; }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
             _keyboardMappings = mapperService.GetMapper<KeyboardMapping>();
-            _transforms = mapperService.GetMapper<Transform2>();
             _physics = mapperService.GetMapper<Physics>();
         }
 
@@ -29,12 +32,15 @@ namespace Platformer
         {
             foreach(var entity in ActiveEntities)
             {
-                var transform = _transforms.Get(entity);
                 Vector2 acceleration = new Vector2();
                 if(_keyboardMappings.Has(entity))
                 {
                     var state = Keyboard.GetState();
                     var mapping = _keyboardMappings.Get(entity);
+
+
+                    if (state.IsKeyDown(mapping.Exit))
+                        _game.Exit();
 
                     if (state.IsKeyDown(mapping.Up)) 
                         acceleration = acceleration.SetY(-1);

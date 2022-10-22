@@ -3,11 +3,8 @@ using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using MonoGame.Extended.Tiled;
-using System;
-using System.Collections.Generic;
+using Platformer.Components;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Platformer
 {

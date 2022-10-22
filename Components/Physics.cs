@@ -2,7 +2,7 @@
 using MonoGame.Extended;
 using MonoGame.Extended.Collisions;
 
-namespace Platformer
+namespace Platformer.Components
 {
     internal class Physics
     {

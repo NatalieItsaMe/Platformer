@@ -1,14 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
-using MonoGame.Extended.Input.InputListeners;
 using MonoGame.Extended.Sprites;
+using Platformer.Components;
+using Platformer.Systems;
 
 namespace Platformer
 {
-    public class Game1 : Game
+    public class Platformer : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -16,7 +16,7 @@ namespace Platformer
 
         private Entity _ball;
 
-        public Game1()
+        public Platformer()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
@@ -29,7 +29,7 @@ namespace Platformer
 
             _world = new WorldBuilder()
                 .AddSystem(new RenderSystem(GraphicsDevice))
-                .AddSystem(new PlayerInputSystem())
+                .AddSystem(new PlayerInputSystem(this))
                 .AddSystem(new PhysicsSystem())
                 .Build();
 
@@ -52,9 +52,6 @@ namespace Platformer
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             _world.Update(gameTime);
 
             base.Update(gameTime);

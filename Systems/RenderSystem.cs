@@ -6,7 +6,7 @@ using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using MonoGame.Extended.Sprites;
 
-namespace Platformer
+namespace Platformer.Systems
 {
     internal class RenderSystem : EntityDrawSystem
     {
@@ -31,7 +31,7 @@ namespace Platformer
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin();
-            foreach(var entity in ActiveEntities)
+            foreach (var entity in ActiveEntities)
             {
                 var transform = _transformMapper.Get(entity);
                 var sprite = _spriteMapper.Get(entity);
