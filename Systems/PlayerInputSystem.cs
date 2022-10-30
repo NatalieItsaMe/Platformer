@@ -32,24 +32,23 @@ namespace Platformer
         {
             foreach(var entity in ActiveEntities)
             {
-                Vector2 acceleration = new Vector2();
+                Vector2 acceleration = _physics.Get(entity).Acceleration;
                 if(_keyboardMappings.Has(entity))
                 {
                     var state = Keyboard.GetState();
                     var mapping = _keyboardMappings.Get(entity);
 
-
                     if (state.IsKeyDown(mapping.Exit))
                         _game.Exit();
 
                     if (state.IsKeyDown(mapping.Up)) 
-                        acceleration = acceleration.SetY(-1);
+                        acceleration = acceleration.SetY(-8);
                     if (state.IsKeyDown(mapping.Down))
-                        acceleration = acceleration.SetY(1);
+                        acceleration = acceleration.SetY(8);
                     if (state.IsKeyDown(mapping.Right))
-                        acceleration = acceleration.SetX(1);
+                        acceleration = acceleration.SetX(8);
                     if (state.IsKeyDown(mapping.Left))
-                        acceleration = acceleration.SetX(-1);
+                        acceleration = acceleration.SetX(-8);
 
                     if (state.IsKeyUp(mapping.Up) && state.IsKeyUp(mapping.Down))
                         acceleration = acceleration.SetY(0);
@@ -59,14 +58,6 @@ namespace Platformer
                     _physics.Get(entity).Acceleration = acceleration;
                     //LogDebugInfo(_physics.Get(entity).Acceleration, acceleration);
                 }
-            }
-        }
-
-        private void LogDebugInfo(params object[] objects)
-        {
-            for(int i= 0; i < objects.Length; i++)
-            {
-                System.Diagnostics.Debug.WriteLine("Object " + i + ": " + objects[i].ToString());
             }
         }
     }
