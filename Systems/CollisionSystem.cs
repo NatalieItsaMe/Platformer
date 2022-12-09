@@ -38,23 +38,5 @@ namespace Platformer
 
             }    
         }
-
-        private ShapeCastHit Cast(IShapeF Shape, Vector2 Direction)
-        {
-            ShapeCastHit hit = new ShapeCastHit();
-
-            foreach(var entity in ActiveEntities)
-            {
-
-            }
-
-
-            return hit;
-        }
-
-        private class ShapeCastHit
-        {
-
-        }
     }
 }
