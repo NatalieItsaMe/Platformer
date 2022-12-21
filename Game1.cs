@@ -13,7 +13,7 @@ namespace Platformer
         private SpriteBatch _spriteBatch;
         private World _world;
 
-        private Entity _ball;
+        private Entity _ball, _wall;
 
         public Game1()
         {
@@ -31,6 +31,7 @@ namespace Platformer
                 .Build();
 
             _ball = _world.CreateEntity();
+            _wall = _world.CreateEntity();
 
             base.Initialize();
         }
@@ -44,7 +45,15 @@ namespace Platformer
             _ball.Attach(new Transform2(100, 100));
             _ball.Attach(new Body()
             {
-                Rectangle = new RectangleF(-24, -24, 48, 48)
+                Rectangle = new RectangleF(-24, -24, 48, 48),
+                Type = Body.BodyType.Kinematic
+            });
+
+            _wall.Attach(new Transform2(250, 100));
+            _wall.Attach(new Body()
+            {
+                Rectangle = new RectangleF(-24, -64, 48, 128),
+                Type = Body.BodyType.Static
             });
             
         }
