@@ -41,18 +41,34 @@ namespace Platformer
 
             // TODO: use this.Content to load your game content here
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
-            _ball.Attach(new Transform2());
+            _ball.Attach(new Transform2(100, 100));
             
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            InputUpdate(gameTime);
 
             _world.Update(gameTime);
 
             base.Update(gameTime);
+        }
+
+        private void InputUpdate(GameTime gameTime)
+        {
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+                Exit();
+
+            float speedX = 26.0f;
+            float speedY = 26.0f;
+            if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.W))
+                _ball.Get<Transform2>().Position -= Vector2.UnitY * speedY * gameTime.GetElapsedSeconds();
+            if (GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.S))
+                _ball.Get<Transform2>().Position += Vector2.UnitY * speedY * gameTime.GetElapsedSeconds();
+            if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.A))
+                _ball.Get<Transform2>().Position -= Vector2.UnitX * speedX * gameTime.GetElapsedSeconds();
+            if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.D))
+                _ball.Get<Transform2>().Position += Vector2.UnitX * speedX * gameTime.GetElapsedSeconds();
         }
 
         protected override void Draw(GameTime gameTime)
