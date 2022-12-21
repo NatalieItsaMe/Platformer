@@ -14,8 +14,9 @@ namespace Platformer
         private SpriteBatch _spriteBatch;
         private ComponentMapper<Transform2> _transformMapper;
         private ComponentMapper<Sprite> _spriteMapper;
+        private ComponentMapper<Body> _bodyMapper;
 
-        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.All(typeof(Sprite), typeof(Transform2)))
+        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.All(typeof(Transform2)).One(typeof(Sprite), typeof(Body)))
         {
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(graphicsDevice);
@@ -26,6 +27,7 @@ namespace Platformer
         {
             _transformMapper = mapperService.GetMapper<Transform2>();
             _spriteMapper = mapperService.GetMapper<Sprite>();
+            _bodyMapper = mapperService.GetMapper<Body>();
         }
 
         public override void Draw(GameTime gameTime)
@@ -34,9 +36,22 @@ namespace Platformer
             foreach(var entity in ActiveEntities)
             {
                 var transform = _transformMapper.Get(entity);
-                var sprite = _spriteMapper.Get(entity);
 
-                sprite.Draw(_spriteBatch, transform.Position, transform.Rotation, transform.Scale);
+                if(_spriteMapper.Has(entity))
+                {
+                    var sprite = _spriteMapper.Get(entity);
+
+                    sprite.Draw(_spriteBatch, transform.Position, transform.Rotation, transform.Scale);
+                }
+                if(_bodyMapper.Has(entity))
+                {
+                    var rectangle = _bodyMapper.Get(entity).Rectangle;
+                    rectangle.Offset(transform.Position.X, transform.Position.Y);
+                    rectangle.Inflate(transform.Scale.X, transform.Scale.Y);
+
+                    _spriteBatch.DrawRectangle(rectangle, Color.Black);
+                }
+                
             }
             _spriteBatch.End();
         }
