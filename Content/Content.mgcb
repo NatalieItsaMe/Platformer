@@ -25,3 +25,10 @@
 /processorParam:TextureFormat=Color
 /build:ball.png
 
+#begin Hud.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Hud.spritefont
+

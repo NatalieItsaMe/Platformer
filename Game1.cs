@@ -4,6 +4,8 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Sprites;
+using System;
+using System.Diagnostics;
 
 namespace Platformer
 {
@@ -13,11 +15,15 @@ namespace Platformer
         private SpriteBatch _spriteBatch;
         private World _world;
 
+        private RenderSystem _renderSystem;
+
         private Entity _ball, _wall;
 
         public Game1()
         {
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferWidth = 1280;
+            _graphics.PreferredBackBufferHeight = 720;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -25,9 +31,12 @@ namespace Platformer
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            _renderSystem = new RenderSystem(GraphicsDevice);
 
             _world = new WorldBuilder()
-                .AddSystem(new RenderSystem(GraphicsDevice))
+                .AddSystem(new CollisionSystem())
+                .AddSystem(new MovementSystem())
+                .AddSystem(_renderSystem)
                 .Build();
 
             _ball = _world.CreateEntity();
@@ -40,13 +49,16 @@ namespace Platformer
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            _renderSystem.DebugFont = Content.Load<SpriteFont>("Hud");
+
             // TODO: use this.Content to load your game content here
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
             _ball.Attach(new Transform2(100, 100));
             _ball.Attach(new Body()
             {
                 Rectangle = new RectangleF(-24, -24, 48, 48),
-                Type = Body.BodyType.Kinematic
+                Type = Body.BodyType.Kinematic,
+                MaxSpeed = new Vector2(165, 165)
             });
 
             _wall.Attach(new Transform2(250, 100));
@@ -69,18 +81,45 @@ namespace Platformer
 
         private void InputUpdate(GameTime gameTime)
         {
-            float speed = 26.0f;
+            float force = 825f;
+            float friction = 0.2f;
+            Body body = _ball.Get<Body>();
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             if (GamePad.GetState(PlayerIndex.One).DPad.Up == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.W))
-                _ball.Get<Transform2>().Position -= Vector2.UnitY * speed * gameTime.GetElapsedSeconds();
+                body.Acceleration -= Vector2.UnitY * force * gameTime.GetElapsedSeconds();
             if (GamePad.GetState(PlayerIndex.One).DPad.Down == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.S))
-                _ball.Get<Transform2>().Position += Vector2.UnitY * speed * gameTime.GetElapsedSeconds();
+                body.Acceleration += Vector2.UnitY * force * gameTime.GetElapsedSeconds();
             if (GamePad.GetState(PlayerIndex.One).DPad.Left == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.A))
-                _ball.Get<Transform2>().Position -= Vector2.UnitX * speed * gameTime.GetElapsedSeconds();
+                body.Acceleration -= Vector2.UnitX * force * gameTime.GetElapsedSeconds();
             if (GamePad.GetState(PlayerIndex.One).DPad.Right == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.D))
-                _ball.Get<Transform2>().Position += Vector2.UnitX * speed * gameTime.GetElapsedSeconds();
+                body.Acceleration += Vector2.UnitX * force * gameTime.GetElapsedSeconds();
+
+            if (Keyboard.GetState().IsKeyUp(Keys.W) && body.Velocity.Y < 0)
+            {
+                if(body.Acceleration.Y < 0)
+                    body.Acceleration = body.Acceleration.SetY(0);
+                body.Velocity = body.Velocity.SetY(MathHelper.Lerp(body.Velocity.Y, 0, friction));
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.S) && body.Velocity.Y > 0)
+            {
+                if (body.Acceleration.Y > 0)
+                    body.Acceleration = body.Acceleration.SetY(0);
+                body.Velocity = body.Velocity.SetY(MathHelper.Lerp(body.Velocity.Y, 0, friction));
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.A) && body.Velocity.X < 0)
+            {
+                if (body.Acceleration.X < 0)
+                    body.Acceleration = body.Acceleration.SetX(0);
+                body.Velocity = body.Velocity.SetX(MathHelper.Lerp(body.Velocity.X, 0, friction));
+            }
+            if (Keyboard.GetState().IsKeyUp(Keys.D) && body.Velocity.X > 0)
+            {
+                if (body.Acceleration.X > 0)
+                    body.Acceleration = body.Acceleration.SetX(0);
+                body.Velocity = body.Velocity.SetX(MathHelper.Lerp(body.Velocity.X, 0, friction));
+            }
         }
 
         protected override void Draw(GameTime gameTime)

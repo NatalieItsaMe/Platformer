@@ -16,6 +16,9 @@ namespace Platformer
         private ComponentMapper<Sprite> _spriteMapper;
         private ComponentMapper<Body> _bodyMapper;
 
+        public SpriteFont DebugFont { get; internal set; }
+        private Vector2 DebugTextPosition = new Vector2(20, 0);
+
         public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.All(typeof(Transform2)).One(typeof(Sprite), typeof(Body)))
         {
             _graphicsDevice = graphicsDevice;
@@ -50,6 +53,8 @@ namespace Platformer
                     rectangle.Inflate(transform.Scale.X, transform.Scale.Y);
 
                     _spriteBatch.DrawRectangle(rectangle, Color.Black);
+
+                    //_spriteBatch.DrawString(DebugFont, entity + ": " + _bodyMapper.Get(entity).Velocity, DebugTextPosition, Color.Black);
                 }
                 
             }
