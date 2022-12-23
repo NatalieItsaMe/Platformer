@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -29,20 +30,49 @@ namespace Platformer
             for(int a = 0; a < ActiveEntities.Count - 1; a ++)
             {
                 var entityA = ActiveEntities[a];
-                var bodyA = _bodyMapper.Get(entityA);
-                RectangleF rectangleA = GetTransformedRectangle(entityA);
-
                 for (int b = a + 1; b < ActiveEntities.Count; b++)
                 {
                     var entityB = ActiveEntities[b];
-                    var bodyB = _bodyMapper.Get(entityB);
-                    RectangleF rectangleB = GetTransformedRectangle(entityB);
+                    CollisionCheck(entityA, entityB);
+                    CollisionCheck(entityB, entityA);
+                }
+            }
+        }
 
-                    if (rectangleA.Intersects(rectangleB))
-                    {
-                        var intersection = rectangleA.Intersection(rectangleB);
+        private void CollisionCheck(int a, int b)
+        {
+            Transform2 transformA = _transformMapper.Get(a);
+            Transform2 transformB = _transformMapper.Get(b);
+            Body bodyA = _bodyMapper.Get(a);
+            Body bodyB = _bodyMapper.Get(b);
+            RectangleF rectangleA = new RectangleF(bodyA.Rectangle.Position, bodyA.Rectangle.Size);
+            RectangleF rectangleB = new RectangleF(bodyB.Rectangle.Position, bodyB.Rectangle.Size);
+            rectangleA.Offset(transformA.Position);
+            rectangleB.Offset(transformB.Position);
+            rectangleA.Inflate(transformA.Scale.X, transformA.Scale.Y);
+            rectangleB.Inflate(transformB.Scale.X, transformB.Scale.Y);
 
-                    }
+            if (rectangleA.Intersects(rectangleB))
+            {
+                if (rectangleA.Right > rectangleB.Left && rectangleA.Right < rectangleB.Right && bodyA.Velocity.X > 0)
+                {
+                    bodyA.Acceleration = bodyA.Acceleration.SetX(0);
+                    bodyA.Velocity = bodyA.Velocity.SetX(rectangleB.Left - rectangleA.Right);
+                }
+                if (rectangleA.Left < rectangleB.Right && rectangleA.Left > rectangleB.Left && bodyA.Velocity.X < 0)
+                {
+                    bodyA.Acceleration = bodyA.Acceleration.SetX(0);
+                    bodyA.Velocity = bodyA.Velocity.SetX(rectangleB.Right - rectangleA.Left);
+                }
+                if (rectangleA.Bottom > rectangleB.Top && rectangleA.Bottom < rectangleB.Bottom && bodyA.Velocity.Y > 0)
+                {
+                    bodyA.Acceleration = bodyA.Acceleration.SetY(0);
+                    bodyA.Velocity = bodyA.Velocity.SetY(rectangleB.Top - rectangleA.Bottom);
+                }
+                if (rectangleA.Top < rectangleB.Bottom && rectangleA.Top > rectangleB.Top && bodyA.Velocity.Y < 0)
+                {
+                    bodyA.Acceleration = bodyA.Acceleration.SetY(0);
+                    bodyA.Velocity = bodyA.Velocity.SetY(rectangleB.Bottom - rectangleA.Top);
                 }
             }
         }
