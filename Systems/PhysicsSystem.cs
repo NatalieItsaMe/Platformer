@@ -4,67 +4,33 @@ using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using Platformer.Components;
 using System.Collections.Generic;
+using Box2DSharp.Dynamics;
 
 namespace Platformer
 {
     internal class PhysicsSystem : EntityUpdateSystem
     {
-        public Vector2 RIGHT = new Vector2(1, 0);
-        public Vector2 UP = new Vector2(1, 0);
-        public Vector2 Gravity = new Vector2(0, -2);
-        public Vector2 TerminalVelocity = new Vector2(12.4f, 12.4f);
+        public System.Numerics.Vector2 Gravity = new System.Numerics.Vector2(0, -2);
 
-        internal const float minGroundNormalY = 0.2f;
-        internal const float shellRadius = 1 / 32f;
-        protected const float minMoveDistance = 1 / 512f;
+        private Box2DSharp.Dynamics.World Box2DWorld;
 
-        protected RaycastHit[] hitBuffer = new RaycastHit[8];
-        protected List<RaycastHit> hitList = new List<RaycastHit>(8);
-
-        private ComponentMapper<Transform2> _transforms;
-        private ComponentMapper<Physics> _physics;
-
-        public PhysicsSystem() : base(Aspect.All(typeof(Physics), typeof(Transform2)))
+        public PhysicsSystem() : base(Aspect.All(typeof(Body)))
         {
+            Box2DWorld = new Box2DSharp.Dynamics.World(Gravity);
         }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
-            _transforms = mapperService.GetMapper<Transform2>();
-            _physics = mapperService.GetMapper<Physics>();
         }
 
         public override void Update(GameTime gameTime)
         {
-            foreach(var entity in ActiveEntities)
-            {
-                _physics.Get(entity).grounded = false;
-                UpdateVelocity(gameTime.GetElapsedSeconds(), entity);
-                UpdatePosition(gameTime.GetElapsedSeconds(), entity);
-            }
+            Box2DWorld.Step(gameTime.GetElapsedSeconds(), 1, 1);
         }
 
-        private void UpdateVelocity(float seconds, int entity)
+        public Body CreateBody(BodyDef bodyDef)
         {
-            var velocity = _physics.Get(entity).Velocity;
-            var acceleration = _physics.Get(entity).Acceleration;
-
-            velocity += acceleration * seconds;
-            velocity += Gravity * seconds;
-
-            if (velocity.Y > TerminalVelocity.Y)
-                velocity.SetY(TerminalVelocity.Y);
-            if (velocity.X > TerminalVelocity.X)
-                velocity.SetX(TerminalVelocity.X);
-
-            _physics.Get(entity).Velocity = velocity;
-        }
-
-        private void UpdatePosition(float seconds, int entity)
-        {
-            var velocity = _physics.Get(entity).Velocity;
-
-            _transforms.Get(entity).Position += velocity * seconds;
+            return Box2DWorld.CreateBody(bodyDef);
         }
     }
 }

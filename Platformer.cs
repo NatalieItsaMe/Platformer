@@ -1,4 +1,6 @@
-﻿using Microsoft.Xna.Framework;
+﻿using Box2DSharp.Collision.Shapes;
+using Box2DSharp.Dynamics;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
@@ -27,13 +29,26 @@ namespace Platformer
         {
             // TODO: Add your initialization logic here
 
+            PhysicsSystem physicsSystem = new PhysicsSystem();
             _world = new WorldBuilder()
                 .AddSystem(new RenderSystem(GraphicsDevice))
                 .AddSystem(new PlayerInputSystem(this))
-                .AddSystem(new PhysicsSystem())
+                .AddSystem(physicsSystem)
                 .Build();
 
             _ball = _world.CreateEntity();
+
+            BodyDef bodyDef = new BodyDef()
+            {
+                Position = new System.Numerics.Vector2(10, 10)
+            };
+            Body body = physicsSystem.CreateBody(bodyDef);
+            _ball.Attach(body);
+            CircleShape circle = new CircleShape()
+            {
+                Radius = 10
+            };
+            body.CreateFixture(new FixtureDef(circle));
 
             base.Initialize();
         }
@@ -44,8 +59,6 @@ namespace Platformer
 
             // TODO: use this.Content to load your game content here
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
-            _ball.Attach(new Transform2());
-            _ball.Attach(new Physics());
             _ball.Attach(new KeyboardMapping());
             
         }
