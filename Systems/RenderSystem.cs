@@ -38,7 +38,7 @@ namespace Platformer.Systems
 
         public override void Draw(GameTime gameTime)
         {
-            _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix());
+            _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
             foreach (var entity in ActiveEntities)
             {
                 var transform = _transformMapper.Get(entity);
