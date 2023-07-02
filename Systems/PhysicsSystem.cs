@@ -8,9 +8,9 @@ namespace Platformer
 {
     internal class PhysicsSystem : EntityUpdateSystem
     {
-        public System.Numerics.Vector2 Gravity = new System.Numerics.Vector2(0, 9.8f);
+        public System.Numerics.Vector2 Gravity = new System.Numerics.Vector2(0, 16f);
 
-        private Box2DSharp.Dynamics.World Box2DWorld;
+        private readonly Box2DSharp.Dynamics.World Box2DWorld;
 
         public PhysicsSystem() : base(Aspect.All(typeof(Body)))
         {
@@ -24,7 +24,6 @@ namespace Platformer
         public override void Update(GameTime gameTime)
         {
             Box2DWorld.Step(gameTime.GetElapsedSeconds(), 6, 2);
-                    
         }
 
         public Body CreateBody(BodyDef bodyDef)

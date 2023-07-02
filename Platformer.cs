@@ -53,13 +53,14 @@ namespace Platformer
             Body body = physicsSystem.CreateBody(bodyDef);
             CircleShape shape = new CircleShape()
             {
-                Radius = 2f
+                Radius = 2f                
             };
             FixtureDef fixture = new FixtureDef()
             {
                 Shape = shape,
-                Density = 1.0f,
-                Friction = 0.3f
+                Density = 2.0f,
+                Friction = 72.0f,
+                Restitution = 0.20f
             };
             body.CreateFixture(fixture);
 
@@ -76,7 +77,7 @@ namespace Platformer
             };
             Body body = physicsSystem.CreateBody(bodyDef);
             PolygonShape shape = new PolygonShape();
-            shape.SetAsBox(16, 2);
+            shape.SetAsBox(32, 2);
             body.CreateFixture(shape, 0.0f);
 
             _ground.Attach(body);
@@ -89,7 +90,7 @@ namespace Platformer
             _ball.Attach(new KeyboardMapping());
 
             _ground.Attach(new Sprite(Content.Load<Texture2D>("ground")));
-            _ground.Attach(new Transform2(0, 0, scaleX: 0.25f, scaleY: 0.25f));
+            _ground.Attach(new Transform2(0, 0, scaleX: 0.5f, scaleY: 0.25f));
             
         }
 

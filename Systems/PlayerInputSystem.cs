@@ -5,11 +5,15 @@ using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using Platformer.Components;
+using System;
 
 namespace Platformer
 {
     internal class PlayerInputSystem : EntityUpdateSystem
     {
+        private const float HorizontalMovementForce = 180.0f;
+        private const float MaxHorizontalSpeed = 16f;
+        private const float JumpForce = -800.0f;
         private Game _game;
         private ComponentMapper<KeyboardMapping> _keyboardMappings;
         private ComponentMapper<Body> _bodies;
@@ -43,13 +47,25 @@ namespace Platformer
                         _game.Exit();
 
                     if (state.IsKeyDown(mapping.Up))
-                        body.ApplyForceToCenter(new(0, -8), true);
-                    if (state.IsKeyDown(mapping.Down))
-                        body.ApplyForceToCenter(new(0, 8), true);
+                        body.ApplyForceToCenter(new(0, JumpForce), true);
                     if (state.IsKeyDown(mapping.Right))
-                        body.ApplyForceToCenter(new(8,0), true);
+                        body.ApplyForceToCenter(new(HorizontalMovementForce,0), true);
                     if (state.IsKeyDown(mapping.Left))
-                        body.ApplyForceToCenter(new(-8,0), true);
+                        body.ApplyForceToCenter(new(-HorizontalMovementForce,0), true);
+
+                    if(Math.Abs(body.LinearVelocity.X) > MaxHorizontalSpeed)
+                    {
+                        body.SetLinearVelocity(new (Math.Sign(body.LinearVelocity.X) * MaxHorizontalSpeed, body.LinearVelocity.Y));
+                    }
+
+                    if((body.LinearVelocity.X > 0 && state.IsKeyUp(mapping.Right)) || (body.LinearVelocity.X < 0) && state.IsKeyUp(mapping.Left))
+                    {
+                        body.AngularDamping = float.MaxValue;
+                    }
+                    else
+                    {
+                        body.AngularDamping = 0;
+                    }
                 }
             }
         }
