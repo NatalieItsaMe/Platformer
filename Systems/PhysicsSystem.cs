@@ -8,7 +8,7 @@ namespace Platformer
 {
     internal class PhysicsSystem : EntityUpdateSystem
     {
-        public System.Numerics.Vector2 Gravity = new System.Numerics.Vector2(0, 2);
+        public System.Numerics.Vector2 Gravity = new System.Numerics.Vector2(0, 9.8f);
 
         private Box2DSharp.Dynamics.World Box2DWorld;
 
@@ -23,7 +23,7 @@ namespace Platformer
 
         public override void Update(GameTime gameTime)
         {
-            Box2DWorld.Step(gameTime.GetElapsedSeconds(), 1, 1);
+            Box2DWorld.Step(gameTime.GetElapsedSeconds(), 6, 2);
                     
         }
 

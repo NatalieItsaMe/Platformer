@@ -7,7 +7,6 @@ using MonoGame.Extended.Entities;
 using MonoGame.Extended.Sprites;
 using Platformer.Components;
 using Platformer.Systems;
-using System;
 using World = MonoGame.Extended.Entities.World;
 
 namespace Platformer
@@ -15,7 +14,6 @@ namespace Platformer
     public class Platformer : Game
     {
         private GraphicsDeviceManager _graphics;
-        private SpriteBatch _spriteBatch;
         private World _world;
 
         private Entity _ball;
@@ -49,13 +47,13 @@ namespace Platformer
 
             BodyDef bodyDef = new BodyDef()
             {
-                Position = new System.Numerics.Vector2(100, 100),
+                Position = new(0, 0),
                 BodyType = BodyType.DynamicBody
             };
             Body body = physicsSystem.CreateBody(bodyDef);
             CircleShape shape = new CircleShape()
             {
-                Radius = 10
+                Radius = 2f
             };
             FixtureDef fixture = new FixtureDef()
             {
@@ -74,7 +72,7 @@ namespace Platformer
 
             BodyDef bodyDef = new BodyDef()
             {
-                Position = new System.Numerics.Vector2(100, 120)                
+                Position = new(0, 16)                
             };
             Body body = physicsSystem.CreateBody(bodyDef);
             PolygonShape shape = new PolygonShape();
@@ -86,14 +84,12 @@ namespace Platformer
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
-            _ball.Attach(new Transform2());
+            _ball.Attach(new Transform2(0, 0, scaleX: 0.25f, scaleY: 0.25f));
             _ball.Attach(new KeyboardMapping());
 
             _ground.Attach(new Sprite(Content.Load<Texture2D>("ground")));
-            _ground.Attach(new Transform2());
+            _ground.Attach(new Transform2(0, 0, scaleX: 0.25f, scaleY: 0.25f));
             
         }
 
