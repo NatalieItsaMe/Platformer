@@ -11,6 +11,7 @@ namespace Platformer.Systems
 {
     internal class RenderSystem : EntityDrawSystem
     {
+        private readonly Color DebugColor = Color.Black;
         private GraphicsDevice _graphicsDevice;
         private SpriteBatch _spriteBatch;
         private ComponentMapper<Transform2> _transformMapper;
@@ -38,56 +39,67 @@ namespace Platformer.Systems
             {
                 var transform = _transformMapper.Get(entity);
 
-                if(_spriteMapper.Has(entity))
-                {
-                    var sprite = _spriteMapper.Get(entity);
+                Vector2 drawPosition = transform.Position;
+                float drawRotation = transform.Rotation;
+                Vector2 drawScale = transform.Scale;
 
-                    sprite.Draw(_spriteBatch, transform.Position, transform.Rotation, transform.Scale);
-                }
                 if(_bodyMapper.Has(entity))
                 {
                     var body = _bodyMapper.Get(entity);
 
+                    drawPosition += body.GetPosition();
+                    drawRotation += body.GetAngle();
+
                     foreach(var fixture in body.FixtureList)
                     {
-                        if(fixture.ShapeType == ShapeType.Circle)
+                        switch (fixture.ShapeType)
                         {
-                            var circle = fixture.Shape as CircleShape;
-
-                            _spriteBatch.DrawCircle(circle.Position.X, circle.Position.Y, circle.Radius, 1, Color.Cyan);
+                            case ShapeType.Circle:
+                                DrawCircle(fixture.Shape as CircleShape);
+                                break;
+                            case ShapeType.Polygon:
+                                DrawPolygon(fixture.Shape as PolygonShape);
+                                break;
+                            case ShapeType.Edge:
+                                DrawEdge(fixture.Shape as EdgeShape);
+                                break;
                         }
-
-                        if(fixture.ShapeType == ShapeType.Polygon)
-                        {
-                            var polygon = fixture.Shape as PolygonShape;
-
-                            for(int i=0; i < polygon.Count; i++)
-                            {
-                                int j = (i + 1) % polygon.Count;
-
-                                var vertexI = polygon.Vertices[i];
-                                var vertexJ = polygon.Vertices[j];
-
-                                _spriteBatch.DrawLine(vertexI, vertexJ, Color.Cyan);
-                            }
-
-                        }
-
-                        if(fixture.ShapeType == ShapeType.Edge)
-                        {
-                            var edge = fixture.Shape as EdgeShape;
-
-                            _spriteBatch.DrawLine(edge.Vertex0, edge.Vertex1, Color.Cyan);
-                            _spriteBatch.DrawLine(edge.Vertex1, edge.Vertex2, Color.Cyan);
-                            _spriteBatch.DrawLine(edge.Vertex2, edge.Vertex3, Color.Cyan);
-                            _spriteBatch.DrawLine(edge.Vertex3, edge.Vertex0, Color.Cyan);
-                        }
-
                     }
+                }
+                if(_spriteMapper.Has(entity))
+                {
+                    var sprite = _spriteMapper.Get(entity);
 
+                    sprite.Draw(_spriteBatch, drawPosition, drawRotation, drawScale);
                 }
             }
             _spriteBatch.End();
+        }
+
+        private void DrawCircle(CircleShape circle)
+        {
+            _spriteBatch.DrawCircle(circle.Position.X, circle.Position.Y, circle.Radius, 1, DebugColor);
+        }
+
+        private void DrawPolygon(PolygonShape polygon)
+        {
+            for (int i = 0; i < polygon.Count; i++)
+            {
+                int j = (i + 1) % polygon.Count;
+
+                var vertexI = polygon.Vertices[i];
+                var vertexJ = polygon.Vertices[j];
+
+                _spriteBatch.DrawLine(vertexI, vertexJ, DebugColor);
+            }
+        }
+
+        private void DrawEdge(EdgeShape edge)
+        {
+            _spriteBatch.DrawLine(edge.Vertex0, edge.Vertex1, DebugColor);
+            _spriteBatch.DrawLine(edge.Vertex1, edge.Vertex2, DebugColor);
+            _spriteBatch.DrawLine(edge.Vertex2, edge.Vertex3, DebugColor);
+            _spriteBatch.DrawLine(edge.Vertex3, edge.Vertex0, DebugColor);
         }
     }
 }
