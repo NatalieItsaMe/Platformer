@@ -14,8 +14,8 @@ namespace Platformer
     public class Platformer : Game
     {
         private GraphicsDeviceManager _graphics;
+        internal RenderSystem _renderSystem;
         private World _world;
-
         private Entity _ball;
         private Entity _ground;
 
@@ -29,8 +29,9 @@ namespace Platformer
         protected override void Initialize()
         {
             PhysicsSystem physicsSystem = new PhysicsSystem();
+            _renderSystem = new RenderSystem(GraphicsDevice);
             _world = new WorldBuilder()
-                .AddSystem(new RenderSystem(GraphicsDevice))
+                .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
                 .AddSystem(physicsSystem)
                 .Build();
@@ -85,6 +86,8 @@ namespace Platformer
 
         protected override void LoadContent()
         {
+            _renderSystem.DebugFont = Content.Load<SpriteFont>("debug");
+
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
             _ball.Attach(new Transform2(0, 0, scaleX: 0.25f, scaleY: 0.25f));
             _ball.Attach(new KeyboardMapping());

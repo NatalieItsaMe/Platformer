@@ -6,11 +6,14 @@ using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using MonoGame.Extended.Sprites;
+using System.Collections.Generic;
 
 namespace Platformer.Systems
 {
     internal class RenderSystem : EntityDrawSystem
     {
+        public SpriteFont DebugFont { get; set; }
+
         private readonly float DebugThickness = 0.1f;
         private readonly Color DebugColor = Color.Black;
         private readonly OrthographicCamera _camera;
@@ -19,8 +22,10 @@ namespace Platformer.Systems
         private ComponentMapper<Transform2> _transformMapper;
         private ComponentMapper<Sprite> _spriteMapper;
         private ComponentMapper<Body> _bodyMapper;
+        
+        public List<(string,Color)> Messages = new();
 
-        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.All(typeof(Transform2)).One(typeof(Sprite), typeof(Body)))
+        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body)))
         {
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(_graphicsDevice);
@@ -41,27 +46,34 @@ namespace Platformer.Systems
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
             foreach (var entity in ActiveEntities)
             {
-                var transform = _transformMapper.Get(entity);
+                Vector2 drawPosition = new();
+                float drawRotation = 0.0f;
+                Vector2 drawScale = new(1, 1);
 
-                Vector2 drawPosition = transform.Position;
-                float drawRotation = transform.Rotation;
-                Vector2 drawScale = transform.Scale;
+                if (_transformMapper.Has(entity))
+                {
+                    var transform = _transformMapper.Get(entity);
 
-                if(_bodyMapper.Has(entity))
+                    drawPosition += transform.Position;
+                    drawRotation += transform.Rotation;
+                    drawScale *= transform.Scale;
+                }
+
+                if (_bodyMapper.Has(entity))
                 {
                     var body = _bodyMapper.Get(entity);
 
                     drawPosition += body.GetPosition();
                     drawRotation += body.GetAngle();
 
-                    if(_spriteMapper.Has(entity))
+                    if (_spriteMapper.Has(entity))
                     {
                         var sprite = _spriteMapper.Get(entity);
 
                         sprite.Draw(_spriteBatch, drawPosition, drawRotation, drawScale);
                     }
-
-                    foreach(var fixture in body.FixtureList)
+#if DEBUG
+                    foreach (var fixture in body.FixtureList)
                     {
                         switch (fixture.ShapeType)
                         {
@@ -76,9 +88,25 @@ namespace Platformer.Systems
                                 break;
                         }
                     }
+#endif
                 }
             }
+#if DEBUG
+            DrawDebugMessages();
+#endif
             _spriteBatch.End();
+        }
+
+        private void DrawDebugMessages()
+        {
+            Vector2 position = _camera.BoundingRectangle.TopLeft;
+            position = _camera.ScreenToWorld(position);
+            foreach ((string message, Color color) in Messages)
+            {
+                position.Y += DebugFont.MeasureString(message).Y / _camera.Zoom;
+                _spriteBatch.DrawString(DebugFont, message, position, color, -_camera.Rotation, position, 1f / _camera.Zoom, SpriteEffects.None, 0);
+            }
+            Messages.Clear();
         }
 
         private void DrawCircle(CircleShape circle, Vector2 position)
