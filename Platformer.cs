@@ -49,7 +49,7 @@ namespace Platformer
 
             BodyDef bodyDef = new BodyDef()
             {
-                Position = new(0, 0),
+                Position = new(0, 17),
                 BodyType = BodyType.DynamicBody
             };
             Body body = physicsSystem.CreateBody(bodyDef);
@@ -62,7 +62,7 @@ namespace Platformer
                 Shape = shape,
                 Density = 0.72f,
                 Friction = 72.0f,
-                Restitution = 0.52f
+                Restitution = 0.495f
             };
             body.CreateFixture(fixture);
             body.UserData = _ball.Id;
@@ -76,7 +76,7 @@ namespace Platformer
 
             BodyDef bodyDef = new BodyDef()
             {
-                Position = new(0, 12)                
+                Position = new(0, 30)                
             };
             Body body = physicsSystem.CreateBody(bodyDef);
             PolygonShape shape = new PolygonShape();

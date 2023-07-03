@@ -10,7 +10,7 @@ namespace Platformer
 {
     internal class PhysicsSystem : EntityUpdateSystem
     {
-        public System.Numerics.Vector2 Gravity = new System.Numerics.Vector2(0, 16f);
+        public System.Numerics.Vector2 Gravity = new System.Numerics.Vector2(0, 21f);
         private ComponentMapper<GroundedComponent> _grounded;
         private readonly Box2DSharp.Dynamics.World Box2DWorld;
 

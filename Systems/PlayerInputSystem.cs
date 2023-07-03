@@ -13,9 +13,8 @@ namespace Platformer
     {
         private const float HorizontalMovementForce = 32f;
         private const float MaxHorizontalSpeed = 4f;
-        private const float JumpForce = -180;
-        private const float MaxAngularDamping = 120;
-        private const float AngularDampingFactor = 1.3f;
+        private const float JumpForce = -200;
+        private const float MaxAngularDamping = 80;
         private Platformer _game;
         private ComponentMapper<KeyboardMapping> _keyboardMappings;
         private ComponentMapper<Body> _bodies;
@@ -59,16 +58,13 @@ namespace Platformer
 
                         if((body.LinearVelocity.X > 0 && state.IsKeyUp(mapping.Right)) || (body.LinearVelocity.X < 0) && state.IsKeyUp(mapping.Left))
                         {
-                            body.AngularDamping *= AngularDampingFactor;
+                            body.AngularDamping = MaxAngularDamping;
                         }
                         else
                         {
-                            body.AngularDamping = 1;
+                            body.AngularDamping = 0;
                         }
                     }
-
-                    if(body.AngularDamping > MaxAngularDamping)
-                        body.AngularDamping = MaxAngularDamping;
 
                     if(Math.Abs(body.LinearVelocity.X) > MaxHorizontalSpeed)
                     {
