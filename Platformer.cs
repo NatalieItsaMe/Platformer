@@ -94,6 +94,7 @@ namespace Platformer
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
             _ball.Attach(new Transform2(0, 0, scaleX: 1/16f, scaleY: 1/16f));
             _ball.Attach(new KeyboardMapping());
+            _ball.Attach(new CameraTarget(offset: new(0, -1), zoom: 4));
 
             _ground.Attach(new Sprite(Content.Load<Texture2D>("ground")));
             _ground.Attach(new Transform2(0, 0, scaleX: 0.5f, scaleY: 0.25f));
