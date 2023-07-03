@@ -36,6 +36,7 @@ namespace Platformer
                 .AddSystem(physicsSystem)
                 .Build();
 
+            physicsSystem.SetContactListener(new GroundContactListener(_world));
             InitializeBall(physicsSystem);
             InitializeGround(physicsSystem);
 
@@ -64,6 +65,7 @@ namespace Platformer
                 Restitution = 0.20f
             };
             body.CreateFixture(fixture);
+            body.UserData = _ball.Id;
 
             _ball.Attach(body);
         }
@@ -80,6 +82,7 @@ namespace Platformer
             PolygonShape shape = new PolygonShape();
             shape.SetAsBox(32, 2);
             body.CreateFixture(shape, 0.0f);
+            body.UserData = _ground.Id;
 
             _ground.Attach(body);
         }

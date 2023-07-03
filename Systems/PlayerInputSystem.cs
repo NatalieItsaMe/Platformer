@@ -13,10 +13,11 @@ namespace Platformer
     {
         private const float HorizontalMovementForce = 180.0f;
         private const float MaxHorizontalSpeed = 16f;
-        private const float JumpForce = -800.0f;
+        private const float JumpForce = -12000;
         private Platformer _game;
         private ComponentMapper<KeyboardMapping> _keyboardMappings;
         private ComponentMapper<Body> _bodies;
+        private ComponentMapper<GroundedComponent> _grounded;
 
         public PlayerInputSystem() : base(Aspect.All(typeof(Body)).One(typeof(KeyboardMapping))) { }
 
@@ -29,6 +30,7 @@ namespace Platformer
         {
             _keyboardMappings = mapperService.GetMapper<KeyboardMapping>();
             _bodies = mapperService.GetMapper<Body>();
+            _grounded = mapperService.GetMapper<GroundedComponent>();
         }
 
         public override void Update(GameTime gameTime)
@@ -44,7 +46,7 @@ namespace Platformer
                     if (state.IsKeyDown(mapping.Exit))
                         _game.Exit();
 
-                    if (state.IsKeyDown(mapping.Up))
+                    if (state.IsKeyDown(mapping.Up) && _grounded.Has(entity))
                         body.ApplyForceToCenter(new(0, JumpForce), true);
                     if (state.IsKeyDown(mapping.Right))
                         body.ApplyForceToCenter(new(HorizontalMovementForce,0), true);
@@ -71,6 +73,7 @@ namespace Platformer
                 _game._renderSystem.Messages.Add(new($"AngularVelocity: {body.AngularVelocity}", Color.Black));
                 _game._renderSystem.Messages.Add(new($" LinearVelocity: {body.LinearVelocity}", Color.Black));
                 _game._renderSystem.Messages.Add(new($"        Inertia: {body.Inertia}", Color.Black));
+                _game._renderSystem.Messages.Add(new($"     IsGrounded: {_grounded.Has(entity)}", Color.Black));
 #endif
             }
         }
