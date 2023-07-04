@@ -6,6 +6,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using MonoGame.Extended.Sprites;
+using Platformer.Components;
 using System.Collections.Generic;
 
 namespace Platformer.Systems
@@ -22,7 +23,8 @@ namespace Platformer.Systems
         private ComponentMapper<Transform2> _transformMapper;
         private ComponentMapper<Sprite> _spriteMapper;
         private ComponentMapper<Body> _bodyMapper;
-        
+        private ComponentMapper<CameraTarget> _cameraTargetMapper;
+        private ComponentMapper<GroundedComponent> _groundedMapper;
         public List<(string,Color)> Messages = new();
 
         public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body)))
@@ -30,8 +32,7 @@ namespace Platformer.Systems
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(_graphicsDevice);
             _camera = new OrthographicCamera(_graphicsDevice);
-            _camera.LookAt(new(0, 0));
-            _camera.ZoomIn(8);
+            _camera.LookAt(Vector2.Zero);
         }
 
         public override void Initialize(IComponentMapperService mapperService)
@@ -39,11 +40,16 @@ namespace Platformer.Systems
             _transformMapper = mapperService.GetMapper<Transform2>();
             _spriteMapper = mapperService.GetMapper<Sprite>();
             _bodyMapper = mapperService.GetMapper<Body>();
+            _cameraTargetMapper = mapperService.GetMapper<CameraTarget>();
+            _groundedMapper = mapperService.GetMapper<GroundedComponent>();
         }
 
         public override void Draw(GameTime gameTime)
         {
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
+#if DEBUG
+            DrawGridLines();
+#endif
             foreach (var entity in ActiveEntities)
             {
                 Vector2 drawPosition = new();
@@ -73,28 +79,61 @@ namespace Platformer.Systems
                         sprite.Draw(_spriteBatch, drawPosition, drawRotation, drawScale);
                     }
 #if DEBUG
-                    foreach (var fixture in body.FixtureList)
-                    {
-                        switch (fixture.ShapeType)
-                        {
-                            case ShapeType.Circle:
-                                DrawCircle(fixture.Shape as CircleShape, body.GetPosition());
-                                break;
-                            case ShapeType.Polygon:
-                                DrawPolygon(fixture.Shape as PolygonShape, body.GetPosition());
-                                break;
-                            case ShapeType.Edge:
-                                DrawEdge(fixture.Shape as EdgeShape, body.GetPosition());
-                                break;
-                        }
-                    }
+                    DrawFixtures(body);
 #endif
+                }
+
+                if (_cameraTargetMapper.Has(entity))
+                {
+                    //follow the target horizontally always
+                    //lerp to y position when grounded
+                    CameraTarget target = _cameraTargetMapper.Get(entity);
+                    _camera.Zoom = target.zoom / drawScale.Y;
+                    Vector2 delta = (target.offset + drawPosition) - _camera.Center;
+                    _camera.Move(Vector2.UnitX * delta.X);
+                    if (_groundedMapper.Has(entity) || delta.Y > 0)
+                    {
+                        _camera.Move(Vector2.UnitY * delta.Y);
+                    }
                 }
             }
 #if DEBUG
             DrawDebugMessages();
 #endif
             _spriteBatch.End();
+        }
+        /// <summary>
+        /// Draws 1m x 1m grid
+        /// </summary>
+        private void DrawGridLines()
+        {
+            for (float x = -32; x <= 32; x++)
+            {
+                _spriteBatch.DrawLine(x, -32, x, 32, DebugColor, thickness: DebugThickness);
+            }
+            for (float y = -32; y <= 32; y++)
+            {
+                _spriteBatch.DrawLine(-32, y, 32, y, DebugColor, thickness: DebugThickness);
+            }
+        }
+
+        private void DrawFixtures(Body body)
+        {
+            foreach (var fixture in body.FixtureList)
+            {
+                switch (fixture.ShapeType)
+                {
+                    case ShapeType.Circle:
+                        DrawCircle(fixture.Shape as CircleShape, body.GetPosition());
+                        break;
+                    case ShapeType.Polygon:
+                        DrawPolygon(fixture.Shape as PolygonShape, body.GetPosition());
+                        break;
+                    case ShapeType.Edge:
+                        DrawEdge(fixture.Shape as EdgeShape, body.GetPosition());
+                        break;
+                }
+            }
         }
 
         private void DrawDebugMessages()

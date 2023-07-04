@@ -2,8 +2,9 @@
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
 using MonoGame.Extended.Entities;
+using Platformer.Components;
 
-namespace Platformer.Components
+namespace Platformer
 {
     internal class GroundContactListener : IContactListener
     {
@@ -18,7 +19,7 @@ namespace Platformer.Components
 
         public void EndContact(Contact contact) { }
 
-        public void PostSolve(Contact contact, in ContactImpulse impulse) 
+        public void PostSolve(Contact contact, in ContactImpulse impulse)
         {
             //add grounded to the entity
             Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);

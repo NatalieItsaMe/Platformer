@@ -11,9 +11,10 @@ namespace Platformer
 {
     internal class PlayerInputSystem : EntityUpdateSystem
     {
-        private const float HorizontalMovementForce = 180.0f;
-        private const float MaxHorizontalSpeed = 16f;
-        private const float JumpForce = -12000;
+        private const float HorizontalMovementForce = 32f;
+        private const float MaxHorizontalSpeed = 4f;
+        private const float JumpForce = -200;
+        private const float MaxAngularDamping = 80;
         private Platformer _game;
         private ComponentMapper<KeyboardMapping> _keyboardMappings;
         private ComponentMapper<Body> _bodies;
@@ -46,35 +47,30 @@ namespace Platformer
                     if (state.IsKeyDown(mapping.Exit))
                         _game.Exit();
 
-                    if (state.IsKeyDown(mapping.Up) && _grounded.Has(entity))
-                        body.ApplyForceToCenter(new(0, JumpForce), true);
-                    if (state.IsKeyDown(mapping.Right))
-                        body.ApplyForceToCenter(new(HorizontalMovementForce,0), true);
-                    if (state.IsKeyDown(mapping.Left))
-                        body.ApplyForceToCenter(new(-HorizontalMovementForce,0), true);
+                    if (_grounded.Has(entity))
+                    {
+                        if (state.IsKeyDown(mapping.Up))
+                            body.ApplyForceToCenter(new(0, JumpForce), true);
+                        if (state.IsKeyDown(mapping.Right))
+                            body.ApplyForceToCenter(new(HorizontalMovementForce,0), true);
+                        if (state.IsKeyDown(mapping.Left))
+                            body.ApplyForceToCenter(new(-HorizontalMovementForce,0), true);
+
+                        if((body.LinearVelocity.X > 0 && state.IsKeyUp(mapping.Right)) || (body.LinearVelocity.X < 0) && state.IsKeyUp(mapping.Left))
+                        {
+                            body.AngularDamping = MaxAngularDamping;
+                        }
+                        else
+                        {
+                            body.AngularDamping = 0;
+                        }
+                    }
 
                     if(Math.Abs(body.LinearVelocity.X) > MaxHorizontalSpeed)
                     {
                         body.SetLinearVelocity(new (Math.Sign(body.LinearVelocity.X) * MaxHorizontalSpeed, body.LinearVelocity.Y));
                     }
-
-                    if((body.LinearVelocity.X > 0 && state.IsKeyUp(mapping.Right)) || (body.LinearVelocity.X < 0) && state.IsKeyUp(mapping.Left))
-                    {
-                        body.AngularDamping = float.MaxValue;
-                    }
-                    else
-                    {
-                        body.AngularDamping = 0;
-                    }
                 }
-
-#if DEBUG
-                _game._renderSystem.Messages.Add(new($"           Body: {body}", Color.Black));
-                _game._renderSystem.Messages.Add(new($"AngularVelocity: {body.AngularVelocity}", Color.Black));
-                _game._renderSystem.Messages.Add(new($" LinearVelocity: {body.LinearVelocity}", Color.Black));
-                _game._renderSystem.Messages.Add(new($"        Inertia: {body.Inertia}", Color.Black));
-                _game._renderSystem.Messages.Add(new($"     IsGrounded: {_grounded.Has(entity)}", Color.Black));
-#endif
             }
         }
     }

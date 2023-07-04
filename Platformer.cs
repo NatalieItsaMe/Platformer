@@ -49,20 +49,20 @@ namespace Platformer
 
             BodyDef bodyDef = new BodyDef()
             {
-                Position = new(0, 0),
+                Position = new(0, 17),
                 BodyType = BodyType.DynamicBody
             };
             Body body = physicsSystem.CreateBody(bodyDef);
             CircleShape shape = new CircleShape()
             {
-                Radius = 2f                
+                Radius = 0.5f                
             };
             FixtureDef fixture = new FixtureDef()
             {
                 Shape = shape,
-                Density = 2.0f,
+                Density = 0.72f,
                 Friction = 72.0f,
-                Restitution = 0.20f
+                Restitution = 0.495f
             };
             body.CreateFixture(fixture);
             body.UserData = _ball.Id;
@@ -76,7 +76,7 @@ namespace Platformer
 
             BodyDef bodyDef = new BodyDef()
             {
-                Position = new(0, 16)                
+                Position = new(0, 30)                
             };
             Body body = physicsSystem.CreateBody(bodyDef);
             PolygonShape shape = new PolygonShape();
@@ -92,8 +92,9 @@ namespace Platformer
             _renderSystem.DebugFont = Content.Load<SpriteFont>("debug");
 
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
-            _ball.Attach(new Transform2(0, 0, scaleX: 0.25f, scaleY: 0.25f));
+            _ball.Attach(new Transform2(0, 0, scaleX: 1/16f, scaleY: 1/16f));
             _ball.Attach(new KeyboardMapping());
+            _ball.Attach(new CameraTarget(offset: new(0, -1), zoom: 4));
 
             _ground.Attach(new Sprite(Content.Load<Texture2D>("ground")));
             _ground.Attach(new Transform2(0, 0, scaleX: 0.5f, scaleY: 0.25f));
