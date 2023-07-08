@@ -25,7 +25,7 @@ namespace Platformer.Systems
         private ComponentMapper<Body> _bodyMapper;
         private ComponentMapper<CameraTarget> _cameraTargetMapper;
         private ComponentMapper<GroundedComponent> _groundedMapper;
-        public List<(string,Color)> Messages = new();
+        public List<(string, Color)> Messages = new();
 
         public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body)))
         {
@@ -162,7 +162,7 @@ namespace Platformer.Systems
                 var vertexI = polygon.Vertices[i];
                 var vertexJ = polygon.Vertices[j];
 
-                _spriteBatch.DrawLine(position + vertexI, position + vertexJ, DebugColor, thickness:DebugThickness);
+                _spriteBatch.DrawLine(position + vertexI, position + vertexJ, DebugColor, thickness: DebugThickness);
             }
         }
 

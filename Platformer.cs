@@ -15,6 +15,7 @@ namespace Platformer
     {
         private GraphicsDeviceManager _graphics;
         internal RenderSystem _renderSystem;
+        private TiledService _tiledService;
         private World _world;
         private Entity _ball;
         private Entity _ground;
@@ -23,6 +24,7 @@ namespace Platformer
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            _tiledService = new TiledService(@"Assets\_tiled\sandbox.tmx", Content);
             IsMouseVisible = true;
         }
 
@@ -55,7 +57,7 @@ namespace Platformer
             Body body = physicsSystem.CreateBody(bodyDef);
             CircleShape shape = new CircleShape()
             {
-                Radius = 0.5f                
+                Radius = 0.5f
             };
             FixtureDef fixture = new FixtureDef()
             {
@@ -76,7 +78,7 @@ namespace Platformer
 
             BodyDef bodyDef = new BodyDef()
             {
-                Position = new(0, 30)                
+                Position = new(0, 30)
             };
             Body body = physicsSystem.CreateBody(bodyDef);
             PolygonShape shape = new PolygonShape();
@@ -92,13 +94,13 @@ namespace Platformer
             _renderSystem.DebugFont = Content.Load<SpriteFont>("debug");
 
             _ball.Attach(new Sprite(Content.Load<Texture2D>("ball")));
-            _ball.Attach(new Transform2(0, 0, scaleX: 1/16f, scaleY: 1/16f));
+            _ball.Attach(new Transform2(0, 0, scaleX: 1 / 16f, scaleY: 1 / 16f));
             _ball.Attach(new KeyboardMapping());
             _ball.Attach(new CameraTarget(offset: new(0, -1), zoom: 4));
 
             _ground.Attach(new Sprite(Content.Load<Texture2D>("ground")));
             _ground.Attach(new Transform2(0, 0, scaleX: 0.5f, scaleY: 0.25f));
-            
+
         }
 
         protected override void Update(GameTime gameTime)

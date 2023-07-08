@@ -26,9 +26,9 @@ namespace Platformer
 
         public override void Update(GameTime gameTime)
         {
-            foreach(var entity in ActiveEntities)
+            foreach (var entity in ActiveEntities)
             {
-                if(_grounded.Has(entity) && Box2DWorld.BodyList.Single(body => (int)body.UserData == entity).IsAwake)
+                if (_grounded.Has(entity) && Box2DWorld.BodyList.Single(body => (int)body.UserData == entity).IsAwake)
                     _grounded.Delete(entity);
             }
 
