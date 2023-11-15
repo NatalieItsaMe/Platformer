@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
@@ -12,8 +12,20 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Assets\ground.aseprite" />
+    <None Remove="Assets\Tilemap\tiles.png" />
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\Tilemap\tiles.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\_tiled\sandbox.tmx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\_tiled\tiles.tsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -27,6 +39,8 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
     <PackageReference Include="TiledCS" Version="3.3.3" />
+    <Resource Include="Assets\Tilemap\tiles.png" />
+    <Resource Include="Assets\_tiled\sandbox.tmx" />
 	<Content Update="**/mgfxc" Visible="false" />
   </ItemGroup>
   <ItemGroup>

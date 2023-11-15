@@ -34,11 +34,11 @@ namespace Platformer
         {
             // For loading maps in XML format
             Map = new TiledMap(tiledMapPath);
-            Tilesets = Map.GetTiledTilesets(Path.GetFullPath(tiledMapPath)); // DO NOT forget the / at the end NOT forget the / at the end
+            Tilesets = Map.GetTiledTilesets(Path.GetFullPath(tiledMapPath)); // DO NOT forget the / at the end
             TilesetTextures = new Dictionary<int, Texture2D>();
             foreach (var tileset in Tilesets)
             {
-                TilesetTextures.Add(tileset.Key, Content.Load<Texture2D>(tileset.Value.Image.source));
+                TilesetTextures.Add(tileset.Key, Content.Load<Texture2D>(Path.GetFileNameWithoutExtension(tileset.Value.Image.source)));
             }
         }
 

@@ -7,6 +7,9 @@ using MonoGame.Extended.Entities;
 using MonoGame.Extended.Sprites;
 using Platformer.Components;
 using Platformer.Systems;
+using System;
+using System.IO;
+using System.Reflection;
 using World = MonoGame.Extended.Entities.World;
 
 namespace Platformer
@@ -24,12 +27,14 @@ namespace Platformer
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            _tiledService = new TiledService(@"Assets\_tiled\sandbox.tmx", Content);
             IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
+            string mapPath = Path.Combine(Directory.GetCurrentDirectory(), @"Assets\_tiled\sandbox.tmx");
+            _tiledService = new TiledService(mapPath, Content);
+
             PhysicsSystem physicsSystem = new PhysicsSystem();
             _renderSystem = new RenderSystem(GraphicsDevice);
             _world = new WorldBuilder()
