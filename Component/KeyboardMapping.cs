@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Input;
 
-namespace Platformer.Components
+namespace Platformer.Component
 {
     internal class KeyboardMapping
     {

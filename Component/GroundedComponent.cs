@@ -1,4 +1,4 @@
-﻿namespace Platformer.Components
+﻿namespace Platformer.Component
 {
     public class GroundedComponent
     {

@@ -2,13 +2,13 @@
 using Box2DSharp.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoGame.Extended;
 using MonoGame.Extended.Entities;
-using MonoGame.Extended.Sprites;
-using Platformer.Components;
+using MonoGame.Extended.Tiled;
+using MonoGame.Extended.Tiled.Renderers;
+using Platformer.Component;
 using Platformer.Systems;
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using World = MonoGame.Extended.Entities.World;
@@ -19,7 +19,6 @@ namespace Platformer
     {
         private GraphicsDeviceManager _graphics;
         internal RenderSystem _renderSystem;
-        private TiledService _tiledService;
         private PhysicsSystem _physicsSystem;
         private World _world;
 
@@ -33,9 +32,6 @@ namespace Platformer
 
         protected override void Initialize()
         {
-            string mapPath = Path.Combine(Directory.GetCurrentDirectory(), @"Assets\_tiled\sandbox.tmx");
-            _tiledService = new TiledService(mapPath, Content);
-
             _physicsSystem = new PhysicsSystem();
             _renderSystem = new RenderSystem(GraphicsDevice);
             _world = new WorldBuilder()
@@ -51,99 +47,32 @@ namespace Platformer
 
         protected override void LoadContent()
         {
-            AddObjectLayerToPhysicsSystem();
-        }
+            TiledMap tiledMap = Content.Load<TiledMap>("sandbox");
 
-        private void AddObjectLayerToPhysicsSystem()
-        {
-            var objects = _tiledService.GetObjectLayers().Where(l => l.name == "Collision").SelectMany(l => l.objects);
-
-            foreach (var obj in objects)
+            foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 var entity = _world.CreateEntity();
-
-                BodyDef bodyDef = new BodyDef()
-                {
-                    Position = new(obj.x, obj.y),
-                    Angle = obj.rotation * (float)Math.PI / 180f,
-                    BodyType = obj.type switch
-                    {
-                        "Static" => BodyType.StaticBody,
-                        "Kinematic" => BodyType.KinematicBody,
-                        _ => BodyType.DynamicBody
-                    }
-                };
-                Body body = _physicsSystem.CreateBody(bodyDef);
-
-                FixtureDef fixture = new();
-                if (obj.properties != null)
-                {
-                    if (obj.properties.Any(p => p.name.Equals("friction", StringComparison.InvariantCultureIgnoreCase)))
-                        fixture.Friction = float.Parse(obj.properties.First(p => p.name.Equals("friction", StringComparison.InvariantCultureIgnoreCase)).value);
-                    if (obj.properties.Any(p => p.name.Equals("restitution", StringComparison.InvariantCultureIgnoreCase)))
-                        fixture.Restitution = float.Parse(obj.properties.First(p => p.name.Equals("restitution", StringComparison.InvariantCultureIgnoreCase)).value);
-                    if (obj.properties.Any(p => p.name.Equals("density", StringComparison.InvariantCultureIgnoreCase)))
-                        fixture.Density = float.Parse(obj.properties.First(p => p.name.Equals("density", StringComparison.InvariantCultureIgnoreCase)).value);
-                    if (obj.properties.Any(p => p.name.Equals("filter", StringComparison.InvariantCultureIgnoreCase)))
-                        fixture.Filter = new Filter(); //TODO work out filtering later
-                    if (obj.properties.Any(p => p.name.Equals("CameraTarget", StringComparison.InvariantCultureIgnoreCase)))
-                    {
-                        entity.Attach(new CameraTarget());
-                    }
-                    if (obj.properties.Any(p => p.name.Equals("KeyboardMapping", StringComparison.InvariantCultureIgnoreCase)))
-                    {
-                        entity.Attach(new KeyboardMapping());
-                    }
-                }
-
-                if (obj.polygon != null)
-                {
-                    if (obj.polygon.points.Length % 2 != 0)
-                        throw new Exception("polygon point size invalid");
-                    else
-                    {
-                        var points = new System.Numerics.Vector2[obj.polygon.points.Length / 2];
-                        for (int p = 0; p < obj.polygon.points.Length; p += 2)
-                        {
-                            var point = new System.Numerics.Vector2(obj.polygon.points[p], obj.polygon.points[p + 1]);
-                            points.SetValue(point, p / 2);
-                        }
-
-                        if (points.Length == 2)
-                        {
-                            EdgeShape shape = new();
-                            shape.SetTwoSided(points[0], points[1]);
-
-                            fixture.Shape = shape;
-                        }
-                        else if (points.Length > 2)
-                        {
-                            PolygonShape shape = new();
-                            shape.Set(points);
-
-                            fixture.Shape = shape;
-                        }
-                    }
-                }
-                else if (obj.ellipse != null)
-                {
-                    CircleShape shape = new();
-                    shape.Position = new(obj.x, obj.y);
-                    shape.Radius = (obj.width + obj.height) / 4;
-
-                    fixture.Shape = shape;
-                }
-                else
-                {
-                    PolygonShape shape = new();
-                    shape.SetAsBox(obj.width, obj.height);
-
-                    fixture.Shape = shape;
-                }
-                body.CreateFixture(fixture);
+                var body = _physicsSystem.AddTiledMapObject(mapObject);
                 body.UserData = entity.Id;
                 entity.Attach(body);
+
+                foreach(var property in mapObject.Properties)
+                {
+                    string name = typeof(CameraTarget).Assembly.FullName;
+                    var type = Assembly.Load("Platformer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null").GetType("Platformer.Component." + property.Key, false, true);
+
+                    if (type == null) continue;
+
+                    var component = Activator.CreateInstance(type);
+
+                    entity.Attach(component);
+                }
             }
+
+            TiledMapRenderer mapRenderer = new(GraphicsDevice, tiledMap);
+            Entity map = _world.CreateEntity();
+
+            map.Attach(mapRenderer);
         }
 
         protected override void Update(GameTime gameTime)

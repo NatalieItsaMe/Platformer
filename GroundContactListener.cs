@@ -2,7 +2,7 @@
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
 using MonoGame.Extended.Entities;
-using Platformer.Components;
+using Platformer.Component;
 
 namespace Platformer
 {

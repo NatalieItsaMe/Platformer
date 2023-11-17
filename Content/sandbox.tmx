@@ -3,13 +3,13 @@
  <tileset firstgid="1" source="tiles.tsx"/>
  <group id="4" name="Background" offsetx="0" offsety="-18" parallaxx="1.4">
   <imagelayer id="3" name="Background1" repeatx="1" repeaty="1">
-   <image source="../Background/background_0009.png" width="24" height="24"/>
+   <image source="background_0009.png" width="24" height="24"/>
   </imagelayer>
-  <imagelayer id="2" name="Background" offsetx="0" offsety="499" repeatx="1">
-   <image source="../Background/background_0010.png" width="24" height="24"/>
+  <imagelayer id="2" name="Background0" offsetx="0" offsety="499" repeatx="1">
+   <image source="background_0010.png" width="24" height="24"/>
   </imagelayer>
   <imagelayer id="5" name="Background2" offsetx="0" offsety="522" repeatx="1">
-   <image source="../Background/background_0011.png" width="24" height="24"/>
+   <image source="background_0011.png" width="24" height="24"/>
   </imagelayer>
  </group>
  <layer id="1" name="Tile Layer 1" width="32" height="32">
@@ -125,7 +125,8 @@
 	<property name="friction" type="float" value="72.0"/>
 	<property name="density" type="float" value="0.72"/>
 	<property name="restitution" type="float" value="0.495"/>
-	   <property name="CameraTarget" class="CameraTarget"/>
+	   <property name="CameraTarget" class="CameraTarget" value=""/>
+	   <property name="KeyboardMapping" class="CameraTarget" value=""/>
    </properties>
    <ellipse/>
   </object>
