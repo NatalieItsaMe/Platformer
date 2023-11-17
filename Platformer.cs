@@ -51,20 +51,18 @@ namespace Platformer
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
-                var entity = _world.CreateEntity();
-                var body = _physicsSystem.AddTiledMapObject(mapObject);
+                Entity entity = _world.CreateEntity();
+                Body body = _physicsSystem.AddTiledMapObject(mapObject);
                 body.UserData = entity.Id;
                 entity.Attach(body);
 
                 foreach(var property in mapObject.Properties)
                 {
-                    string name = typeof(CameraTarget).Assembly.FullName;
                     var type = Assembly.Load("Platformer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null").GetType("Platformer.Component." + property.Key, false, true);
 
                     if (type == null) continue;
 
                     var component = Activator.CreateInstance(type);
-
                     entity.Attach(component);
                 }
             }

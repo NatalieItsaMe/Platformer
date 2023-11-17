@@ -9,6 +9,7 @@ using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Tiled.Renderers;
 using Platformer.Component;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Platformer.Systems
 {
@@ -50,10 +51,7 @@ namespace Platformer.Systems
 
         public void Update(GameTime gameTime)
         {
-            foreach (var tiledRenderer in _tiledRenderMapper.Components)
-            {
-                tiledRenderer.Update(gameTime);
-            }
+            _tiledRenderMapper.Components.Where(tr => tr != null).ToList().ForEach(tr => tr.Update(gameTime));
         }
 
         public override void Draw(GameTime gameTime)
