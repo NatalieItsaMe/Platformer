@@ -1,6 +1,4 @@
-﻿using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Dynamics;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Tiled;

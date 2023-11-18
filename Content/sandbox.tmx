@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="18" tileheight="18" infinite="0" nextlayerid="8" nextobjectid="30">
+<map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="18" tileheight="18" infinite="0" nextlayerid="8" nextobjectid="32">
  <tileset firstgid="1" source="tiles.tsx"/>
  <group id="4" name="Background" offsetx="0" offsety="-18" parallaxx="1.4">
   <imagelayer id="3" name="Background1" repeatx="1" repeaty="1">
@@ -48,6 +48,66 @@
 116,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,117,118
 </data>
  </layer>
+ <objectgroup id="7" name="Collision">
+  <object id="1" name="Mushroom" type="Body" x="126" y="468" width="54" height="18"/>
+  <object id="3" name="Tree" type="Body" x="18" y="396" width="90" height="54"/>
+  <object id="4" name="Ground" type="Body" x="0" y="522" width="576" height="54"/>
+  <object id="5" name="Ground" type="Body" x="378" y="468" width="126" height="54"/>
+  <object id="9" name="Ground" type="Body" x="234" y="414">
+   <polygon points="0,0 0,54 90,54 90,36 126,36 126,0"/>
+  </object>
+  <object id="10" name="Mushroom" type="Body" x="252" y="360" width="54" height="18"/>
+  <object id="12" type="Body" x="216" y="144" width="54" height="18"/>
+  <object id="13" type="Body" x="108" y="144" width="54" height="18"/>
+  <object id="14" type="Body" x="54" y="72" width="72" height="18"/>
+  <object id="15" name="Goalpost" type="Sensor" x="72" y="72">
+   <polygon points="0,0 0,-36 6,-36 6,0"/>
+  </object>
+  <object id="16" name="Cloud" type="Body" x="54" y="288">
+   <polygon points="0,0 54,0 54,7 0,7"/>
+  </object>
+  <object id="17" name="Cloud" type="Body" x="162" y="306">
+   <polygon points="0,0 54,0 54,7 0,7"/>
+  </object>
+  <object id="18" name="Cloud" type="Body" x="342" y="306">
+   <polygon points="0,0 54,0 54,6 0,6"/>
+  </object>
+  <object id="19" name="Cloud" type="Body" x="378" y="180">
+   <polygon points="0,0 54,0 54,7 0,7"/>
+  </object>
+  <object id="20" name="Cloud" type="Body" x="468" y="252">
+   <polygon points="0,0 54,0 54,7 0,7"/>
+  </object>
+  <object id="26" name="Crate" type="Body" gid="100" x="171" y="459" width="18" height="18" rotation="17.2627">
+   <properties>
+    <property name="BodyType" value="Dynamic"/>
+    <property name="Density" type="float" value="0.72"/>
+    <property name="Friction" type="float" value="1000"/>
+    <property name="IsSensor" type="bool" value="false"/>
+    <property name="Restitution" type="float" value="0.01"/>
+   </properties>
+  </object>
+  <object id="28" name="Player" type="Body" gid="139" x="36" y="486" width="18" height="18">
+   <properties>
+	   <property name="BodyType" value="Dynamic"/>
+    <property name="Density" type="float" value="0.72"/>
+    <property name="Friction" type="float" value="72"/>
+    <property name="IsSensor" type="bool" value="false"/>
+    <property name="Restitution" type="float" value="0.495"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="29" type="Body" x="306" y="144" width="36" height="18"/>
+  <object id="30" name="Crate" type="Body" gid="100" x="540" y="522" width="18" height="18">
+   <properties>
+    <property name="BodyType" value="Dynamic"/>
+    <property name="Density" type="float" value="0.72"/>
+    <property name="Friction" type="float" value="1000"/>
+    <property name="IsSensor" type="bool" value="false"/>
+    <property name="Restitution" type="float" value="0.01"/>
+   </properties>
+  </object>
+ </objectgroup>
  <layer id="6" name="Foreground" width="32" height="32">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -84,52 +144,4 @@
 0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
- <objectgroup id="7" name="Collision">
-  <object id="1" name="Mushroom" type="Static" x="126" y="468" width="54" height="18"/>
-  <object id="3" name="Tree" type="Static" x="18" y="396" width="90" height="54"/>
-  <object id="4" name="Ground" type="Static" x="0" y="522" width="576" height="54"/>
-  <object id="5" name="Ground" type="Static" x="378" y="468" width="126" height="54"/>
-  <object id="7" name="Crate" type="Kinematic" x="558" y="486" width="18" height="18"/>
-  <object id="9" name="Ground" type="Static" x="234" y="414">
-   <polygon points="0,0 0,54 90,54 90,36 126,36 126,0"/>
-  </object>
-  <object id="10" name="Mushroom" type="Static" x="252" y="360" width="54" height="18"/>
-  <object id="12" type="Static" x="216" y="144" width="54" height="18"/>
-  <object id="13" type="Static" x="108" y="144" width="54" height="18"/>
-  <object id="14" type="Static" x="54" y="72" width="72" height="18"/>
-  <object id="15" name="Goalpost" type="Sensor" x="72" y="72">
-   <polygon points="0,0 0,-36 6,-36 6,0"/>
-  </object>
-  <object id="16" name="Cloud" type="Static" x="54" y="288">
-   <polygon points="0,0 54,0 54,7 0,7"/>
-  </object>
-  <object id="17" name="Cloud" type="Static" x="162" y="306">
-   <polygon points="0,0 54,0 54,7 0,7"/>
-  </object>
-  <object id="18" name="Cloud" type="Static" x="342" y="306">
-   <polygon points="0,0 54,0 54,6 0,6"/>
-  </object>
-  <object id="19" name="Cloud" type="Static" x="378" y="180">
-   <polygon points="0,0 54,0 54,7 0,7"/>
-  </object>
-  <object id="20" name="Cloud" type="Static" x="468" y="252">
-   <polygon points="0,0 54,0 54,7 0,7"/>
-  </object>
-  <object id="23" gid="100" x="558" y="504" width="18" height="18"/>
-  <object id="24" gid="100" x="558" y="504" width="18" height="18"/>
-  <object id="25" gid="100" x="558" y="522" width="18" height="18"/>
-  <object id="26" gid="100" x="558" y="486" width="18" height="18"/>
-  <object id="27" gid="100" x="532" y="510" width="18" height="18" rotation="41.1738"/>
-  <object id="28" name="Player" type="Kinematic" x="36" y="468" width="18" height="18">
-   <properties>
-	<property name="friction" type="float" value="72.0"/>
-	<property name="density" type="float" value="0.72"/>
-	<property name="restitution" type="float" value="0.495"/>
-	   <property name="CameraTarget" class="CameraTarget" value=""/>
-	   <property name="KeyboardMapping" class="CameraTarget" value=""/>
-   </properties>
-   <ellipse/>
-  </object>
-  <object id="29" type="Static" x="306" y="144" width="36" height="18"/>
- </objectgroup>
 </map>
