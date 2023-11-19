@@ -12,6 +12,8 @@ using System.IO;
 using System.Text.Json;
 using System.Numerics;
 using Vector2 = System.Numerics.Vector2;
+using MonoGame.Extended;
+using System;
 
 namespace Platformer
 {
@@ -41,6 +43,12 @@ namespace Platformer
                 .Build();
 
             _physicsSystem.SetContactListener(new GroundContactListener(_world));
+#if DEBUG
+            var debug = _world.CreateEntity();
+            debug.Attach(new Transform2());
+            debug.Attach(new DebugController());
+            debug.Attach(new CameraTarget() { Zoom = 6.0f });
+#endif
 
             base.Initialize();
         }
@@ -86,10 +94,12 @@ namespace Platformer
             base.Update(gameTime);
         }
 
+        internal Vector2 GetWorldCoordinates(float x, float y) => _renderSystem.GetCamera().ScreenToWorld(x, y).ToNumerics();
+
+        internal Body[] GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
+
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-
             _world.Draw(gameTime);
 
             base.Draw(gameTime);

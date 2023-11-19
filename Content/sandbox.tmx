@@ -94,8 +94,8 @@
     <property name="Friction" type="float" value="72"/>
     <property name="IsSensor" type="bool" value="false"/>
     <property name="Restitution" type="float" value="0.495"/>
-	<property name="CameraTarget" type="class" value='{ "Offset":{"x":0.0,"y":1.0}, "Zoom":8.0}'/>
-	<property name="KeyboardMapping" type="class" value="{}"/>
+	<!--<property name="CameraTarget" type="class" value='{ "Offset":{"x":0.0,"y":1.0}, "Zoom":8.0}'/>-->
+	<!--<property name="KeyboardMapping" type="class" value="{}"/>-->
    </properties>
    <ellipse/>
   </object>

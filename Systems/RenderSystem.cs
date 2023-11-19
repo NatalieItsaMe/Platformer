@@ -9,6 +9,7 @@ using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using Platformer.Component;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -33,7 +34,7 @@ namespace Platformer.Systems
         private ComponentMapper<TiledMap> _tiledMapper;
         private ComponentMapper<TiledMapRenderer> _tiledRendererMapper;
 
-        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body), typeof(TiledMap), typeof(TiledMapRenderer)))
+        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body), typeof(TiledMap), typeof(TiledMapRenderer), typeof(CameraTarget)))
         {
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(_graphicsDevice);
@@ -59,6 +60,8 @@ namespace Platformer.Systems
 
         public override void Draw(GameTime gameTime)
         {
+            _graphicsDevice.Clear(Color.CornflowerBlue);
+
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
 #if DEBUG
             DrawGridLines();
@@ -85,11 +88,12 @@ namespace Platformer.Systems
                     CameraTarget target = _cameraTargetMapper.Get(entity);
                     _camera.Zoom = target.Zoom / drawScale.Y;
                     Vector2 delta = (target.Offset + drawPosition) - _camera.Center;
-                    _camera.Move(Vector2.UnitX * delta.X);
-                    if (_groundedMapper.Has(entity) || delta.Y > 0)
-                    {
-                        _camera.Move(Vector2.UnitY * delta.Y);
-                    }
+                    _camera.Move(delta);
+                    //_camera.Move(Vector2.UnitX * delta.X);
+                    //if (_groundedMapper.Has(entity) || delta.Y > 0)
+                    //{
+                    //    _camera.Move(Vector2.UnitY * delta.Y);
+                    //}
                 }
 
                 if (_tiledMapper.Has(entity) && _tiledRendererMapper.Has(entity))
@@ -125,6 +129,10 @@ namespace Platformer.Systems
 #endif
             _spriteBatch.End();
         }
+
+        internal OrthographicCamera GetCamera() =>
+            _camera;
+
         /// <summary>
         /// Draws 1m x 1m grid
         /// </summary>

@@ -9,6 +9,7 @@ using Box2DSharp.Collision.Shapes;
 using System;
 using System.Linq;
 using Vector2 = System.Numerics.Vector2;
+using System.Collections.Generic;
 
 namespace Platformer
 {
@@ -36,7 +37,8 @@ namespace Platformer
             //        _grounded.Delete(entity);
             //}
 
-            Box2DWorld.Step(gameTime.ElapsedGameTime.Seconds, 6, 2);
+            Box2DWorld.Step(gameTime.GetElapsedSeconds(), 6, 2);
+            Box2DWorld.ClearForces();
         }
 
         public Body AddTiledMapObject(TiledMapObject obj, Vector2 scale)
@@ -135,5 +137,25 @@ namespace Platformer
         public Body CreateBody(BodyDef bodyDef) => Box2DWorld.CreateBody(bodyDef);
 
         public void SetContactListener(IContactListener listener) => Box2DWorld.SetContactListener(listener);
+
+        internal Body[] GetBodiesAt(float x, float y)
+        {
+            Vector2 point = new(x, y);
+            Box2DSharp.Collision.AABB aabb = new Box2DSharp.Collision.AABB(point, point);
+            PointCallback callback = new PointCallback();
+            Box2DWorld.QueryAABB(callback, aabb);
+            return callback.hits.ToArray();
+        }
+
+        private class PointCallback : IQueryCallback
+        {
+            internal List<Body> hits = new();
+
+            public bool QueryCallback(Fixture fixture)
+            {
+                hits.Add(fixture.Body);
+                return true;
+            }
+        }
     }
 }
