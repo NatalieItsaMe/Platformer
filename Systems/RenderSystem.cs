@@ -6,28 +6,35 @@ using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using MonoGame.Extended.Sprites;
-using Platformer.Components;
+using MonoGame.Extended.Tiled;
+using MonoGame.Extended.Tiled.Renderers;
+using Platformer.Component;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Platformer.Systems
 {
-    internal class RenderSystem : EntityDrawSystem
+    internal class RenderSystem : EntityDrawSystem, IUpdateSystem
     {
         public SpriteFont DebugFont { get; set; }
+        public List<(string, Color)> Messages { get; set; } = new();
 
         private readonly float DebugThickness = 0.1f;
         private readonly Color DebugColor = Color.Black;
         private readonly OrthographicCamera _camera;
         private GraphicsDevice _graphicsDevice;
         private SpriteBatch _spriteBatch;
+        private TiledMap _tiledMap;
+        private TiledMapRenderer _tiledRenderer;
+
         private ComponentMapper<Transform2> _transformMapper;
         private ComponentMapper<Sprite> _spriteMapper;
         private ComponentMapper<Body> _bodyMapper;
         private ComponentMapper<CameraTarget> _cameraTargetMapper;
         private ComponentMapper<GroundedComponent> _groundedMapper;
-        public List<(string,Color)> Messages = new();
 
-        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body)))
+        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body), typeof(CameraTarget)))
         {
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(_graphicsDevice);
@@ -44,11 +51,28 @@ namespace Platformer.Systems
             _groundedMapper = mapperService.GetMapper<GroundedComponent>();
         }
 
+        internal void SetTiledMap(TiledMap tiledMap)
+        {
+            _tiledMap = tiledMap;
+            _tiledRenderer = new TiledMapRenderer(_graphicsDevice, tiledMap);
+        }
+
+        public void Update(GameTime gameTime)
+        {
+            _tiledRenderer.Update(gameTime);
+        }
+
         public override void Draw(GameTime gameTime)
         {
+            _graphicsDevice.Clear(Color.CornflowerBlue);
+
+            var scale = _tiledMap.GetScale();
+            Matrix scaleMatrix = Matrix.CreateScale(scale.X, scale.Y, 1f);
+            _tiledRenderer.Draw(scaleMatrix * _camera.GetViewMatrix());
+
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
 #if DEBUG
-            DrawGridLines();
+            //DrawGridLines();
 #endif
             foreach (var entity in ActiveEntities)
             {
@@ -76,7 +100,7 @@ namespace Platformer.Systems
                     {
                         var sprite = _spriteMapper.Get(entity);
 
-                        sprite.Draw(_spriteBatch, drawPosition, drawRotation, drawScale);
+                        sprite.Draw(_spriteBatch, drawPosition, drawRotation, scale);
                     }
 #if DEBUG
                     DrawFixtures(body);
@@ -88,8 +112,9 @@ namespace Platformer.Systems
                     //follow the target horizontally always
                     //lerp to y position when grounded
                     CameraTarget target = _cameraTargetMapper.Get(entity);
-                    _camera.Zoom = target.zoom / drawScale.Y;
-                    Vector2 delta = (target.offset + drawPosition) - _camera.Center;
+                    _camera.Zoom = target.Zoom / drawScale.Y;
+                    Vector2 delta = (target.Offset + drawPosition) - _camera.Center;
+
                     _camera.Move(Vector2.UnitX * delta.X);
                     if (_groundedMapper.Has(entity) || delta.Y > 0)
                     {
@@ -102,18 +127,24 @@ namespace Platformer.Systems
 #endif
             _spriteBatch.End();
         }
+
+        internal OrthographicCamera GetCamera() =>
+            _camera;
+
         /// <summary>
         /// Draws 1m x 1m grid
         /// </summary>
         private void DrawGridLines()
         {
-            for (float x = -32; x <= 32; x++)
+            Color color = Color.White;
+            float thickness = 0.05f;
+            for (float x = 0; x <= 32; x++)
             {
-                _spriteBatch.DrawLine(x, -32, x, 32, DebugColor, thickness: DebugThickness);
+                _spriteBatch.DrawLine(x, 0, x, 32, color, thickness: thickness);
             }
-            for (float y = -32; y <= 32; y++)
+            for (float y = 0; y <= 32; y++)
             {
-                _spriteBatch.DrawLine(-32, y, 32, y, DebugColor, thickness: DebugThickness);
+                _spriteBatch.DrawLine(0, y, 32, y, color, thickness: thickness);
             }
         }
 
@@ -127,7 +158,7 @@ namespace Platformer.Systems
                         DrawCircle(fixture.Shape as CircleShape, body.GetPosition());
                         break;
                     case ShapeType.Polygon:
-                        DrawPolygon(fixture.Shape as PolygonShape, body.GetPosition());
+                        DrawPolygon(fixture.Shape as PolygonShape, body.GetPosition(), fixture.Body.GetAngle());
                         break;
                     case ShapeType.Edge:
                         DrawEdge(fixture.Shape as EdgeShape, body.GetPosition());
@@ -153,16 +184,17 @@ namespace Platformer.Systems
             _spriteBatch.DrawCircle(position + circle.Position, circle.Radius, 24, DebugColor, thickness: DebugThickness);
         }
 
-        private void DrawPolygon(PolygonShape polygon, Vector2 position)
+        private void DrawPolygon(PolygonShape polygon, Vector2 position, float rotation)
         {
+            var points = polygon.Vertices.Select(v => new Vector2(v.X * MathF.Cos(rotation) - v.Y * MathF.Sin(rotation), v.X * MathF.Sin(rotation) + v.Y * MathF.Cos(rotation)) + position).ToArray();
             for (int i = 0; i < polygon.Count; i++)
             {
                 int j = (i + 1) % polygon.Count;
 
-                var vertexI = polygon.Vertices[i];
-                var vertexJ = polygon.Vertices[j];
+                var vertexI = points[i];
+                var vertexJ = points[j];
 
-                _spriteBatch.DrawLine(position + vertexI, position + vertexJ, DebugColor, thickness:DebugThickness);
+                _spriteBatch.DrawLine(vertexI, vertexJ, DebugColor, thickness: DebugThickness);
             }
         }
 
