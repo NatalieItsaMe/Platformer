@@ -73,13 +73,11 @@ namespace Platformer
                 cameraTarget.Zoom *= 1.1f;
 
             Vector2 worldMouse = _game.GetWorldCoordinates(mouse.X, mouse.Y);
-            System.Diagnostics.Debug.WriteLine($"mouse: ({worldMouse.X}, {worldMouse.Y})");
-
             var bodiesUnderMouse = _game.GetBodiesAt(worldMouse.X, worldMouse.Y);
 
             foreach(var body in bodiesUnderMouse)
             {
-                System.Diagnostics.Debug.WriteLine($"body: {body.UserData}");
+                System.Diagnostics.Debug.WriteLine($"-----------body: {body.UserData}");
             }
 
             if(mouse.LeftButton == ButtonState.Pressed)
@@ -92,11 +90,14 @@ namespace Platformer
                     System.Diagnostics.Debug.WriteLine($"           Mass: {body.Mass}");
                     System.Diagnostics.Debug.WriteLine($" LinearVelocity: {body.LinearVelocity}");
                     System.Diagnostics.Debug.WriteLine($"AngularVelocity: {body.AngularVelocity}");
-                    System.Diagnostics.Debug.WriteLine($"       Fixtures: {body.FixtureList.Count}");
+                    System.Diagnostics.Debug.WriteLine($"-------Fixtures: {body.FixtureList.Count}");
 
                     foreach(var fixture in body.FixtureList)
                     {
-                        System.Diagnostics.Debug.WriteLine($"       Fixture: {fixture.ShapeType}");
+                        System.Diagnostics.Debug.WriteLine($"        Fixture: {fixture.ShapeType}");
+                        System.Diagnostics.Debug.WriteLine($"        Density: {fixture.Density}");
+                        System.Diagnostics.Debug.WriteLine($"       Friction: {fixture.Friction}");
+                        System.Diagnostics.Debug.WriteLine($"    Restitution: {fixture.Restitution}");
                     }
                 }
             }

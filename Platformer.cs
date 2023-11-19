@@ -1,19 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Tiled;
-using MonoGame.Extended.Tiled.Renderers;
 using Box2DSharp.Dynamics;
 using Platformer.Systems;
 using Platformer.Component;
 using System.Linq;
-using World = MonoGame.Extended.Entities.World;
-using System.IO;
 using System.Text.Json;
-using System.Numerics;
-using Vector2 = System.Numerics.Vector2;
 using MonoGame.Extended;
-using System;
+using Vector2 = System.Numerics.Vector2;
+using World = MonoGame.Extended.Entities.World;
+using MonoGame.Extended.Sprites;
 
 namespace Platformer
 {
@@ -47,7 +43,7 @@ namespace Platformer
             var debug = _world.CreateEntity();
             debug.Attach(new Transform2());
             debug.Attach(new DebugController());
-            debug.Attach(new CameraTarget() { Zoom = 6.0f });
+            //debug.Attach(new CameraTarget() { Zoom = 6.0f });
 #endif
 
             base.Initialize();
@@ -60,12 +56,15 @@ namespace Platformer
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 Entity entity = _world.CreateEntity();
-                Body body = _physicsSystem.AddTiledMapObject(mapObject, tiledMap.GetScale());
+                Body body = _physicsSystem.CreateBodyFromTiledObject(mapObject, tiledMap.GetScale());
                 body.UserData = entity.Id;
                 entity.Attach(body);
                 if(mapObject is TiledMapTileObject tileObject)
                 {
-                    //TODO add sprite
+                    int col = tileObject.Tile.LocalTileIdentifier % tileObject.Tileset.Columns;
+                    int row = tileObject.Tile.LocalTileIdentifier / tileObject.Tileset.Columns;
+                    var region = tileObject.Tileset.GetRegion(col, row);
+                    entity.Attach(new Sprite(region));
                 }
 
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
@@ -80,11 +79,7 @@ namespace Platformer
                 }
             }
 
-            Entity map = _world.CreateEntity();
-            TiledMapRenderer mapRenderer = new(GraphicsDevice, tiledMap);
-
-            map.Attach(tiledMap);
-            map.Attach(mapRenderer);
+            _renderSystem.SetTiledMap(tiledMap);
         }
 
         protected override void Update(GameTime gameTime)

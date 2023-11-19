@@ -60,7 +60,10 @@
   <object id="12" type="Body" x="216" y="144" width="54" height="18"/>
   <object id="13" type="Body" x="108" y="144" width="54" height="18"/>
   <object id="14" type="Body" x="54" y="72" width="72" height="18"/>
-  <object id="15" name="Goalpost" type="Sensor" x="72" y="72">
+  <object id="15" name="Goalpost" type="Body" x="72" y="72">
+	  <properties>
+		  <property name="IsSensor" type="bool" value="true"/>
+	  </properties>
    <polygon points="0,0 0,-36 6,-36 6,0"/>
   </object>
   <object id="16" name="Cloud" type="Body" x="54" y="288">
@@ -94,8 +97,8 @@
     <property name="Friction" type="float" value="72"/>
     <property name="IsSensor" type="bool" value="false"/>
     <property name="Restitution" type="float" value="0.495"/>
-	<!--<property name="CameraTarget" type="class" value='{ "Offset":{"x":0.0,"y":1.0}, "Zoom":8.0}'/>-->
-	<!--<property name="KeyboardMapping" type="class" value="{}"/>-->
+	<property name="CameraTarget" type="class" value='{ "Offset":{"x":0.0,"y":1.0}, "Zoom":18.0}'/>
+	<property name="KeyboardMapping" type="class" value="{}"/>
    </properties>
    <ellipse/>
   </object>

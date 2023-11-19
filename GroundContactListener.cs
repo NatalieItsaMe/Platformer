@@ -21,12 +21,15 @@ namespace Platformer
 
         public void PostSolve(Contact contact, in ContactImpulse impulse)
         {
-            //add grounded to the entity
             Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);
             Entity entityB = _world.GetEntity((int)contact.FixtureB.Body.UserData);
-
-            entityA.Attach(new GroundedComponent());
-            entityB.Attach(new GroundedComponent());
+            if (contact.Manifold.LocalNormal.Y != 0)
+            {
+                if(contact.FixtureA.Body.BodyType == BodyType.KinematicBody || contact.FixtureA.Body.BodyType == BodyType.DynamicBody)
+                    entityA.Attach(new GroundedComponent());
+                if(contact.FixtureB.Body.BodyType == BodyType.KinematicBody || contact.FixtureB.Body.BodyType == BodyType.DynamicBody)
+                    entityB.Attach(new GroundedComponent());
+            }
         }
 
         public void PreSolve(Contact contact, in Manifold oldManifold) { }

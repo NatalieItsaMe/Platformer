@@ -421,7 +421,7 @@
  </tile>
  <tile id="138">
   <objectgroup draworder="index" id="5">
-   <object id="4" x="0" y="0" width="18" height="18">
+   <object id="4" x="0" y="0" width="12" height="12">
     <ellipse/>
    </object>
   </objectgroup>
