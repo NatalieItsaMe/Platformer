@@ -22,7 +22,7 @@ namespace Platformer
 
         public PlayerInputSystem() : base(Aspect.All(typeof(Body)).One(typeof(KeyboardMapping))) { }
 
-        public PlayerInputSystem(Platformer game) : base(Aspect.All(typeof(Transform2), typeof(Body)).One(typeof(KeyboardMapping)))
+        public PlayerInputSystem(Platformer game) : base(Aspect.All(typeof(Body), typeof(KeyboardMapping)))
         {
             _game = game;
         }

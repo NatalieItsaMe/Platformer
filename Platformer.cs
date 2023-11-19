@@ -3,13 +3,15 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
-using Platformer.Component;
+using Box2DSharp.Dynamics;
 using Platformer.Systems;
-using System;
-using System.Collections.Generic;
+using Platformer.Component;
 using System.Linq;
-using System.Reflection;
 using World = MonoGame.Extended.Entities.World;
+using System.IO;
+using System.Text.Json;
+using System.Numerics;
+using Vector2 = System.Numerics.Vector2;
 
 namespace Platformer
 {
@@ -50,24 +52,30 @@ namespace Platformer
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 Entity entity = _world.CreateEntity();
-                Body body = _physicsSystem.AddTiledMapObject(mapObject);
+                Body body = _physicsSystem.AddTiledMapObject(mapObject, tiledMap.GetScale());
                 body.UserData = entity.Id;
                 entity.Attach(body);
-
-                foreach(var property in mapObject.Properties)
+                if(mapObject is TiledMapTileObject tileObject)
                 {
-                    var type = Assembly.Load("Platformer, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null").GetType("Platformer.Component." + property.Key, false, true);
+                    //TODO add sprite
+                }
 
-                    if (type == null) continue;
-
-                    var component = Activator.CreateInstance(type);
-                    entity.Attach(component);
+                if (mapObject.Properties.ContainsKey("CameraTarget"))
+                {
+                    var cameraTarget = JsonSerializer.Deserialize<CameraTarget>(mapObject.Properties["CameraTarget"]);
+                    entity.Attach(cameraTarget);
+                }
+                if (mapObject.Properties.ContainsKey("KeyboardMapping"))
+                {
+                    var keyboardMapping = JsonSerializer.Deserialize<KeyboardMapping>(mapObject.Properties["KeyboardMapping"]);
+                    entity.Attach(keyboardMapping);
                 }
             }
 
-            TiledMapRenderer mapRenderer = new(GraphicsDevice, tiledMap);
             Entity map = _world.CreateEntity();
+            TiledMapRenderer mapRenderer = new(GraphicsDevice, tiledMap);
 
+            map.Attach(tiledMap);
             map.Attach(mapRenderer);
         }
 

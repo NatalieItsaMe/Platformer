@@ -419,6 +419,13 @@
    <object id="1" x="0" y="0" width="18" height="18"/>
   </objectgroup>
  </tile>
+ <tile id="138">
+  <objectgroup draworder="index" id="5">
+   <object id="4" x="0" y="0" width="18" height="18">
+    <ellipse/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="139" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="10"/>

@@ -6,6 +6,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using MonoGame.Extended.Sprites;
+using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using Platformer.Component;
 using System.Collections.Generic;
@@ -29,9 +30,10 @@ namespace Platformer.Systems
         private ComponentMapper<Body> _bodyMapper;
         private ComponentMapper<CameraTarget> _cameraTargetMapper;
         private ComponentMapper<GroundedComponent> _groundedMapper;
-        private ComponentMapper<TiledMapRenderer> _tiledRenderMapper;
+        private ComponentMapper<TiledMap> _tiledMapper;
+        private ComponentMapper<TiledMapRenderer> _tiledRendererMapper;
 
-        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body), typeof(TiledMapRenderer)))
+        public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body), typeof(TiledMap), typeof(TiledMapRenderer)))
         {
             _graphicsDevice = graphicsDevice;
             _spriteBatch = new SpriteBatch(_graphicsDevice);
@@ -46,12 +48,13 @@ namespace Platformer.Systems
             _bodyMapper = mapperService.GetMapper<Body>();
             _cameraTargetMapper = mapperService.GetMapper<CameraTarget>();
             _groundedMapper = mapperService.GetMapper<GroundedComponent>();
-            _tiledRenderMapper = mapperService.GetMapper<TiledMapRenderer>();
+            _tiledMapper = mapperService.GetMapper<TiledMap>();
+            _tiledRendererMapper = mapperService.GetMapper<TiledMapRenderer>();
         }
 
         public void Update(GameTime gameTime)
         {
-            _tiledRenderMapper.Components.Where(tr => tr != null).ToList().ForEach(tr => tr.Update(gameTime));
+            _tiledRendererMapper.Components.Where(tr => tr != null).ToList().ForEach(tr => tr.Update(gameTime));
         }
 
         public override void Draw(GameTime gameTime)
@@ -75,6 +78,30 @@ namespace Platformer.Systems
                     drawScale *= transform.Scale;
                 }
 
+                if (_cameraTargetMapper.Has(entity))
+                {
+                    //follow the target horizontally always
+                    //lerp to y position when grounded
+                    CameraTarget target = _cameraTargetMapper.Get(entity);
+                    _camera.Zoom = target.Zoom / drawScale.Y;
+                    Vector2 delta = (target.Offset + drawPosition) - _camera.Center;
+                    _camera.Move(Vector2.UnitX * delta.X);
+                    if (_groundedMapper.Has(entity) || delta.Y > 0)
+                    {
+                        _camera.Move(Vector2.UnitY * delta.Y);
+                    }
+                }
+
+                if (_tiledMapper.Has(entity) && _tiledRendererMapper.Has(entity))
+                {
+                    var tiled = _tiledMapper.Get(entity);
+                    var tiledRenderer = _tiledRendererMapper.Get(entity);
+
+                    var scale = tiled.GetScale();
+                    Matrix scaleMatrix = Matrix.CreateScale(scale.X, scale.Y, 1f);
+                    tiledRenderer.Draw(scaleMatrix * _camera.GetViewMatrix());
+                }
+
                 if (_bodyMapper.Has(entity))
                 {
                     var body = _bodyMapper.Get(entity);
@@ -92,25 +119,6 @@ namespace Platformer.Systems
                     DrawFixtures(body);
 #endif
                 }
-
-                if (_cameraTargetMapper.Has(entity))
-                {
-                    //follow the target horizontally always
-                    //lerp to y position when grounded
-                    CameraTarget target = _cameraTargetMapper.Get(entity);
-                    _camera.Zoom = target.Zoom / drawScale.Y;
-                    Vector2 delta = (target.Offset + drawPosition) - _camera.Center;
-                    _camera.Move(Vector2.UnitX * delta.X);
-                    if (_groundedMapper.Has(entity) || delta.Y > 0)
-                    {
-                        _camera.Move(Vector2.UnitY * delta.Y);
-                    }
-                }
-
-                if (_tiledRenderMapper.Has(entity))
-                {
-                    _tiledRenderMapper.Get(entity).Draw(_camera.GetViewMatrix());
-                }
             }
 #if DEBUG
             DrawDebugMessages();
@@ -122,13 +130,15 @@ namespace Platformer.Systems
         /// </summary>
         private void DrawGridLines()
         {
-            for (float x = -32; x <= 32; x++)
+            Color color = Color.White;
+            float thickness = 0.05f;
+            for (float x = 0; x <= 32; x++)
             {
-                _spriteBatch.DrawLine(x, -32, x, 32, DebugColor, thickness: DebugThickness);
+                _spriteBatch.DrawLine(x, 0, x, 32, color, thickness: thickness);
             }
-            for (float y = -32; y <= 32; y++)
+            for (float y = 0; y <= 32; y++)
             {
-                _spriteBatch.DrawLine(-32, y, 32, y, DebugColor, thickness: DebugThickness);
+                _spriteBatch.DrawLine(0, y, 32, y, color, thickness: thickness);
             }
         }
 
