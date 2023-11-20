@@ -86,19 +86,20 @@ namespace Platformer
         {
             if (obj is TiledMapPolygonObject polygon)
             {
-                if (polygon.Points.Length == 2)
-                {
-                    EdgeShape shape = new();
-                    shape.SetTwoSided(polygon.Points[0].ToNumerics() * scale, polygon.Points[1].ToNumerics() * scale);
+                PolygonShape shape = new();
+                shape.Set(polygon.Points.Select(p => p.ToNumerics() * scale).ToArray());
+                return shape;
+            }
+            else if (obj is TiledMapPolylineObject polyline)
+            {
+                EdgeShape shape = new();
+                Vector2 start = polyline.Points[0].ToNumerics() * scale;
+                Vector2 end = polyline.Points[1].ToNumerics() * scale;
+                Vector2 normal_start = (start + end) / 2f;
+                Vector2 normal_end = - Vector2.UnitY * scale + normal_start;
+                shape.SetOneSided(normal_start, start, end, normal_end);
 
-                    return shape;
-                }
-                else if (polygon.Points.Length > 2)
-                {
-                    PolygonShape shape = new();
-                    shape.Set(polygon.Points.Select(p => p.ToNumerics() * scale).ToArray());
-                    return shape;
-                }
+                return shape;
             }
             else if (obj is TiledMapEllipseObject ellipse)
             {
@@ -111,9 +112,8 @@ namespace Platformer
             }
 
             PolygonShape box = new();
-            var hx = obj.Size.Width * scale.X / 2f;
-            var hy = obj.Size.Height * scale.Y / 2f;
-            box.SetAsBox(hx, hy, new(), 0);
+            Vector2 h = obj.Size.ToNumerics() * scale / 2f;
+            box.SetAsBox(h.X, h.Y, new(), 0);
 
             return box;
         }

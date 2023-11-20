@@ -144,6 +144,12 @@
    <object id="1" x="0" y="0" width="18" height="18"/>
   </objectgroup>
  </tile>
+ <tile id="32">
+  <animation>
+   <frame tileid="32" duration="555"/>
+   <frame tileid="51" duration="690"/>
+  </animation>
+ </tile>
  <tile id="33" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="18"/>
@@ -344,6 +350,25 @@
    <object id="1" x="0" y="0" width="18" height="18"/>
   </objectgroup>
  </tile>
+ <tile id="103">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="4" width="18" height="14"/>
+  </objectgroup>
+ </tile>
+ <tile id="106">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="18" height="18"/>
+  </objectgroup>
+  <animation>
+   <frame tileid="106" duration="420"/>
+   <frame tileid="107" duration="300"/>
+  </animation>
+ </tile>
+ <tile id="107">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="18" height="18"/>
+  </objectgroup>
+ </tile>
  <tile id="108" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="1" y="0" width="17" height="17"/>
@@ -377,6 +402,11 @@
  <tile id="117" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="18"/>
+  </objectgroup>
+ </tile>
+ <tile id="125">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="6" height="18"/>
   </objectgroup>
  </tile>
  <tile id="126" type="Solid">
@@ -419,6 +449,13 @@
    <object id="1" x="0" y="0" width="18" height="18"/>
   </objectgroup>
  </tile>
+ <tile id="138">
+  <objectgroup draworder="index" id="4">
+   <object id="3" x="3" y="5" width="12" height="12">
+    <ellipse/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="139" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="10"/>
@@ -427,6 +464,24 @@
  <tile id="140" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="10"/>
+  </objectgroup>
+ </tile>
+ <tile id="144">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="3" y="3" width="12" height="12">
+    <ellipse/>
+   </object>
+  </objectgroup>
+  <animation>
+   <frame tileid="144" duration="307"/>
+   <frame tileid="145" duration="226"/>
+  </animation>
+ </tile>
+ <tile id="145">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="3" y="3" width="12" height="12">
+    <ellipse/>
+   </object>
   </objectgroup>
  </tile>
  <tile id="146" type="Solid"/>

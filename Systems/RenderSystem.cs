@@ -200,10 +200,8 @@ namespace Platformer.Systems
 
         private void DrawEdge(EdgeShape edge, Vector2 position)
         {
-            _spriteBatch.DrawLine(position + edge.Vertex0, position + edge.Vertex1, DebugColor, thickness: DebugThickness);
             _spriteBatch.DrawLine(position + edge.Vertex1, position + edge.Vertex2, DebugColor, thickness: DebugThickness);
-            _spriteBatch.DrawLine(position + edge.Vertex2, position + edge.Vertex3, DebugColor, thickness: DebugThickness);
-            _spriteBatch.DrawLine(position + edge.Vertex3, position + edge.Vertex0, DebugColor, thickness: DebugThickness);
+            _spriteBatch.DrawLine(position + edge.Vertex0, position + edge.Vertex3, DebugColor, thickness: DebugThickness);
         }
     }
 }

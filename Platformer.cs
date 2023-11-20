@@ -51,7 +51,7 @@ namespace Platformer
 
         protected override void LoadContent()
         {
-            TiledMap tiledMap = Content.Load<TiledMap>("sandbox");
+            TiledMap tiledMap = Content.Load<TiledMap>("snowyTree");
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
