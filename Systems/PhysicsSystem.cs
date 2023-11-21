@@ -31,11 +31,8 @@ namespace Platformer
 
         public override void Update(GameTime gameTime)
         {
-            foreach (var entity in ActiveEntities)
-            {
-                if (_grounded.Has(entity) && Box2DWorld.BodyList.Single(body => (int)body.UserData == entity).IsAwake)
-                    _grounded.Delete(entity);
-            }
+            ActiveEntities.Where(e => _grounded.Has(e) && Box2DWorld.BodyList.Where(b => (int)b.UserData == e).All(b => b.IsAwake))
+                .ToList().ForEach(e => _grounded.Delete(e));
 
             Box2DWorld.Step(gameTime.GetElapsedSeconds(), 6, 2);
             Box2DWorld.ClearForces();
@@ -43,9 +40,8 @@ namespace Platformer
 
         public Body CreateBodyFromTiledObject(TiledMapObject obj, Vector2 scale)
         {
-            string bodyType = obj.Properties.ContainsKey("BodyType")
-                ? obj.Properties["BodyType"]
-                : string.Empty;
+            string bodyType;
+            obj.Properties.TryGetValue("BodyType", out bodyType);
             BodyDef bodyDef = new()
             {
                 Position = (obj.Position.ToNumerics() + obj.Size.ToNumerics() / 2) * scale,
@@ -56,10 +52,12 @@ namespace Platformer
                             "Dynamic" => BodyType.DynamicBody,
                             _ => BodyType.StaticBody
                         }
-            };
+            }; 
+            if (obj.Properties.ContainsKey("AngularDamping"))
+                bodyDef.AngularDamping = float.Parse(obj.Properties["AngularDamping"]);
             Body body = Box2DWorld.CreateBody(bodyDef);
 
-            if(obj is TiledMapTileObject tileObject)
+            if(obj is TiledMapTileObject tileObject && tileObject.Tile != null)
             {
                 foreach(var innerObject in tileObject.Tile.Objects)
                 {
@@ -86,6 +84,7 @@ namespace Platformer
         {
             if (obj is TiledMapPolygonObject polygon)
             {
+                //Concave polygons are not supported
                 PolygonShape shape = new();
                 shape.Set(polygon.Points.Select(p => p.ToNumerics() * scale).ToArray());
                 return shape;

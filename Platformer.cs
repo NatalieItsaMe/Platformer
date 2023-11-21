@@ -15,7 +15,7 @@ namespace Platformer
 {
     public class Platformer : Game
     {
-        private GraphicsDeviceManager _graphics;
+        private readonly GraphicsDeviceManager _graphics;
         internal RenderSystem _renderSystem;
         private PhysicsSystem _physicsSystem;
         private World _world;
@@ -31,7 +31,7 @@ namespace Platformer
         protected override void Initialize()
         {
             _physicsSystem = new PhysicsSystem();
-            _renderSystem = new RenderSystem(GraphicsDevice);
+            _renderSystem = new RenderSystem(_graphics.GraphicsDevice);
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
@@ -51,7 +51,7 @@ namespace Platformer
 
         protected override void LoadContent()
         {
-            TiledMap tiledMap = Content.Load<TiledMap>("snowyTree");
+            TiledMap tiledMap = Content.Load<TiledMap>("sandbox");
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
@@ -65,8 +65,13 @@ namespace Platformer
                     int row = tileObject.Tile.LocalTileIdentifier / tileObject.Tileset.Columns;
                     var region = tileObject.Tileset.GetRegion(col, row);
                     entity.Attach(new Sprite(region));
+                    entity.Attach(new Transform2());
                 }
 
+                if (mapObject.Properties.ContainsKey("RotationLock"))
+                {
+                    entity.Attach(new RotationLock());
+                }
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
                 {
                     var cameraTarget = JsonSerializer.Deserialize<CameraTarget>(mapObject.Properties["CameraTarget"]);
@@ -74,7 +79,7 @@ namespace Platformer
                 }
                 if (mapObject.Properties.ContainsKey("KeyboardMapping"))
                 {
-                    var keyboardMapping = JsonSerializer.Deserialize<KeyboardMapping>(mapObject.Properties["KeyboardMapping"]);
+                    var keyboardMapping = JsonSerializer.Deserialize<KeyboardController>(mapObject.Properties["KeyboardMapping"]);
                     entity.Attach(keyboardMapping);
                 }
             }

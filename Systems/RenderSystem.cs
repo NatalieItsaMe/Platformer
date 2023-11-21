@@ -1,4 +1,5 @@
-﻿using Box2DSharp.Collision.Shapes;
+﻿using Assimp;
+using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -32,7 +33,8 @@ namespace Platformer.Systems
         private ComponentMapper<Sprite> _spriteMapper;
         private ComponentMapper<Body> _bodyMapper;
         private ComponentMapper<CameraTarget> _cameraTargetMapper;
-        private ComponentMapper<GroundedComponent> _groundedMapper;
+        private ComponentMapper<GroundedComponent> _grounded;
+        private ComponentMapper<RotationLock> _rotationLock;
 
         public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body), typeof(CameraTarget)))
         {
@@ -48,7 +50,8 @@ namespace Platformer.Systems
             _spriteMapper = mapperService.GetMapper<Sprite>();
             _bodyMapper = mapperService.GetMapper<Body>();
             _cameraTargetMapper = mapperService.GetMapper<CameraTarget>();
-            _groundedMapper = mapperService.GetMapper<GroundedComponent>();
+            _grounded = mapperService.GetMapper<GroundedComponent>();
+            _rotationLock = mapperService.GetMapper<RotationLock>();
         }
 
         internal void SetTiledMap(TiledMap tiledMap)
@@ -100,7 +103,7 @@ namespace Platformer.Systems
                     {
                         var sprite = _spriteMapper.Get(entity);
 
-                        sprite.Draw(_spriteBatch, drawPosition, drawRotation, scale);
+                        sprite.Draw(_spriteBatch, drawPosition, _rotationLock.Has(entity) ? 0 : drawRotation, scale);
                     }
 #if DEBUG
                     DrawFixtures(body);
@@ -114,9 +117,10 @@ namespace Platformer.Systems
                     CameraTarget target = _cameraTargetMapper.Get(entity);
                     _camera.Zoom = target.Zoom / drawScale.Y;
                     Vector2 delta = (target.Offset + drawPosition) - _camera.Center;
+                    delta *= 0.1f;
 
                     _camera.Move(Vector2.UnitX * delta.X);
-                    if (_groundedMapper.Has(entity) || delta.Y > 0)
+                    if (_grounded.Has(entity) || delta.Y > 0)
                     {
                         _camera.Move(Vector2.UnitY * delta.Y);
                     }

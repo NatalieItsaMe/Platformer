@@ -1,14 +1,17 @@
 ﻿using Box2DSharp.Collision.Collider;
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
+using Microsoft.Xna.Framework;
 using MonoGame.Extended.Entities;
 using Platformer.Component;
+using System.Drawing;
 
 namespace Platformer
 {
     internal class GroundContactListener : IContactListener
     {
         private readonly MonoGame.Extended.Entities.World _world;
+        private WorldManifold worldManifold;
 
         public GroundContactListener(MonoGame.Extended.Entities.World world)
         {
@@ -19,19 +22,20 @@ namespace Platformer
 
         public void EndContact(Contact contact) { }
 
-        public void PostSolve(Contact contact, in ContactImpulse impulse)
+        public void PreSolve(Contact contact, in Manifold oldManifold)
         {
+            contact.GetWorldManifold(out worldManifold);
             Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);
             Entity entityB = _world.GetEntity((int)contact.FixtureB.Body.UserData);
-            if (contact.Manifold.LocalNormal.Y != 0)
-            {
-                if(contact.FixtureA.Body.BodyType == BodyType.KinematicBody || contact.FixtureA.Body.BodyType == BodyType.DynamicBody)
-                    entityA.Attach(new GroundedComponent());
-                if(contact.FixtureB.Body.BodyType == BodyType.KinematicBody || contact.FixtureB.Body.BodyType == BodyType.DynamicBody)
-                    entityB.Attach(new GroundedComponent());
-            }
+
+            if (IsFixtureGrounded(contact.FixtureA))
+                entityA.Attach(new GroundedComponent());
+            if (IsFixtureGrounded(contact.FixtureB))
+                entityB.Attach(new GroundedComponent());
         }
 
-        public void PreSolve(Contact contact, in Manifold oldManifold) { }
+        public void PostSolve(Contact contact, in ContactImpulse impulse) { }
+
+        private bool IsFixtureGrounded(Fixture fixture) => fixture.Body.GetWorldCenter().Y < worldManifold.Points.Value0.Y;
     }
 }
