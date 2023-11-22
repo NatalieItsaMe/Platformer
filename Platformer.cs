@@ -1,18 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
-using MonoGame.Extended.Entities;
-using MonoGame.Extended.Tiled;
 using Box2DSharp.Dynamics;
 using Platformer.Systems;
 using Platformer.Component;
 using System.Linq;
 using System.Text.Json;
 using MonoGame.Extended;
+using MonoGame.Extended.Tiled;
+using MonoGame.Extended.Sprites;
+using MonoGame.Extended.Entities;
 using Vector2 = System.Numerics.Vector2;
 using World = MonoGame.Extended.Entities.World;
-using MonoGame.Extended.Sprites;
-using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Dynamics.Joints;
-using SharpFont.Cache;
 
 namespace Platformer
 {

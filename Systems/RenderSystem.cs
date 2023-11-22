@@ -61,6 +61,48 @@ namespace Platformer.Systems
         public void Update(GameTime gameTime)
         {
             _tiledRenderer.Update(gameTime);
+
+            ClampCameraWithinBounds();
+        }
+
+        private void ClampCameraWithinBounds()
+        {
+            if(_camera.BoundingRectangle.Width > _tiledMap.Width)
+            {
+                var delta = _tiledMap.Width / 2 - _camera.Center.X;
+                _camera.Move(Vector2.UnitX * delta);
+            }
+            else
+            {
+                if(_camera.BoundingRectangle.Left < 0)
+                {
+                    var delta = 0 - _camera.BoundingRectangle.Left;
+                    _camera.Move(Vector2.UnitX * delta);
+                }
+                if(_camera.BoundingRectangle.Right > _tiledMap.Width)
+                {
+                    var delta = _tiledMap.Width - _camera.BoundingRectangle.Right;
+                    _camera.Move(Vector2.UnitX * delta);
+                }
+            }
+            if (_camera.BoundingRectangle.Height > _tiledMap.Height)
+            {
+                var delta = _tiledMap.Height / 2 - _camera.Center.Y;
+                _camera.Move(Vector2.UnitY * delta);
+            }
+            else
+            {
+                if (_camera.BoundingRectangle.Top < 0)
+                {
+                    var delta = 0 - _camera.BoundingRectangle.Top;
+                    _camera.Move(Vector2.UnitY * delta);
+                }
+                if (_camera.BoundingRectangle.Bottom > _tiledMap.Height)
+                {
+                    var delta = _tiledMap.Height - _camera.BoundingRectangle.Bottom;
+                    _camera.Move(Vector2.UnitY * delta);
+                }
+            }
         }
 
         public override void Draw(GameTime gameTime)
