@@ -1,15 +1,14 @@
 ﻿using Box2DSharp.Collision.Collider;
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
-using Microsoft.Xna.Framework;
 using MonoGame.Extended.Entities;
 using Platformer.Component;
-using System.Drawing;
 
 namespace Platformer
 {
     internal class GroundContactListener : IContactListener
     {
+        private const float GroundNormal = 0.5f;
         private readonly MonoGame.Extended.Entities.World _world;
         private WorldManifold worldManifold;
 
@@ -18,24 +17,56 @@ namespace Platformer
             _world = world;
         }
 
-        public void BeginContact(Contact contact) { }
-
-        public void EndContact(Contact contact) { }
-
-        public void PreSolve(Contact contact, in Manifold oldManifold)
+        public void BeginContact(Contact contact)
         {
             contact.GetWorldManifold(out worldManifold);
-            Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);
-            Entity entityB = _world.GetEntity((int)contact.FixtureB.Body.UserData);
+            if((int)contact.FixtureA.Body.UserData == 17 || (int)contact.FixtureB.Body.UserData == 17)
+            {
+                System.Diagnostics.Debug.WriteLine($"----------begin------------");
+                System.Diagnostics.Debug.WriteLine($"  local normal: {contact.Manifold.LocalNormal}");
+                System.Diagnostics.Debug.WriteLine($"  world normal: {worldManifold.Normal}");
+            }
 
-            if (IsFixtureGrounded(contact.FixtureA))
-                entityA.Attach(new GroundedComponent());
-            if (IsFixtureGrounded(contact.FixtureB))
-                entityB.Attach(new GroundedComponent());
+            //fixure A is the start, -normal points towards A
+            if (worldManifold.Normal.Y > GroundNormal)
+            {
+                Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);
+                entityA.Attach(new GroundedComponent(contact));
+            }
+            //fixure B is the end, normal points towards B
+            if (-worldManifold.Normal.Y > GroundNormal)
+            {
+                Entity entityB = _world.GetEntity((int)contact.FixtureB.Body.UserData);
+                entityB.Attach(new GroundedComponent(contact));
+            }
         }
 
-        public void PostSolve(Contact contact, in ContactImpulse impulse) { }
+        public void EndContact(Contact contact)
+        {
+            if ((int)contact.FixtureA.Body.UserData == 17 || (int)contact.FixtureB.Body.UserData == 17)
+            {
+                System.Diagnostics.Debug.WriteLine($"------------end------------");
+                System.Diagnostics.Debug.WriteLine($"  local normal: {contact.Manifold.LocalNormal}");
+            }
+                Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);
+                Entity entityB = _world.GetEntity((int)contact.FixtureB.Body.UserData);
 
-        private bool IsFixtureGrounded(Fixture fixture) => fixture.Body.GetWorldCenter().Y < worldManifold.Points.Value0.Y;
+            //fixure A is the start, -normal points towards A
+            if (entityA.Has<GroundedComponent>() && entityA.Get<GroundedComponent>().Contact == contact)
+            {
+                entityA.Detach<GroundedComponent>();
+                System.Diagnostics.Debug.WriteLine($" ungrounded:{entityA.Id})");
+            }
+            //fixure B is the end, normal points towards B
+            if (entityB.Has<GroundedComponent>() && entityB.Get<GroundedComponent>().Contact == contact)
+            {
+                entityB.Detach<GroundedComponent>();
+                System.Diagnostics.Debug.WriteLine($" ungrounded:{entityB.Id})");
+            }
+        }
+
+        public void PreSolve(Contact contact, in Manifold oldManifold) { }
+
+        public void PostSolve(Contact contact, in ContactImpulse impulse) { }
     }
 }

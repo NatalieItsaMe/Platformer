@@ -34,7 +34,6 @@ namespace Platformer.Systems
         private ComponentMapper<Body> _bodyMapper;
         private ComponentMapper<CameraTarget> _cameraTargetMapper;
         private ComponentMapper<GroundedComponent> _grounded;
-        private ComponentMapper<RotationLock> _rotationLock;
 
         public RenderSystem(GraphicsDevice graphicsDevice) : base(Aspect.One(typeof(Sprite), typeof(Body), typeof(CameraTarget)))
         {
@@ -51,7 +50,6 @@ namespace Platformer.Systems
             _bodyMapper = mapperService.GetMapper<Body>();
             _cameraTargetMapper = mapperService.GetMapper<CameraTarget>();
             _grounded = mapperService.GetMapper<GroundedComponent>();
-            _rotationLock = mapperService.GetMapper<RotationLock>();
         }
 
         internal void SetTiledMap(TiledMap tiledMap)
@@ -103,7 +101,7 @@ namespace Platformer.Systems
                     {
                         var sprite = _spriteMapper.Get(entity);
 
-                        sprite.Draw(_spriteBatch, drawPosition, _rotationLock.Has(entity) ? 0 : drawRotation, scale);
+                        sprite.Draw(_spriteBatch, drawPosition, drawRotation, scale);
                     }
 #if DEBUG
                     DrawFixtures(body);

@@ -10,6 +10,9 @@ using MonoGame.Extended;
 using Vector2 = System.Numerics.Vector2;
 using World = MonoGame.Extended.Entities.World;
 using MonoGame.Extended.Sprites;
+using Box2DSharp.Collision.Shapes;
+using Box2DSharp.Dynamics.Joints;
+using SharpFont.Cache;
 
 namespace Platformer
 {
@@ -51,7 +54,7 @@ namespace Platformer
 
         protected override void LoadContent()
         {
-            TiledMap tiledMap = Content.Load<TiledMap>("sandbox");
+            TiledMap tiledMap = Content.Load<TiledMap>("snowyTree");
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
@@ -67,15 +70,13 @@ namespace Platformer
                     entity.Attach(new Sprite(region));
                     entity.Attach(new Transform2());
                 }
-
-                if (mapObject.Properties.ContainsKey("RotationLock"))
-                {
-                    entity.Attach(new RotationLock());
-                }
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
                 {
                     var cameraTarget = JsonSerializer.Deserialize<CameraTarget>(mapObject.Properties["CameraTarget"]);
                     entity.Attach(cameraTarget);
+                    _renderSystem.GetCamera().Zoom = cameraTarget.Zoom / tiledMap.GetScale().Y;
+                    Vector2 delta = cameraTarget.Offset + body.GetPosition() - _renderSystem.GetCamera().Center.ToNumerics();
+                    _renderSystem.GetCamera().Move(delta);
                 }
                 if (mapObject.Properties.ContainsKey("KeyboardMapping"))
                 {

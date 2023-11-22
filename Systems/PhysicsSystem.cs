@@ -10,6 +10,7 @@ using System;
 using System.Linq;
 using Vector2 = System.Numerics.Vector2;
 using System.Collections.Generic;
+using Box2DSharp.Dynamics.Joints;
 
 namespace Platformer
 {
@@ -31,9 +32,13 @@ namespace Platformer
 
         public override void Update(GameTime gameTime)
         {
-            ActiveEntities.Where(e => _grounded.Has(e) && Box2DWorld.BodyList.Where(b => (int)b.UserData == e).All(b => b.IsAwake))
-                .ToList().ForEach(e => _grounded.Delete(e));
-
+            //foreach(var body in Box2DWorld.BodyList.Where(b => _grounded.Has((int)b.UserData)))
+            //{
+            //    RayCastCallback callback = new();
+            //    Box2DWorld.RayCast(callback, body.GetWorldCenter(), body.GetWorldPoint(new(0, 1)));
+            //    if (callback.fraction <= 1)
+            //        System.Diagnostics.Debug.WriteLine($"{callback.fraction}_grounded.Delete({(int)body.UserData})");
+            //}
             Box2DWorld.Step(gameTime.GetElapsedSeconds(), 6, 2);
             Box2DWorld.ClearForces();
         }
@@ -55,6 +60,11 @@ namespace Platformer
             }; 
             if (obj.Properties.ContainsKey("AngularDamping"))
                 bodyDef.AngularDamping = float.Parse(obj.Properties["AngularDamping"]);
+            if (obj.Properties.ContainsKey("FixedRotation"))
+                bodyDef.FixedRotation = bool.Parse(obj.Properties["FixedRotation"]);
+            if (obj.Properties.ContainsKey("Bullet"))
+                bodyDef.Bullet = bool.Parse(obj.Properties["Bullet"]);
+
             Body body = Box2DWorld.CreateBody(bodyDef);
 
             if(obj is TiledMapTileObject tileObject && tileObject.Tile != null)
@@ -142,6 +152,8 @@ namespace Platformer
             return callback.hits.ToArray();
         }
 
+        internal Joint CreateJoint(JointDef jointDef) => Box2DWorld.CreateJoint(jointDef);
+
         private class PointCallback : IQueryCallback
         {
             internal List<Body> hits = new();
@@ -150,6 +162,24 @@ namespace Platformer
             {
                 hits.Add(fixture.Body);
                 return true;
+            }
+        }
+
+        private class RayCastCallback : IRayCastCallback
+        {
+            internal Fixture fixture;
+            internal Vector2 point;
+            internal Vector2 normal;
+            internal float fraction;
+
+            float IRayCastCallback.RayCastCallback(Fixture fixture, in Vector2 point, in Vector2 normal, float fraction)
+            {
+                this.fixture = fixture;
+                this.point = point;
+                this.normal = normal;
+                this.fraction = fraction;
+
+                return fraction;
             }
         }
     }

@@ -12,8 +12,8 @@ namespace Platformer
 {
     internal class PlayerInputSystem : EntityUpdateSystem
     {
-        private const float HorizontalMovementForce = 32f;
-        private const float MaxHorizontalSpeed = 4f;
+        private const float HorizontalMovementForce = 36f;
+        private const float MaxHorizontalSpeed = 4.2f;
         private const float JumpForce = -360f;
         private const ushort MaxJumpTimeout = 4;
 
@@ -74,6 +74,7 @@ namespace Platformer
                     JumpTimeout--;
                 if (state.IsKeyDown(mapping.Jump) && JumpTimeout == 0)
                 {
+                    _grounded.Delete(entity);
                     body.ApplyForceToCenter(new(0, JumpForce), true);
                     JumpTimeout = MaxJumpTimeout;
                 }

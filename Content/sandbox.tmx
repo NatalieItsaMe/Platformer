@@ -89,16 +89,17 @@
     <property name="IsSensor" type="bool" value="false"/>
    </properties>
   </object>
-    <object id="28" name="Player" type="Body" gid="139" x="36" y="486" width="18" height="18">
+    <object id="28" name="Player" type="Body" gid="139" x="36" y="480" width="18" height="18">
 	    <properties>
 			<property name="AngularDamping" value ="80"/>
 		    <property name="BodyType" value="Dynamic"/>
 		    <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:1.0}, &quot;Zoom&quot;:66.67}"/>
 		    <property name="Density" type="float" value="0.72"/>
+		    <!--<property name="FixedRotation" type="bool" value="true"/>-->
 		    <property name="Friction" type="float" value="500"/>
-		    <property name="IsSensor" type="bool" value="false"/>
+		    <property name="Restitution" type="float" value="0.16"/>
+		    <!--<property name="IsSensor" type="bool" value="false"/>-->
 		    <property name="KeyboardMapping" value="{}"/>
-			<property name="RotationLock" value=""/>
 	    </properties>
     </object>
   <object id="29" type="Body" x="306" y="144" width="36" height="18"/>
