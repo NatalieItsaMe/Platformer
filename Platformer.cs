@@ -24,6 +24,8 @@ namespace Platformer
         {
             Window.AllowUserResizing = true;
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferWidth = 1080;
+            _graphics.PreferredBackBufferHeight = 920;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }

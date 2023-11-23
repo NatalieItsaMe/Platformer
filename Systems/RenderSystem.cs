@@ -67,9 +67,11 @@ namespace Platformer.Systems
 
         private void ClampCameraWithinBounds()
         {
+            System.Diagnostics.Debug.WriteLine(_camera.BoundingRectangle.Center);
+            System.Diagnostics.Debug.WriteLine(_camera.Center);
             if(_camera.BoundingRectangle.Width > _tiledMap.Width)
             {
-                var delta = _tiledMap.Width / 2 - _camera.Center.X;
+                var delta = _tiledMap.Width / 2 - _camera.BoundingRectangle.Center.X;
                 _camera.Move(Vector2.UnitX * delta);
             }
             else
@@ -87,7 +89,7 @@ namespace Platformer.Systems
             }
             if (_camera.BoundingRectangle.Height > _tiledMap.Height)
             {
-                var delta = _tiledMap.Height / 2 - _camera.Center.Y;
+                var delta = _tiledMap.Height / 2 - _camera.BoundingRectangle.Center.Y;
                 _camera.Move(Vector2.UnitY * delta);
             }
             else
@@ -155,14 +157,22 @@ namespace Platformer.Systems
                     //follow the target horizontally always
                     //lerp to y position when grounded
                     CameraTarget target = _cameraTargetMapper.Get(entity);
-                    _camera.Zoom = target.Zoom / drawScale.Y;
-                    Vector2 delta = (target.Offset + drawPosition) - _camera.Center;
-                    delta *= 0.1f;
+                    _camera.Zoom = target.Zoom;
+                    Vector2 delta = (target.Offset + drawPosition) - _camera.BoundingRectangle.Center.ToNumerics();
 
-                    _camera.Move(Vector2.UnitX * delta.X);
-                    if (_grounded.Has(entity) || delta.Y > 0)
+                    if(_camera.BoundingRectangle.Contains(target.Offset + drawPosition))
                     {
-                        _camera.Move(Vector2.UnitY * delta.Y);
+                        delta *= 0.1f;
+
+                        _camera.Move(Vector2.UnitX * delta.X);
+                        if (_grounded.Has(entity) || delta.Y > 0)
+                        {
+                            _camera.Move(Vector2.UnitY * delta.Y);
+                        }
+                    }
+                    else
+                    {
+                        _camera.Move(delta);
                     }
                 }
             }
