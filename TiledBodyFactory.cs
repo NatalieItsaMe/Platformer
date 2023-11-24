@@ -81,9 +81,8 @@ namespace Platformer
                 EdgeShape shape = new();
                 Vector2 start = (polyline.Points[0].ToNumerics() + offset) * scale;
                 Vector2 end = (polyline.Points[1].ToNumerics() + offset) * scale;
-                Vector2 normal_start = (start + end) / 2f;
-                Vector2 normal_end = -Vector2.UnitY * scale + normal_start;
-                shape.SetOneSided(normal_start, start, end, normal_end);
+                //v0 and v3 are "ghost vertices", if the segment were to continue in either direction
+                shape.SetOneSided(Vector2.UnitY, start, end, Vector2.UnitY);
 
                 return shape;
             }

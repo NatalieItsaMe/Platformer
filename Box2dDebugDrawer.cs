@@ -65,17 +65,17 @@ namespace Platformer
         internal void Draw(Body body)
         {
             Color color = GetColor(body);
-            Transform xf = body.GetTransform();
+            Transform transform = body.GetTransform();
             foreach (var fixture in body.FixtureList)
             {
                 switch (fixture.ShapeType)
                 {
                     case ShapeType.Circle:
                         CircleShape circle = (CircleShape)fixture.Shape;
-                        Vector2 center = MathUtils.Mul(in xf, in circle.Position);
+                        Vector2 center = MathUtils.Mul(in transform, in circle.Position);
                         float radius = circle.Radius;
-                        ref readonly Rotation rotation = ref xf.Rotation;
-                        Vector2 v = new Vector2(1f, 0f);
+                        ref readonly Rotation rotation = ref transform.Rotation;
+                        Vector2 v = Vector2.UnitX;
                         Vector2 axis = MathUtils.Mul(in rotation, in v);
                         DrawSolidCircle(center, radius, axis, color);
                         break;
@@ -85,14 +85,14 @@ namespace Platformer
                         Span<Vector2> vertices = new Vector2[count];
                         for (int i = 0; i < count; i++)
                         {
-                            vertices[i] = MathUtils.Mul(in xf, in polygon.Vertices[i]);
+                            vertices[i] = MathUtils.Mul(in transform, in polygon.Vertices[i]);
                         }
                         DrawPolygon(vertices, count, color);
                         break;
                     case ShapeType.Edge:
                         EdgeShape edge = (EdgeShape)fixture.Shape;
-                        Vector2 p3 = MathUtils.Mul(in xf, in edge.Vertex1);
-                        Vector2 p4 = MathUtils.Mul(in xf, in edge.Vertex2);
+                        Vector2 p3 = MathUtils.Mul(in transform, in edge.Vertex1);
+                        Vector2 p4 = MathUtils.Mul(in transform, in edge.Vertex2);
                         DrawSegment(in p3, in p4, in color);
                         if (!edge.OneSided)
                         {
@@ -104,10 +104,10 @@ namespace Platformer
                         ChainShape chain = (ChainShape)fixture.Shape;
                         int count2 = chain.Count;
                         Vector2[] vertices2 = chain.Vertices;
-                        Vector2 p = MathUtils.Mul(in xf, in vertices2[0]);
+                        Vector2 p = MathUtils.Mul(in transform, in vertices2[0]);
                         for (int j = 1; j < count2; j++)
                         {
-                            Vector2 p2 = MathUtils.Mul(in xf, in vertices2[j]);
+                            Vector2 p2 = MathUtils.Mul(in transform, in vertices2[j]);
                             DrawSegment(in p, in p2, in color);
                             p = p2;
                         }
