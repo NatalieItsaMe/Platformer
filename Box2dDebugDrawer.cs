@@ -4,7 +4,6 @@ using Box2DSharp.Dynamics;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
-using System.Linq;
 using System.Numerics;
 
 namespace Platformer
@@ -66,26 +65,52 @@ namespace Platformer
         internal void Draw(Body body)
         {
             Color color = GetColor(body);
+            Transform xf = body.GetTransform();
             foreach (var fixture in body.FixtureList)
             {
                 switch (fixture.ShapeType)
                 {
                     case ShapeType.Circle:
                         CircleShape circle = (CircleShape)fixture.Shape;
-                        DrawCircle(body.GetWorldCenter() + circle.Position, circle.Radius, color);
+                        Vector2 center = MathUtils.Mul(in xf, in circle.Position);
+                        float radius = circle.Radius;
+                        ref readonly Rotation rotation = ref xf.Rotation;
+                        Vector2 v = new Vector2(1f, 0f);
+                        Vector2 axis = MathUtils.Mul(in rotation, in v);
+                        DrawSolidCircle(center, radius, axis, color);
                         break;
                     case ShapeType.Polygon:
                         PolygonShape polygon = (PolygonShape)fixture.Shape;
-                        DrawPolygon(polygon.Vertices.Select(v => v + body.GetPosition()).ToArray().AsSpan(), polygon.Count, color);
+                        int count = polygon.Count;
+                        Span<Vector2> vertices = new Vector2[count];
+                        for (int i = 0; i < count; i++)
+                        {
+                            vertices[i] = MathUtils.Mul(in xf, in polygon.Vertices[i]);
+                        }
+                        DrawPolygon(vertices, count, color);
                         break;
                     case ShapeType.Edge:
                         EdgeShape edge = (EdgeShape)fixture.Shape;
-                        DrawSegment(body.GetPosition() + edge.Vertex0, body.GetPosition() + edge.Vertex3, color);
-                        DrawSegment(body.GetPosition() + edge.Vertex1, body.GetPosition() + edge.Vertex2, color);
+                        Vector2 p3 = MathUtils.Mul(in xf, in edge.Vertex1);
+                        Vector2 p4 = MathUtils.Mul(in xf, in edge.Vertex2);
+                        DrawSegment(in p3, in p4, in color);
+                        if (!edge.OneSided)
+                        {
+                            DrawPoint(in p3, 4f, in color);
+                            DrawPoint(in p4, 4f, in color);
+                        }
                         break;
                     case ShapeType.Chain:
                         ChainShape chain = (ChainShape)fixture.Shape;
-                        DrawPolygon(chain.Vertices.Select(v => v + body.GetPosition()).ToArray().AsSpan(), chain.Count, color);
+                        int count2 = chain.Count;
+                        Vector2[] vertices2 = chain.Vertices;
+                        Vector2 p = MathUtils.Mul(in xf, in vertices2[0]);
+                        for (int j = 1; j < count2; j++)
+                        {
+                            Vector2 p2 = MathUtils.Mul(in xf, in vertices2[j]);
+                            DrawSegment(in p, in p2, in color);
+                            p = p2;
+                        }
                         break;
                 }
             }
