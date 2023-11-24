@@ -8,15 +8,15 @@ using MonoGame.Extended;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Entities;
-using Vector2 = System.Numerics.Vector2;
 using World = MonoGame.Extended.Entities.World;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Platformer
 {
     public class Platformer : Game
     {
         private readonly GraphicsDeviceManager _graphics;
-        internal RenderSystem _renderSystem;
+        internal TiledMapRenderSystem _renderSystem;
         private PhysicsSystem _physicsSystem;
         private World _world;
 
@@ -33,7 +33,7 @@ namespace Platformer
         protected override void Initialize()
         {
             _physicsSystem = new PhysicsSystem();
-            _renderSystem = new RenderSystem(_graphics.GraphicsDevice);
+            _renderSystem = new TiledMapRenderSystem();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
@@ -41,12 +41,6 @@ namespace Platformer
                 .Build();
 
             _physicsSystem.SetContactListener(new GroundContactListener(_world));
-#if DEBUG
-            var debug = _world.CreateEntity();
-            debug.Attach(new Transform2());
-            debug.Attach(new DebugController());
-            //debug.Attach(new CameraTarget() { Zoom = 6.0f });
-#endif
 
             base.Initialize();
         }
@@ -54,11 +48,12 @@ namespace Platformer
         protected override void LoadContent()
         {
             TiledMap tiledMap = Content.Load<TiledMap>("snowyTree");
+            TiledBodyFactory bodyFactory = new(_physicsSystem.Box2DWorld, tiledMap);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 Entity entity = _world.CreateEntity();
-                Body body = _physicsSystem.CreateBodyFromTiledObject(mapObject, tiledMap.GetScale());
+                Body body = bodyFactory.CreateBodyFromTiledObject(mapObject);
                 body.UserData = entity.Id;
                 entity.Attach(body);
                 if(mapObject is TiledMapTileObject tileObject)
@@ -73,9 +68,6 @@ namespace Platformer
                 {
                     var cameraTarget = JsonSerializer.Deserialize<CameraTarget>(mapObject.Properties["CameraTarget"]);
                     entity.Attach(cameraTarget);
-                    _renderSystem.GetCamera().Zoom = cameraTarget.Zoom / tiledMap.GetScale().Y;
-                    Vector2 delta = cameraTarget.Offset + body.GetPosition() - _renderSystem.GetCamera().Center.ToNumerics();
-                    _renderSystem.GetCamera().Move(delta);
                 }
                 if (mapObject.Properties.ContainsKey("KeyboardMapping"))
                 {
@@ -84,7 +76,7 @@ namespace Platformer
                 }
             }
 
-            _renderSystem.SetTiledMap(tiledMap);
+            _renderSystem.SetTiledMap(GraphicsDevice, tiledMap);
         }
 
         protected override void Update(GameTime gameTime)
@@ -94,15 +86,17 @@ namespace Platformer
             base.Update(gameTime);
         }
 
-        internal Vector2 GetWorldCoordinates(float x, float y) => _renderSystem.GetCamera().ScreenToWorld(x, y).ToNumerics();
-
-        internal Body[] GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
-
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
             _world.Draw(gameTime);
 
             base.Draw(gameTime);
         }
+
+        internal Vector2 GetWorldCoordinates(float x, float y) => _renderSystem.GetWorldCoordinates(x, y);
+
+        internal Body[] GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
     }
 }

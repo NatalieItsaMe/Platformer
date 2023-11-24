@@ -74,7 +74,7 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="1" name="Player" type="Body" gid="139" x="54" y="504" width="18" height="18">
+  <object id="1" name="Player" type="Body" gid="139" x="54" y="496" width="18" height="18">
 	<properties>
 		<property name="AngularDamping" value ="80"/>
 		<property name="BodyType" value="Dynamic"/>

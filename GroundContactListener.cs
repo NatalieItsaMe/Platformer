@@ -20,12 +20,6 @@ namespace Platformer
         public void BeginContact(Contact contact)
         {
             contact.GetWorldManifold(out worldManifold);
-            //if((int)contact.FixtureA.Body.UserData == 17 || (int)contact.FixtureB.Body.UserData == 17)
-            //{
-            //    System.Diagnostics.Debug.WriteLine($"----------begin------------");
-            //    System.Diagnostics.Debug.WriteLine($"  local normal: {contact.Manifold.LocalNormal}");
-            //    System.Diagnostics.Debug.WriteLine($"  world normal: {worldManifold.Normal}");
-            //}
 
             //fixure A is the start, -normal points towards A
             if (worldManifold.Normal.Y > GroundNormal)
@@ -43,11 +37,6 @@ namespace Platformer
 
         public void EndContact(Contact contact)
         {
-            //if ((int)contact.FixtureA.Body.UserData == 17 || (int)contact.FixtureB.Body.UserData == 17)
-            //{
-            //    System.Diagnostics.Debug.WriteLine($"------------end------------");
-            //    System.Diagnostics.Debug.WriteLine($"  local normal: {contact.Manifold.LocalNormal}");
-            //}
             Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);
             Entity entityB = _world.GetEntity((int)contact.FixtureB.Body.UserData);
 
