@@ -113,6 +113,11 @@
 /processor:TiledMapProcessor
 /build:sandbox.tmx
 
+#begin snowyTree.tmx
+/importer:TiledMapImporter
+/processor:TiledMapProcessor
+/build:snowyTree.tmx
+
 #begin tiles_packed.png
 /importer:TextureImporter
 /processor:TextureProcessor

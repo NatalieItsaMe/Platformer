@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.4" name="tiles" tilewidth="18" tileheight="18" spacing="2" margin="1" tilecount="152" columns="19">
+<tileset version="1.8" tiledversion="1.8.4" name="tiles" tilewidth="18" tileheight="18" spacing="2" margin="1" tilecount="152" columns="19" objectalignment="topleft">
  <image source="tiles.png" width="398" height="178"/>
  <tile id="0" type="Solid">
   <objectgroup draworder="index" id="2">
@@ -122,6 +122,7 @@
  <tile id="25" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="18"/>
+   <object id="2" x="0" y="0" width="18" height="18"/>
   </objectgroup>
  </tile>
  <tile id="27" type="Solid">
@@ -208,6 +209,12 @@
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="18"/>
   </objectgroup>
+ </tile>
+ <tile id="51">
+  <animation>
+   <frame tileid="51" duration="690"/>
+   <frame tileid="32" duration="555"/>
+  </animation>
  </tile>
  <tile id="52" type="Solid">
   <objectgroup draworder="index" id="2">
@@ -342,7 +349,22 @@
  <tile id="99" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="18"/>
+   <object id="2" x="0" y="0" width="18" height="18"/>
   </objectgroup>
+ </tile>
+ <tile id="103">
+  <objectgroup draworder="index" id="2">
+   <object id="2" x="0" y="4" width="18" height="14"/>
+  </objectgroup>
+ </tile>
+ <tile id="106">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="18" height="18"/>
+  </objectgroup>
+  <animation>
+   <frame tileid="106" duration="680"/>
+   <frame tileid="107" duration="540"/>
+  </animation>
  </tile>
  <tile id="108" type="Solid">
   <objectgroup draworder="index" id="2">
@@ -377,6 +399,11 @@
  <tile id="117" type="Solid">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="18"/>
+  </objectgroup>
+ </tile>
+ <tile id="125">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="-6" y="0" width="6" height="18"/>
   </objectgroup>
  </tile>
  <tile id="126" type="Solid">
@@ -421,7 +448,7 @@
  </tile>
  <tile id="138">
   <objectgroup draworder="index" id="5">
-   <object id="4" x="0" y="0" width="12" height="12">
+   <object id="4" x="0" y="3" width="12" height="12">
     <ellipse/>
    </object>
   </objectgroup>
@@ -435,6 +462,17 @@
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="18" height="10"/>
   </objectgroup>
+ </tile>
+ <tile id="144">
+  <objectgroup draworder="index" id="4">
+   <object id="3" x="0" y="0" width="12" height="12">
+    <ellipse/>
+   </object>
+  </objectgroup>
+  <animation>
+   <frame tileid="144" duration="540"/>
+   <frame tileid="145" duration="360"/>
+  </animation>
  </tile>
  <tile id="146" type="Solid"/>
  <tile id="147" type="Solid"/>

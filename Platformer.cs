@@ -1,22 +1,22 @@
 ﻿using Microsoft.Xna.Framework;
-using MonoGame.Extended.Entities;
-using MonoGame.Extended.Tiled;
 using Box2DSharp.Dynamics;
 using Platformer.Systems;
 using Platformer.Component;
 using System.Linq;
 using System.Text.Json;
 using MonoGame.Extended;
-using Vector2 = System.Numerics.Vector2;
-using World = MonoGame.Extended.Entities.World;
+using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Sprites;
+using MonoGame.Extended.Entities;
+using World = MonoGame.Extended.Entities.World;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Platformer
 {
     public class Platformer : Game
     {
-        private GraphicsDeviceManager _graphics;
-        internal RenderSystem _renderSystem;
+        private readonly GraphicsDeviceManager _graphics;
+        internal TiledMapRenderSystem _renderSystem;
         private PhysicsSystem _physicsSystem;
         private World _world;
 
@@ -24,6 +24,8 @@ namespace Platformer
         {
             Window.AllowUserResizing = true;
             _graphics = new GraphicsDeviceManager(this);
+            _graphics.PreferredBackBufferWidth = 1080;
+            _graphics.PreferredBackBufferHeight = 920;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -31,7 +33,7 @@ namespace Platformer
         protected override void Initialize()
         {
             _physicsSystem = new PhysicsSystem();
-            _renderSystem = new RenderSystem(GraphicsDevice);
+            _renderSystem = new TiledMapRenderSystem();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
@@ -39,24 +41,19 @@ namespace Platformer
                 .Build();
 
             _physicsSystem.SetContactListener(new GroundContactListener(_world));
-#if DEBUG
-            var debug = _world.CreateEntity();
-            debug.Attach(new Transform2());
-            debug.Attach(new DebugController());
-            //debug.Attach(new CameraTarget() { Zoom = 6.0f });
-#endif
 
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            TiledMap tiledMap = Content.Load<TiledMap>("sandbox");
+            TiledMap tiledMap = Content.Load<TiledMap>("snowyTree");
+            TiledBodyFactory bodyFactory = new(_physicsSystem.Box2DWorld, tiledMap);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 Entity entity = _world.CreateEntity();
-                Body body = _physicsSystem.CreateBodyFromTiledObject(mapObject, tiledMap.GetScale());
+                Body body = bodyFactory.CreateBodyFromTiledObject(mapObject);
                 body.UserData = entity.Id;
                 entity.Attach(body);
                 if(mapObject is TiledMapTileObject tileObject)
@@ -65,8 +62,8 @@ namespace Platformer
                     int row = tileObject.Tile.LocalTileIdentifier / tileObject.Tileset.Columns;
                     var region = tileObject.Tileset.GetRegion(col, row);
                     entity.Attach(new Sprite(region));
+                    entity.Attach(new Transform2());
                 }
-
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
                 {
                     var cameraTarget = JsonSerializer.Deserialize<CameraTarget>(mapObject.Properties["CameraTarget"]);
@@ -74,12 +71,12 @@ namespace Platformer
                 }
                 if (mapObject.Properties.ContainsKey("KeyboardMapping"))
                 {
-                    var keyboardMapping = JsonSerializer.Deserialize<KeyboardMapping>(mapObject.Properties["KeyboardMapping"]);
+                    var keyboardMapping = JsonSerializer.Deserialize<KeyboardController>(mapObject.Properties["KeyboardMapping"]);
                     entity.Attach(keyboardMapping);
                 }
             }
 
-            _renderSystem.SetTiledMap(tiledMap);
+            _renderSystem.SetTiledMap(GraphicsDevice, tiledMap);
         }
 
         protected override void Update(GameTime gameTime)
@@ -89,15 +86,17 @@ namespace Platformer
             base.Update(gameTime);
         }
 
-        internal Vector2 GetWorldCoordinates(float x, float y) => _renderSystem.GetCamera().ScreenToWorld(x, y).ToNumerics();
-
-        internal Body[] GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
-
         protected override void Draw(GameTime gameTime)
         {
+            GraphicsDevice.Clear(Color.CornflowerBlue);
+
             _world.Draw(gameTime);
 
             base.Draw(gameTime);
         }
+
+        internal Vector2 GetWorldCoordinates(float x, float y) => _renderSystem.GetWorldCoordinates(x, y);
+
+        internal Body[] GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
     }
 }
