@@ -9,6 +9,7 @@ using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using Platformer.Component;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Platformer.Systems
 {
@@ -24,10 +25,11 @@ namespace Platformer.Systems
         private SpriteBatch _spriteBatch;
 
         private ComponentMapper<Sprite> _sprites;
+        private ComponentMapper<AnimatedSprite> _animatedSprites;
         private ComponentMapper<Body> _bodies;
         private ComponentMapper<CameraTarget> _cameraTargets;
 
-        public TiledMapRenderSystem() : base(Aspect.One(typeof(Sprite), typeof(Body)))
+        public TiledMapRenderSystem() : base(Aspect.One(typeof(Sprite), typeof(AnimatedSprite), typeof(Body)))
         { }
 
         public void SetTiledMap(GraphicsDevice graphicsDevice, TiledMap tiledMap)
@@ -42,6 +44,7 @@ namespace Platformer.Systems
         public override void Initialize(IComponentMapperService mapperService)
         {
             _sprites = mapperService.GetMapper<Sprite>();
+            _animatedSprites = mapperService.GetMapper<AnimatedSprite>();
             _bodies = mapperService.GetMapper<Body>();
             _cameraTargets = mapperService.GetMapper<CameraTarget>();
         }
@@ -49,6 +52,12 @@ namespace Platformer.Systems
         public void Update(GameTime gameTime)
         {
             _tiledRenderer.Update(gameTime);
+            foreach(var animated in _animatedSprites.Components)
+            {
+                if (animated == null) continue;
+
+                animated.Update(gameTime);
+            }
 
             _camera.ClampWithinBounds(new(0, 0, _tiledMap.Width, _tiledMap.Height));
         }
@@ -78,9 +87,12 @@ namespace Platformer.Systems
 
                 if (_sprites.Has(entity))
                 {
-                    var sprite = _sprites.Get(entity);
+                    _sprites.Get(entity).Draw(_spriteBatch, drawPosition, drawRotation, scale);                    
+                }
 
-                    sprite.Draw(_spriteBatch, drawPosition, drawRotation, scale);
+                if (_animatedSprites.Has(entity))
+                {
+                    _animatedSprites.Get(entity).Draw(_spriteBatch, drawPosition, drawRotation, scale);
                 }
 
                 if (_cameraTargets.Has(entity))
