@@ -9,24 +9,10 @@ using Box2DSharp.Common;
 
 namespace Platformer
 {
-    internal class PhysicsSystem : UpdateSystem, IDrawSystem
+    internal class PhysicsSystem : UpdateSystem
     {
         public Vector2 Gravity = new (0, 21f);
         public readonly World Box2DWorld;
-        public SpriteBatch SpriteBatch 
-        { 
-            get => _spriteBatch; 
-            set
-            {
-                if(_spriteBatch != value)
-                {
-                    _spriteBatch = value;
-                    Box2DWorld.SetDebugDrawer(new Box2dDebugDrawer(value));
-                }
-            } 
-        }
-
-        private SpriteBatch _spriteBatch;
 
         public PhysicsSystem()
         {
@@ -37,13 +23,6 @@ namespace Platformer
         {
             Box2DWorld.Step((float)gameTime.ElapsedGameTime.TotalSeconds, 6, 2);
             Box2DWorld.ClearForces();
-        }
-
-        public void Draw(GameTime gameTime)
-        {
-            //_spriteBatch.Begin();
-            Box2DWorld.DebugDraw();
-            //_spriteBatch.End();
         }
 
         public Body CreateBody(BodyDef bodyDef) => Box2DWorld.CreateBody(bodyDef);

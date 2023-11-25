@@ -82,7 +82,7 @@ namespace Platformer
                 Vector2 start = (polyline.Points[0].ToNumerics() + offset) * scale;
                 Vector2 end = (polyline.Points[1].ToNumerics() + offset) * scale;
                 //v0 and v3 are "ghost vertices", if the segment were to continue in either direction
-                shape.SetOneSided(Vector2.UnitY, start, end, Vector2.UnitY);
+                shape.SetOneSided(-Vector2.UnitX, start, end, Vector2.UnitX);
 
                 return shape;
             }
