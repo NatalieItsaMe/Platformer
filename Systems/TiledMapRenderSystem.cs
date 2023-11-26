@@ -1,5 +1,4 @@
-﻿using Box2DSharp.Common;
-using Box2DSharp.Dynamics;
+﻿using Box2DSharp.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
@@ -81,7 +80,6 @@ namespace Platformer.Systems
                 Vector2 origin = region.Size.ToVector2() / 2;
                 _spriteBatch.Draw(texture, position, region, Color.White, rotation, origin, scale.Y, SpriteEffects.None, 1f);
 
-                _box2dDrawer.Draw(body);
                 if (_cameraTargets.Has(entity))
                 {
                     CameraTarget target = _cameraTargets.Get(entity);
@@ -89,6 +87,10 @@ namespace Platformer.Systems
                     _camera.LerpToPosition(position + target.Offset);
                 }
             }
+#if DEBUG
+            foreach(var body in _bodies.Components.Where(b => b != null))
+                _box2dDrawer.Draw(body);
+#endif
             _spriteBatch.End();
         }
 
