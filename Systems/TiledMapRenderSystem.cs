@@ -9,7 +9,6 @@ using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using Platformer.Component;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Platformer.Systems
 {

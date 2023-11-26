@@ -12,6 +12,7 @@ using World = MonoGame.Extended.Entities.World;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using MonoGame.Extended.TextureAtlases;
+using Platformer.Factories;
 
 namespace Platformer
 {
@@ -52,20 +53,7 @@ namespace Platformer
             const string mapName = "snowyTree";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
             TiledBodyFactory bodyFactory = new(_physicsSystem.Box2DWorld, tiledMap);
-
-            Dictionary<string, TextureAtlas> atlases = new();
-            foreach(var tileset in tiledMap.Tilesets)
-            {
-                Dictionary<string, Rectangle> regions = new(tileset.TileCount);
-                for(int i = 0; i < tileset.TileCount; i ++)
-                {
-                    int col = i % tileset.Columns;
-                    int row = i / tileset.Columns;
-                    var region = tileset.GetRegion(col, row);
-                    regions.Add(i.ToString(), new Rectangle(region.X, region.Y, region.Width, region.Height));
-                }
-                atlases.Add(tileset.Name, new(tileset.Name, tileset.Texture, regions));
-            }
+            TiledSpriteFactory spriteFactory = new(tiledMap);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
@@ -77,30 +65,14 @@ namespace Platformer
                 {
                     if(tileObject.Tile is TiledMapTilesetAnimatedTile animatedTile)
                     {
-                        SpriteSheet sheet = new();
-                        sheet.TextureAtlas = atlases[tileObject.Tileset.Name];
-                        sheet.Cycles = new();
-                        SpriteSheetAnimationCycle cycle = new()
-                        {
-                            IsLooping = true
-                        };
-                        foreach(var frame in animatedTile.AnimationFrames)
-                        {
-                            SpriteSheetAnimationFrame ssFrame = new(frame.LocalTileIdentifier, (float)frame.Duration.TotalSeconds);
-                            cycle.Frames.Add(ssFrame);
-                        }
-                        sheet.Cycles.Add(tileObject.Name, cycle);
-                        AnimatedSprite sprite = new (sheet, tileObject.Name);
+                        AnimatedSprite sprite = spriteFactory.CreateAnimatedSprite(tileObject);
                         entity.Attach(sprite);
                     }
                     else
                     {
-                        int col = tileObject.Tile.LocalTileIdentifier % tileObject.Tileset.Columns;
-                        int row = tileObject.Tile.LocalTileIdentifier / tileObject.Tileset.Columns;
-                        var region = tileObject.Tileset.GetRegion(col, row);
-                        entity.Attach(new Sprite(region));
+                        Sprite sprite = spriteFactory.CreateSprite(tileObject);
+                        entity.Attach(sprite);
                     }
-
                 }
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
                 {

@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 
-namespace Platformer
+namespace Platformer.Factories
 {
     internal class TiledBodyFactory
     {
