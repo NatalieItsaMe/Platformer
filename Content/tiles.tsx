@@ -418,7 +418,7 @@
  </tile>
  <tile id="125">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="-6" y="0" width="6" height="18"/>
+   <object id="1" x="0" y="0" width="6" height="18"/>
   </objectgroup>
  </tile>
  <tile id="126" type="Solid">
@@ -463,7 +463,7 @@
  </tile>
  <tile id="138">
   <objectgroup draworder="index" id="5">
-   <object id="4" x="0" y="3" width="12" height="12">
+   <object id="4" x="3" y="6" width="12" height="12">
     <ellipse/>
    </object>
   </objectgroup>
@@ -490,7 +490,7 @@
  </tile>
  <tile id="144">
   <objectgroup draworder="index" id="4">
-   <object id="3" x="0" y="0" width="12" height="12">
+   <object id="3" x="3" y="3" width="12" height="12">
     <ellipse/>
    </object>
   </objectgroup>
