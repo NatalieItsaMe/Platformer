@@ -53,7 +53,6 @@ namespace Platformer
             const string mapName = "snowyTree";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
             TiledBodyFactory bodyFactory = new(_physicsSystem.Box2DWorld, tiledMap);
-            TiledSpriteFactory spriteFactory = new(tiledMap);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
@@ -63,16 +62,7 @@ namespace Platformer
                 entity.Attach(body);
                 if(mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
                 {
-                    if(tileObject.Tile is TiledMapTilesetAnimatedTile animatedTile)
-                    {
-                        AnimatedSprite sprite = spriteFactory.CreateAnimatedSprite(tileObject);
-                        entity.Attach(sprite);
-                    }
-                    else
-                    {
-                        Sprite sprite = spriteFactory.CreateSprite(tileObject);
-                        entity.Attach(sprite);
-                    }
+                    entity.Attach(tileObject);
                 }
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
                 {
