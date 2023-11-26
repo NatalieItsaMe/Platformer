@@ -4,18 +4,17 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
-using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using Platformer.Component;
-using System.Collections.Generic;
+using System.Linq;
+using Color = Microsoft.Xna.Framework.Color;
 
 namespace Platformer.Systems
 {
     internal class TiledMapRenderSystem : EntityDrawSystem, IUpdateSystem
     {
         public SpriteFont DebugFont { get; set; }
-        public List<(string, Color)> Messages { get; set; } = new();
 
         private TiledMap _tiledMap;
         private TiledMapRenderer _tiledRenderer;
@@ -23,11 +22,11 @@ namespace Platformer.Systems
         private OrthographicCamera _camera;
         private SpriteBatch _spriteBatch;
 
-        private ComponentMapper<Sprite> _sprites;
         private ComponentMapper<Body> _bodies;
         private ComponentMapper<CameraTarget> _cameraTargets;
+        private ComponentMapper<TiledMapTileObject> _tileObjects;
 
-        public TiledMapRenderSystem() : base(Aspect.One(typeof(Sprite), typeof(Body)))
+        public TiledMapRenderSystem() : base(Aspect.All(typeof(Body), typeof(TiledMapTileObject)))
         { }
 
         public void SetTiledMap(GraphicsDevice graphicsDevice, TiledMap tiledMap)
@@ -41,14 +40,18 @@ namespace Platformer.Systems
 
         public override void Initialize(IComponentMapperService mapperService)
         {
-            _sprites = mapperService.GetMapper<Sprite>();
             _bodies = mapperService.GetMapper<Body>();
             _cameraTargets = mapperService.GetMapper<CameraTarget>();
+            _tileObjects = mapperService.GetMapper<TiledMapTileObject>();
         }
 
         public void Update(GameTime gameTime)
         {
             _tiledRenderer.Update(gameTime);
+            _tileObjects.Components.Where(o => o != null && o.Tile is TiledMapTilesetAnimatedTile)
+                .Select(o => o.Tile as TiledMapTilesetAnimatedTile)
+                .ToList()
+                .ForEach(t => t.Update(gameTime));
 
             _camera.ClampWithinBounds(new(0, 0, _tiledMap.Width, _tiledMap.Height));
         }
@@ -63,33 +66,31 @@ namespace Platformer.Systems
             _spriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
             foreach (var entity in ActiveEntities)
             {
-                Vector2 drawPosition = new();
-                float drawRotation = 0.0f;
+                var body = _bodies.Get(entity);
+                var rotation = body.GetAngle();
+                var position = body.GetWorldCenter();
 
-                if (_bodies.Has(entity))
-                {
-                    var body = _bodies.Get(entity);
+                var obj = _tileObjects.Get(entity);
+                var id = obj.Tile is TiledMapTilesetAnimatedTile animated
+                    ? animated.CurrentAnimationFrame.LocalTileIdentifier
+                    : obj.Tile.LocalTileIdentifier;
+                var region = obj.Tileset.GetTileRegion(id);
+                var texture = obj.Tileset.Texture;
 
-                    drawPosition += body.GetWorldCenter();
-                    drawRotation += body.GetAngle();
-
-                    _box2dDrawer.Draw(body);
-                }
-
-                if (_sprites.Has(entity))
-                {
-                    var sprite = _sprites.Get(entity);
-
-                    sprite.Draw(_spriteBatch, drawPosition, drawRotation, scale);
-                }
+                Vector2 origin = region.Size.ToVector2() / 2;
+                _spriteBatch.Draw(texture, position, region, Color.White, rotation, origin, scale.Y, SpriteEffects.None, 1f);
 
                 if (_cameraTargets.Has(entity))
                 {
                     CameraTarget target = _cameraTargets.Get(entity);
                     _camera.Zoom = target.Zoom;
-                    _camera.LerpToPosition(drawPosition + target.Offset);
+                    _camera.LerpToPosition(position + target.Offset);
                 }
             }
+#if DEBUG
+            foreach(var body in _bodies.Components.Where(b => b != null))
+                _box2dDrawer.Draw(body);
+#endif
             _spriteBatch.End();
         }
 

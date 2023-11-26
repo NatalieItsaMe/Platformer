@@ -10,6 +10,9 @@ using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Entities;
 using World = MonoGame.Extended.Entities.World;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
+using MonoGame.Extended.TextureAtlases;
+using Platformer.Factories;
 
 namespace Platformer
 {
@@ -47,7 +50,8 @@ namespace Platformer
 
         protected override void LoadContent()
         {
-            TiledMap tiledMap = Content.Load<TiledMap>("snowyTree");
+            const string mapName = "snowyTree";
+            TiledMap tiledMap = Content.Load<TiledMap>(mapName);
             TiledBodyFactory bodyFactory = new(_physicsSystem.Box2DWorld, tiledMap);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
@@ -56,13 +60,9 @@ namespace Platformer
                 Body body = bodyFactory.CreateBodyFromTiledObject(mapObject);
                 body.UserData = entity.Id;
                 entity.Attach(body);
-                if(mapObject is TiledMapTileObject tileObject)
+                if(mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
                 {
-                    int col = tileObject.Tile.LocalTileIdentifier % tileObject.Tileset.Columns;
-                    int row = tileObject.Tile.LocalTileIdentifier / tileObject.Tileset.Columns;
-                    var region = tileObject.Tileset.GetRegion(col, row);
-                    entity.Attach(new Sprite(region));
-                    entity.Attach(new Transform2());
+                    entity.Attach(tileObject);
                 }
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
                 {

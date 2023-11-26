@@ -5,7 +5,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 
-namespace Platformer
+namespace Platformer.Factories
 {
     internal class TiledBodyFactory
     {
@@ -47,8 +47,12 @@ namespace Platformer
             {
                 foreach (var innerObject in tileObject.Tile.Objects)
                 {
+                    //Tiled reads object data from the top left
+                    //Box2d builds fixtures from the center
+                    //offset points from the topleft to the center
+                    var offset = (innerObject.Size - obj.Size).ToNumerics() / 2 + innerObject.Position.ToNumerics();
                     FixtureDef fixture = new();
-                    fixture.Shape = CreateShapeFromTiledObject(innerObject, innerObject.Position.ToNumerics());
+                    fixture.Shape = CreateShapeFromTiledObject(innerObject, offset);
 
                     SetPropertyValues(obj, ref fixture);
                     body.CreateFixture(fixture);
@@ -82,7 +86,7 @@ namespace Platformer
                 Vector2 start = (polyline.Points[0].ToNumerics() + offset) * scale;
                 Vector2 end = (polyline.Points[1].ToNumerics() + offset) * scale;
                 //v0 and v3 are "ghost vertices", if the segment were to continue in either direction
-                shape.SetOneSided(-Vector2.UnitX, start, end, Vector2.UnitX);
+                shape.SetOneSided(start, start, end, end);
 
                 return shape;
             }
