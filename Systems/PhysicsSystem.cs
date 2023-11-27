@@ -1,11 +1,10 @@
-﻿using Microsoft.Xna.Framework;
-using MonoGame.Extended.Entities.Systems;
+﻿using Box2DSharp.Common;
 using Box2DSharp.Dynamics;
-using Vector2 = System.Numerics.Vector2;
-using System.Collections.Generic;
 using Box2DSharp.Dynamics.Joints;
-using Microsoft.Xna.Framework.Graphics;
-using Box2DSharp.Common;
+using Microsoft.Xna.Framework;
+using MonoGame.Extended.Entities.Systems;
+using System.Collections.Generic;
+using Vector2 = System.Numerics.Vector2;
 
 namespace Platformer
 {

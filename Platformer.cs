@@ -1,18 +1,14 @@
-﻿using Microsoft.Xna.Framework;
-using Box2DSharp.Dynamics;
-using Platformer.Systems;
+﻿using Box2DSharp.Dynamics;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Entities;
+using MonoGame.Extended.Tiled;
 using Platformer.Component;
+using Platformer.Factories;
+using Platformer.Systems;
 using System.Linq;
 using System.Text.Json;
-using MonoGame.Extended;
-using MonoGame.Extended.Tiled;
-using MonoGame.Extended.Sprites;
-using MonoGame.Extended.Entities;
 using World = MonoGame.Extended.Entities.World;
-using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using MonoGame.Extended.TextureAtlases;
-using Platformer.Factories;
 
 namespace Platformer
 {
@@ -44,6 +40,7 @@ namespace Platformer
                 .Build();
 
             _physicsSystem.SetContactListener(new GroundContactListener(_world));
+            _physicsSystem.SetContactListener(new EdgeShapeContactListener(_world));
 
             base.Initialize();
         }
