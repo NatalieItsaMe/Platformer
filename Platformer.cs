@@ -23,8 +23,8 @@ namespace Platformer
         {
             Window.AllowUserResizing = true;
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.PreferredBackBufferWidth = 1080;
-            _graphics.PreferredBackBufferHeight = 920;
+            _graphics.PreferredBackBufferWidth = 640;
+            _graphics.PreferredBackBufferHeight = 480;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }

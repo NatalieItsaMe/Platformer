@@ -2,6 +2,7 @@
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
 using MonoGame.Extended.Entities;
+using System;
 
 namespace Platformer
 {
@@ -34,7 +35,18 @@ namespace Platformer
 
             System.Diagnostics.Debug.WriteLine($"  impulse normal 0: {impulse.NormalImpulses.Value0}");
             System.Diagnostics.Debug.WriteLine($"  impulse normal 1: {impulse.NormalImpulses.Value1}");
+
+            if(contact.FixtureA.ShapeType is Box2DSharp.Collision.Shapes.ShapeType.Edge)
+            {
+                contact.SetEnabled(IsMovingDown(contact.FixtureB));
+            }
+            if(contact.FixtureB.ShapeType is Box2DSharp.Collision.Shapes.ShapeType.Edge)
+            {
+                contact.SetEnabled(IsMovingDown(contact.FixtureA));
+            }
         }
+
+        private bool IsMovingDown(Fixture fixtureB) => fixtureB.Body.LinearVelocity.Y > 0;
 
         public void PreSolve(Contact contact, in Manifold oldManifold)
         {
