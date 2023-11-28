@@ -1,18 +1,14 @@
-﻿using Microsoft.Xna.Framework;
-using Box2DSharp.Dynamics;
-using Platformer.Systems;
+﻿using Box2DSharp.Dynamics;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Entities;
+using MonoGame.Extended.Tiled;
 using Platformer.Component;
+using Platformer.Factories;
+using Platformer.Systems;
 using System.Linq;
 using System.Text.Json;
-using MonoGame.Extended;
-using MonoGame.Extended.Tiled;
-using MonoGame.Extended.Sprites;
-using MonoGame.Extended.Entities;
 using World = MonoGame.Extended.Entities.World;
-using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using MonoGame.Extended.TextureAtlases;
-using Platformer.Factories;
 
 namespace Platformer
 {
@@ -27,8 +23,8 @@ namespace Platformer
         {
             Window.AllowUserResizing = true;
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.PreferredBackBufferWidth = 1080;
-            _graphics.PreferredBackBufferHeight = 920;
+            _graphics.PreferredBackBufferWidth = 1280;
+            _graphics.PreferredBackBufferHeight = 960;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -37,13 +33,15 @@ namespace Platformer
         {
             _physicsSystem = new PhysicsSystem();
             _renderSystem = new TiledMapRenderSystem();
+            GroundContactListener contactSystem = new GroundContactListener();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
                 .AddSystem(_physicsSystem)
+                .AddSystem(contactSystem)
                 .Build();
 
-            _physicsSystem.SetContactListener(new GroundContactListener(_world));
+            _physicsSystem.SetContactListener(contactSystem);
 
             base.Initialize();
         }
@@ -73,6 +71,11 @@ namespace Platformer
                 {
                     var keyboardMapping = JsonSerializer.Deserialize<KeyboardController>(mapObject.Properties["KeyboardMapping"]);
                     entity.Attach(keyboardMapping);
+                }
+                if (mapObject.Properties.ContainsKey("OneWayPlatform"))
+                {
+                    var oneWay = JsonSerializer.Deserialize<OneWayPlatform>(mapObject.Properties["OneWayPlatform"]);
+                    entity.Attach(oneWay);
                 }
             }
 
