@@ -23,8 +23,8 @@ namespace Platformer
         {
             Window.AllowUserResizing = true;
             _graphics = new GraphicsDeviceManager(this);
-            _graphics.PreferredBackBufferWidth = 640;
-            _graphics.PreferredBackBufferHeight = 480;
+            _graphics.PreferredBackBufferWidth = 1280;
+            _graphics.PreferredBackBufferHeight = 960;
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
@@ -33,14 +33,15 @@ namespace Platformer
         {
             _physicsSystem = new PhysicsSystem();
             _renderSystem = new TiledMapRenderSystem();
+            GroundContactListener contactSystem = new GroundContactListener();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
                 .AddSystem(_physicsSystem)
+                .AddSystem(contactSystem)
                 .Build();
 
-            _physicsSystem.SetContactListener(new GroundContactListener(_world));
-            _physicsSystem.SetContactListener(new EdgeShapeContactListener(_world));
+            _physicsSystem.SetContactListener(contactSystem);
 
             base.Initialize();
         }
@@ -70,6 +71,11 @@ namespace Platformer
                 {
                     var keyboardMapping = JsonSerializer.Deserialize<KeyboardController>(mapObject.Properties["KeyboardMapping"]);
                     entity.Attach(keyboardMapping);
+                }
+                if (mapObject.Properties.ContainsKey("OneWayPlatform"))
+                {
+                    var oneWay = JsonSerializer.Deserialize<OneWayPlatform>(mapObject.Properties["OneWayPlatform"]);
+                    entity.Attach(oneWay);
                 }
             }
 

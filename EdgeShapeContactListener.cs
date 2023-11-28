@@ -6,7 +6,7 @@ using System;
 
 namespace Platformer
 {
-    internal class EdgeShapeContactListener : IContactListener
+    internal class EdgeShapeContactListener 
     {
         private MonoGame.Extended.Entities.World _world;
 
@@ -23,30 +23,6 @@ namespace Platformer
         {
         }
 
-        public void PostSolve(Contact contact, in ContactImpulse impulse)
-        {
-            Entity entityA = _world.GetEntity((int)contact.FixtureA.Body.UserData);
-            Entity entityB = _world.GetEntity((int)contact.FixtureB.Body.UserData);
-            
-            System.Diagnostics.Debug.WriteLine($"          entity A: {entityA.Id}");
-            System.Diagnostics.Debug.WriteLine($"           shape A: {contact.FixtureA.ShapeType}");
-            System.Diagnostics.Debug.WriteLine($"          entity B: {entityB.Id}");
-            System.Diagnostics.Debug.WriteLine($"           shape B: {contact.FixtureB.ShapeType}");
-
-            System.Diagnostics.Debug.WriteLine($"  impulse normal 0: {impulse.NormalImpulses.Value0}");
-            System.Diagnostics.Debug.WriteLine($"  impulse normal 1: {impulse.NormalImpulses.Value1}");
-
-            if(contact.FixtureA.ShapeType is Box2DSharp.Collision.Shapes.ShapeType.Edge)
-            {
-                contact.SetEnabled(IsMovingDown(contact.FixtureB));
-            }
-            if(contact.FixtureB.ShapeType is Box2DSharp.Collision.Shapes.ShapeType.Edge)
-            {
-                contact.SetEnabled(IsMovingDown(contact.FixtureA));
-            }
-        }
-
-        private bool IsMovingDown(Fixture fixtureB) => fixtureB.Body.LinearVelocity.Y > 0;
 
         public void PreSolve(Contact contact, in Manifold oldManifold)
         {
