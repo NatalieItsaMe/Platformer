@@ -33,7 +33,7 @@ namespace Platformer
         {
             _physicsSystem = new PhysicsSystem();
             _renderSystem = new TiledMapRenderSystem();
-            GroundContactListener contactSystem = new GroundContactListener();
+            Box2dContactListener contactSystem = new Box2dContactListener();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))

@@ -9,22 +9,24 @@ using System.Numerics;
 
 namespace Platformer
 {
-    internal class GroundContactListener : EntitySystem, IContactListener
+    internal class Box2dContactListener : EntitySystem, IContactListener
     {
         private const float GroundNormal = 0.5f;
-        private readonly List<Contact> DisabledContacts = new List<Contact>();
+        private readonly List<Contact> DisabledContacts = new();
         private WorldManifold worldManifold;
 
         private ComponentMapper<OneWayPlatform> oneWays;
         private ComponentMapper<GroundedComponent> grounded;
+        private ComponentMapper<SpringComponent> springs;
 
-        public GroundContactListener() : base(Aspect.All(typeof(OneWayPlatform)))
+        public Box2dContactListener() : base(Aspect.All())
         { }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
             oneWays = mapperService.GetMapper<OneWayPlatform>();
             grounded = mapperService.GetMapper<GroundedComponent>();
+            springs = mapperService.GetMapper<SpringComponent>();
         }
 
         public void BeginContact(Contact contact)
@@ -71,18 +73,6 @@ namespace Platformer
         public void PostSolve(Contact contact, in ContactImpulse impulse) 
         { 
 
-        }
-
-        private bool IsBodyMovingDown(Contact contact, Body body)
-        {
-            //check if contact points are moving downward
-            for (int i = 0; i < contact.Manifold.PointCount; i++)
-            {
-                Vector2 pointVel = body.GetLinearVelocityFromWorldPoint(worldManifold.Points[i]);
-                if (pointVel.Y > 0)
-                    return true;//point is moving down, leave contact solid and exit
-            }
-            return false;
         }
 
         private void DetachGroundedComponents(Contact contact, Body body)
