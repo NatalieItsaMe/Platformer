@@ -4,6 +4,7 @@ using Box2DSharp.Dynamics.Contacts;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
 using Platformer.Component;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -37,21 +38,8 @@ namespace Platformer
 
             if (contact.IsEnabled)
             {
+                DerestituteSpringContact(contact);
                 AttachGroundedComponents(contact);
-            }
-        }
-
-        private void AttachGroundedComponents(Contact contact)
-        {
-            //fixure A is the start, -normal points towards A
-            if (worldManifold.Normal.Y > GroundNormal)
-            {
-                grounded.Put((int)contact.FixtureA.Body.UserData, new GroundedComponent(contact));
-            }
-            //fixure B is the end, normal points towards B
-            if (-worldManifold.Normal.Y > GroundNormal)
-            {
-                grounded.Put((int)contact.FixtureB.Body.UserData, new GroundedComponent(contact));
             }
         }
 
@@ -71,8 +59,64 @@ namespace Platformer
         }
 
         public void PostSolve(Contact contact, in ContactImpulse impulse) 
-        { 
+        {
 
+        }
+
+        private void DerestituteSpringContact(Contact contact)
+        {
+            //Restitution of the spring should only apply to
+            //collisions with the face of the spring
+            Fixture springFixture = null;
+            Fixture otherFixture = null;
+            if (springs.Has((int)contact.FixtureA.Body.UserData))
+            {
+                springFixture = contact.FixtureA;
+                otherFixture = contact.FixtureB;
+            }
+            if (springs.Has((int)contact.FixtureB.Body.UserData))
+            {
+                springFixture = contact.FixtureB;
+                otherFixture = contact.FixtureA;
+            }
+
+            if (springFixture == null) return;
+
+            for (int i = 0; i < contact.Manifold.PointCount; i++)
+            {
+                //if the other fixture is moving into the springy top
+                //return without changing the restitution
+                Vector2 pointVel = otherFixture.Body.GetLinearVelocityFromWorldPoint(worldManifold.Points[i]);
+                Vector2 springDir = springFixture.Body.GetLocalVector(pointVel);
+
+                if (springDir.Y > 0)
+                {
+                    AnimateSpring(springFixture);
+                    return;
+                }
+            }
+
+            //cancel out the spring's restitution
+            contact.SetRestitution(otherFixture.Restitution);
+        }
+
+        private void AnimateSpring(Fixture springFixture)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void AttachGroundedComponents(Contact contact)
+        {
+            //fixure A is the start, -normal points towards A
+            if (worldManifold.Normal.Y > GroundNormal)
+            {
+                grounded.Put((int)contact.FixtureA.Body.UserData, new GroundedComponent(contact));
+            }
+            //fixure B is the end, normal points towards B
+            if (-worldManifold.Normal.Y > GroundNormal)
+            {
+                grounded.Put((int)contact.FixtureB.Body.UserData, new GroundedComponent(contact));
+            }
         }
 
         private void DetachGroundedComponents(Contact contact, Body body)
