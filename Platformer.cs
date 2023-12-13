@@ -77,6 +77,11 @@ namespace Platformer
                     var oneWay = JsonSerializer.Deserialize<OneWayPlatform>(mapObject.Properties["OneWayPlatform"]);
                     entity.Attach(oneWay);
                 }
+                if (mapObject.Properties.ContainsKey("SpringComponent"))
+                {
+                    var spring = JsonSerializer.Deserialize<SpringComponent>(mapObject.Properties["SpringComponent"]);
+                    entity.Attach(spring);
+                }
             }
 
             _renderSystem.SetTiledMap(GraphicsDevice, tiledMap);
