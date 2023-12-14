@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Entities;
+using MonoGame.Extended.Serialization;
+using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Tiled;
 using Platformer.Component;
 using Platformer.Factories;
@@ -81,6 +83,12 @@ namespace Platformer
                 {
                     var spring = JsonSerializer.Deserialize<SpringComponent>(mapObject.Properties["SpringComponent"]);
                     entity.Attach(spring);
+                }
+                if (mapObject.Properties.ContainsKey("SpriteSheet"))
+                {
+                    //var spriteSheet = Content.Load<SpriteSheet>(mapObject.Properties["SpriteSheet"]);
+                    //var sprite = new AnimatedSprite(spriteSheet);
+                    //entity.Attach(sprite);
                 }
             }
 

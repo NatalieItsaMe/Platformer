@@ -4,6 +4,8 @@ using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
+using MonoGame.Extended.Sprites;
+using MonoGame.Extended.Tiled;
 using Platformer.Component;
 using System;
 using System.Collections.Generic;
@@ -22,6 +24,7 @@ namespace Platformer
         private ComponentMapper<OneWayPlatform> oneWays;
         private ComponentMapper<GroundedComponent> grounded;
         private ComponentMapper<SpringComponent> springs;
+        private ComponentMapper<AnimatedSprite> animatedSprites;
 
         public Box2dContactListener() : base(Aspect.All())
         { }
@@ -31,6 +34,7 @@ namespace Platformer
             oneWays = mapperService.GetMapper<OneWayPlatform>();
             grounded = mapperService.GetMapper<GroundedComponent>();
             springs = mapperService.GetMapper<SpringComponent>();
+            animatedSprites = mapperService.GetMapper<AnimatedSprite>();
         }
 
         public void BeginContact(Contact contact)
@@ -72,7 +76,12 @@ namespace Platformer
 
         private void AnimateSpring(Fixture springFixture)
         {
-            //throw new NotImplementedException();
+            if (!animatedSprites.Has((int)springFixture.Body.UserData))
+                return;
+            
+            var sprite = animatedSprites.Get((int)springFixture.Body.UserData);
+
+            sprite.Play("sproing");
         }
 
         private void AttachGroundedComponents(Contact contact)
@@ -169,7 +178,7 @@ namespace Platformer
                 //return without changing the restitution
                 Vector2 springPoint = springFixture.Body.GetLocalPoint(worldManifold.Points[i]);
                 float minY = ((PolygonShape)springFixture.Shape).Vertices.Min(v => v.Y);
-                System.Diagnostics.Debug.WriteLine($"{springPoint} {String.Join(',', ((PolygonShape)springFixture.Shape).Vertices)}");
+
                 if (springPoint.Y < minY)
                 {
                     AnimateSpring(springFixture);

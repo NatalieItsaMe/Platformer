@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
+using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Tiled;
 using MonoGame.Extended.Tiled.Renderers;
 using Platformer.Component;
@@ -25,6 +26,7 @@ namespace Platformer.Systems
         private ComponentMapper<Body> _bodies;
         private ComponentMapper<CameraTarget> _cameraTargets;
         private ComponentMapper<TiledMapTileObject> _tileObjects;
+        private ComponentMapper<AnimatedSprite> _animatedSprites;
 
         public TiledMapRenderSystem() : base(Aspect.All(typeof(Body), typeof(TiledMapTileObject)))
         { }
@@ -43,15 +45,13 @@ namespace Platformer.Systems
             _bodies = mapperService.GetMapper<Body>();
             _cameraTargets = mapperService.GetMapper<CameraTarget>();
             _tileObjects = mapperService.GetMapper<TiledMapTileObject>();
+            _animatedSprites = mapperService.GetMapper<AnimatedSprite>();
         }
 
         public void Update(GameTime gameTime)
         {
             _tiledRenderer.Update(gameTime);
-            _tileObjects.Components.Where(o => o != null && o.Tile is TiledMapTilesetAnimatedTile)
-                .Select(o => o.Tile as TiledMapTilesetAnimatedTile)
-                .ToList()
-                .ForEach(t => t.Update(gameTime));
+            _animatedSprites.Components.ToList().ForEach(s => s.Update(gameTime));
 
             _camera.ClampWithinBounds(new(0, 0, _tiledMap.Width, _tiledMap.Height));
         }
