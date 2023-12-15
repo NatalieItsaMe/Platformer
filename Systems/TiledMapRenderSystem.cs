@@ -26,9 +26,10 @@ namespace Platformer.Systems
         private ComponentMapper<Body> _bodies;
         private ComponentMapper<CameraTarget> _cameraTargets;
         private ComponentMapper<TiledMapTileObject> _tileObjects;
+        private ComponentMapper<Sprite> _sprites;
         private ComponentMapper<AnimatedSprite> _animatedSprites;
 
-        public TiledMapRenderSystem() : base(Aspect.All(typeof(Body), typeof(TiledMapTileObject)))
+        public TiledMapRenderSystem() : base(Aspect.All(typeof(Body)).One(typeof(AnimatedSprite), typeof(Sprite), typeof(TiledMapTileObject)))
         { }
 
         public void SetTiledMap(GraphicsDevice graphicsDevice, TiledMap tiledMap)
@@ -45,13 +46,16 @@ namespace Platformer.Systems
             _bodies = mapperService.GetMapper<Body>();
             _cameraTargets = mapperService.GetMapper<CameraTarget>();
             _tileObjects = mapperService.GetMapper<TiledMapTileObject>();
+            _sprites = mapperService.GetMapper<Sprite>();
             _animatedSprites = mapperService.GetMapper<AnimatedSprite>();
         }
 
         public void Update(GameTime gameTime)
         {
             _tiledRenderer.Update(gameTime);
-            _animatedSprites.Components.ToList().ForEach(s => s.Update(gameTime));
+            _animatedSprites.Components.Where(s => s != null)
+                .ToList()
+                .ForEach(s => s.Update(gameTime));
 
             _camera.ClampWithinBounds(new(0, 0, _tiledMap.Width, _tiledMap.Height));
         }
@@ -70,15 +74,30 @@ namespace Platformer.Systems
                 var rotation = body.GetAngle();
                 var position = body.GetWorldCenter();
 
-                var obj = _tileObjects.Get(entity);
-                var id = obj.Tile is TiledMapTilesetAnimatedTile animated
-                    ? animated.CurrentAnimationFrame.LocalTileIdentifier
-                    : obj.Tile.LocalTileIdentifier;
-                var region = obj.Tileset.GetTileRegion(id);
-                var texture = obj.Tileset.Texture;
+                if (_tileObjects.Has(entity))
+                {
+                    var obj = _tileObjects.Get(entity);
+                    var id = obj.Tile is TiledMapTilesetAnimatedTile animated
+                        ? animated.CurrentAnimationFrame.LocalTileIdentifier
+                        : obj.Tile.LocalTileIdentifier;
+                    var region = obj.Tileset.GetTileRegion(id);
+                    var texture = obj.Tileset.Texture;
 
-                Vector2 origin = region.Size.ToVector2() / 2;
-                _spriteBatch.Draw(texture, position, region, Color.White, rotation, origin, scale.Y, SpriteEffects.None, 1f);
+                    Vector2 origin = region.Size.ToVector2() / 2;
+                    _spriteBatch.Draw(texture, position, region, Color.White, rotation, origin, scale.Y, SpriteEffects.None, 1f);
+                }
+
+                if (_sprites.Has(entity))
+                {
+                    var sprite = _sprites.Get(entity);
+                    _spriteBatch.Draw(sprite, position, rotation, _tiledMap.GetScale());
+                }
+
+                if (_animatedSprites.Has(entity))
+                {
+                    var sprite = _animatedSprites.Get(entity);
+                    _spriteBatch.Draw(sprite, position, rotation, _tiledMap.GetScale());
+                }
 
                 if (_cameraTargets.Has(entity))
                 {

@@ -118,6 +118,12 @@
 /processor:TiledMapProcessor
 /build:snowyTree.tmx
 
+#begin spring.sf
+/importer:SpriteFactoryContentImporter
+/processor:SpriteFactoryContentProcessor
+/processorParam:ContentType=MonoGame.Extended MonoGame.Extended.Animations.SpriteFactory.SpriteFactoryFileReader, MonoGame.Extended.Animations
+/build:spring.sf
+
 #begin tiles_packed.png
 /importer:TextureImporter
 /processor:TextureProcessor

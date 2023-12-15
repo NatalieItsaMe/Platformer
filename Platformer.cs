@@ -1,6 +1,7 @@
 ﻿using Box2DSharp.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended.Content;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Serialization;
 using MonoGame.Extended.Sprites;
@@ -86,9 +87,12 @@ namespace Platformer
                 }
                 if (mapObject.Properties.ContainsKey("SpriteSheet"))
                 {
-                    //var spriteSheet = Content.Load<SpriteSheet>(mapObject.Properties["SpriteSheet"]);
-                    //var sprite = new AnimatedSprite(spriteSheet);
-                    //entity.Attach(sprite);
+                    var spriteSheet = Content.Load<SpriteSheet>(mapObject.Properties["SpriteSheet"], new JsonContentLoader());
+
+                    mapObject.Properties.TryGetValue("PlayAnimation", out string playAnimation);
+                    var sprite = new AnimatedSprite(spriteSheet, playAnimation);
+                    sprite.Origin = Vector2.UnitY * 18f + mapObject.Size.ToNumerics() / new System.Numerics.Vector2(2f, -2f);
+                    entity.Attach(sprite);
                 }
             }
 
