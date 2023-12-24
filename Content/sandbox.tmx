@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="18" tileheight="18" infinite="0" nextlayerid="8" nextobjectid="32">
- <tileset firstgid="1" source="tiles.tsx"/>
+ <tileset firstgid="1" source="KenneyTileset.tsx"/>
  <group id="4" name="Background" offsetx="0" offsety="-18" parallaxx="1.4">
   <imagelayer id="3" name="Background1" repeatx="1" repeaty="1">
    <image source="background_0009.png" width="24" height="24"/>

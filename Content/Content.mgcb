@@ -108,6 +108,11 @@
 /processorParam:TextureFormat=Color
 /build:ground.png
 
+#begin KenneyTileset.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:KenneyTileset.tsx
+
 #begin sandbox.tmx
 /importer:TiledMapImporter
 /processor:TiledMapProcessor
@@ -147,9 +152,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:tiles.png
-
-#begin tiles.tsx
-/importer:TiledMapTilesetImporter
-/processor:TiledMapTilesetProcessor
-/build:tiles.tsx
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.4" name="tiles" tilewidth="18" tileheight="18" spacing="2" margin="1" tilecount="152" columns="19" objectalignment="topleft">
+<tileset version="1.8" tiledversion="1.8.4" name="KenneyTileset" tilewidth="18" tileheight="18" spacing="2" margin="1" tilecount="152" columns="19" objectalignment="topleft">
  <image source="tiles.png" width="398" height="178"/>
  <tile id="0" type="Solid">
   <objectgroup draworder="index" id="2">

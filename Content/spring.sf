@@ -1,17 +1,19 @@
 {
   "textureAtlas": {
-    "texture": "tiles_packed.png",
+    "texture": "tiles.png",
     "regionWidth": 18,
-    "regionHeight": 18
+    "regionHeight": 18,
+    "spacing": 2,
+    "margin": 1
   },
   "cycles": {
     "sproing": {
-      "frames": [107,108],
+      "frames": [108,107],
       "isLooping": false,
-      "frameDuration": 0.08
+      "frameDuration": 0.12
     },
     "idle": {
-      "frames": [108],
+      "frames": [107],
       "isLooping": false,
       "frameDuration": 0.2
     }

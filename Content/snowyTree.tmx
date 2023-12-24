@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.8" tiledversion="1.8.4" orientation="orthogonal" renderorder="right-down" width="32" height="32" tilewidth="18" tileheight="18" infinite="0" nextlayerid="5" nextobjectid="27">
- <tileset firstgid="1" source="tiles.tsx"/>
+ <tileset firstgid="1" source="KenneyTileset.tsx"/>
  <layer id="1" name="Background" width="32" height="32">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -78,7 +78,7 @@
    <properties>
     <property name="AngularDamping" value="80"/>
     <property name="BodyType" value="Dynamic"/>
-    <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:1.0}, &quot;Zoom&quot;:66.67}"/>
+    <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:-0.5}, &quot;Zoom&quot;:72}"/>
     <property name="Density" type="float" value="0.72"/>
     <property name="Friction" type="float" value="500"/>
     <property name="KeyboardMapping" value="{}"/>
