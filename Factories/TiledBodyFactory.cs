@@ -21,8 +21,7 @@ namespace Platformer.Factories
         public Body CreateBodyFromTiledObject(TiledMapObject obj)
         {
             Vector2 scale = TiledMap.GetScale();
-            string bodyType;
-            obj.Properties.TryGetValue("BodyType", out bodyType);
+            obj.Properties.TryGetValue("BodyType", out string bodyType);
             BodyDef bodyDef = new()
             {
                 Position = (obj.Position.ToNumerics() + obj.Size.ToNumerics() / 2) * scale,

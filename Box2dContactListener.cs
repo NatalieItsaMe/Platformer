@@ -1,30 +1,40 @@
 ﻿using Box2DSharp.Collision.Collider;
+using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
 using MonoGame.Extended.Entities;
 using MonoGame.Extended.Entities.Systems;
+using MonoGame.Extended.Sprites;
+using MonoGame.Extended.Tiled;
 using Platformer.Component;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 
 namespace Platformer
 {
-    internal class GroundContactListener : EntitySystem, IContactListener
+    internal class Box2dContactListener : EntitySystem, IContactListener
     {
         private const float GroundNormal = 0.5f;
-        private readonly List<Contact> DisabledContacts = new List<Contact>();
+        private readonly List<Contact> DisabledContacts = new();
+        private readonly Dictionary<Contact, float> SpringContacts = new();
         private WorldManifold worldManifold;
 
         private ComponentMapper<OneWayPlatform> oneWays;
         private ComponentMapper<GroundedComponent> grounded;
+        private ComponentMapper<SpringComponent> springs;
+        private ComponentMapper<AnimatedSprite> animatedSprites;
 
-        public GroundContactListener() : base(Aspect.All(typeof(OneWayPlatform)))
+        public Box2dContactListener() : base(Aspect.All())
         { }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
             oneWays = mapperService.GetMapper<OneWayPlatform>();
             grounded = mapperService.GetMapper<GroundedComponent>();
+            springs = mapperService.GetMapper<SpringComponent>();
+            animatedSprites = mapperService.GetMapper<AnimatedSprite>();
         }
 
         public void BeginContact(Contact contact)
@@ -35,8 +45,43 @@ namespace Platformer
 
             if (contact.IsEnabled)
             {
+                DerestituteSpringContact(contact);
                 AttachGroundedComponents(contact);
             }
+        }
+
+        public void EndContact(Contact contact)
+        {
+            //reset the default state of the contact in case it comes back for more
+            SpringContacts.Remove(contact);
+            DisabledContacts.Remove(contact);
+            contact.SetEnabled(true);
+
+            DetachGroundedComponents(contact, contact.FixtureA.Body);
+            DetachGroundedComponents(contact, contact.FixtureB.Body);
+        }
+
+        public void PreSolve(Contact contact, in Manifold oldManifold) 
+        {
+            if (DisabledContacts.Contains(contact))
+                contact.SetEnabled(false);
+            if (SpringContacts.ContainsKey(contact))
+                contact.SetRestitution(SpringContacts[contact]);
+        }
+
+        public void PostSolve(Contact contact, in ContactImpulse impulse) 
+        {
+
+        }
+
+        private void AnimateSpring(Fixture springFixture)
+        {
+            if (!animatedSprites.Has((int)springFixture.Body.UserData))
+                return;
+            
+            var sprite = animatedSprites.Get((int)springFixture.Body.UserData);
+
+            sprite.Play("sproing");
         }
 
         private void AttachGroundedComponents(Contact contact)
@@ -51,38 +96,6 @@ namespace Platformer
             {
                 grounded.Put((int)contact.FixtureB.Body.UserData, new GroundedComponent(contact));
             }
-        }
-
-        public void EndContact(Contact contact)
-        {
-            //reset the default state of the contact in case it comes back for more
-            DisabledContacts.Remove(contact);
-            contact.SetEnabled(true);
-
-            DetachGroundedComponents(contact, contact.FixtureA.Body);
-            DetachGroundedComponents(contact, contact.FixtureB.Body);
-        }
-
-        public void PreSolve(Contact contact, in Manifold oldManifold) 
-        {
-            DisabledContacts.ForEach(c => c.SetEnabled(false)); 
-        }
-
-        public void PostSolve(Contact contact, in ContactImpulse impulse) 
-        { 
-
-        }
-
-        private bool IsBodyMovingDown(Contact contact, Body body)
-        {
-            //check if contact points are moving downward
-            for (int i = 0; i < contact.Manifold.PointCount; i++)
-            {
-                Vector2 pointVel = body.GetLinearVelocityFromWorldPoint(worldManifold.Points[i]);
-                if (pointVel.Y > 0)
-                    return true;//point is moving down, leave contact solid and exit
-            }
-            return false;
         }
 
         private void DetachGroundedComponents(Contact contact, Body body)
@@ -138,6 +151,44 @@ namespace Platformer
             //no points are moving downward, contact should not be solid
             contact.SetEnabled(false);
             DisabledContacts.Add(contact);
+        }
+
+        private void DerestituteSpringContact(Contact contact)
+        {
+            //Restitution of the spring should only apply to
+            //collisions with the face of the spring
+            Fixture springFixture = null;
+            Fixture otherFixture = null;
+            if (springs.Has((int)contact.FixtureA.Body.UserData))
+            {
+                springFixture = contact.FixtureA;
+                otherFixture = contact.FixtureB;
+            }
+            if (springs.Has((int)contact.FixtureB.Body.UserData))
+            {
+                springFixture = contact.FixtureB;
+                otherFixture = contact.FixtureA;
+            }
+
+            if (springFixture == null) return;
+
+            for (int i = 0; i < contact.Manifold.PointCount; i++)
+            {
+                //if the other fixture is moving into the springy top
+                //return without changing the restitution
+                Vector2 springPoint = springFixture.Body.GetLocalPoint(worldManifold.Points[i]);
+                float minY = ((PolygonShape)springFixture.Shape).Vertices.Min(v => v.Y);
+
+                if (springPoint.Y < minY)
+                {
+                    AnimateSpring(springFixture);
+                    return;
+                }
+            }
+
+            //cancel out the spring's restitution
+            SpringContacts.Add(contact, otherFixture.Restitution);
+            contact.SetRestitution(otherFixture.Restitution);
         }
     }
 }

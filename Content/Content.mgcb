@@ -108,6 +108,11 @@
 /processorParam:TextureFormat=Color
 /build:ground.png
 
+#begin KenneyTileset.tsx
+/importer:TiledMapTilesetImporter
+/processor:TiledMapTilesetProcessor
+/build:KenneyTileset.tsx
+
 #begin sandbox.tmx
 /importer:TiledMapImporter
 /processor:TiledMapProcessor
@@ -117,6 +122,12 @@
 /importer:TiledMapImporter
 /processor:TiledMapProcessor
 /build:snowyTree.tmx
+
+#begin spring.sf
+/importer:SpriteFactoryContentImporter
+/processor:SpriteFactoryContentProcessor
+/processorParam:ContentType=MonoGame.Extended MonoGame.Extended.Animations.SpriteFactory.SpriteFactoryFileReader, MonoGame.Extended.Animations
+/build:spring.sf
 
 #begin tiles_packed.png
 /importer:TextureImporter
@@ -141,9 +152,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:tiles.png
-
-#begin tiles.tsx
-/importer:TiledMapTilesetImporter
-/processor:TiledMapTilesetProcessor
-/build:tiles.tsx
 

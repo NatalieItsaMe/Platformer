@@ -14,6 +14,7 @@
     <None Remove="Assets\ground.aseprite" />
     <None Remove="Assets\Tilemap\tiles.png" />
     <None Remove="Content\sandbox.tmx" />
+    <None Remove="Content\spring.sf" />
     <None Remove="Icon.ico" />
     <None Remove="Icon.bmp" />
   </ItemGroup>
@@ -27,6 +28,9 @@
     <Content Include="Content\sandbox.tmx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\spring.sf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Icon.ico" />
@@ -35,7 +39,6 @@
   <ItemGroup>
     <PackageReference Include="Box2D" Version="2.3.0" />
     <PackageReference Include="Box2DSharp" Version="0.6.0" />
-    <PackageReference Include="MonoGame.Framework.Content.Pipeline" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.1.303" />
     <ProjectReference Include="..\MonoGame.Extended\src\cs\MonoGame.Extended.Content.Pipeline\MonoGame.Extended.Content.Pipeline.csproj" />
@@ -43,6 +46,9 @@
     <ProjectReference Include="..\MonoGame.Extended\src\cs\MonoGame.Extended.Graphics\MonoGame.Extended.Graphics.csproj" />
     <ProjectReference Include="..\MonoGame.Extended\src\cs\MonoGame.Extended.Tiled\MonoGame.Extended.Tiled.csproj" />
     <ProjectReference Include="..\MonoGame.Extended\src\cs\MonoGame.Extended\MonoGame.Extended.csproj" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\MonoGame.Extended\src\cs\MonoGame.Extended.Content.Pipeline\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Resource Include="Assets\Tilemap\tiles.png" />
 	<Content Update="**/mgfxc" Visible="false" />
   </ItemGroup>

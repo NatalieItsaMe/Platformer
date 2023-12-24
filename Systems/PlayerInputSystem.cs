@@ -16,6 +16,7 @@ namespace Platformer
         private const float MaxHorizontalSpeed = 4.2f;
         private const float JumpForce = -360f;
         private const ushort MaxJumpTimeout = 4;
+        private const ushort MaxZoomTimeout = 6;
 
         private Platformer _game;
         private ComponentMapper<KeyboardController> _keyboards;
@@ -25,6 +26,7 @@ namespace Platformer
         private ComponentMapper<Transform2> _transform;
         private ComponentMapper<CameraTarget> _cameraTarget;
         private ushort JumpTimeout;
+        private ushort ZoomTimeout;
 
         public PlayerInputSystem(Platformer game) : base(Aspect.One(typeof(Body), typeof(KeyboardController), typeof(DebugController)))
         {
@@ -61,17 +63,29 @@ namespace Platformer
 
             if (_cameraTarget.Has(entity))
             {
-                var cameraTarget = _cameraTarget.Get(entity);
-                if (state.IsKeyDown(mapping.ZoomOut))
-                    cameraTarget.Zoom *= 0.9f;
-                if (state.IsKeyDown(mapping.ZoomIn))
-                    cameraTarget.Zoom *= 1.1f;
+                if (ZoomTimeout > 0)
+                    ZoomTimeout--;
+                else
+                {
+                    var cameraTarget = _cameraTarget.Get(entity);
+                    if (state.IsKeyDown(mapping.ZoomOut) && cameraTarget.Zoom > 1)
+                    {
+                        cameraTarget.Zoom-= 1;
+                        ZoomTimeout = MaxZoomTimeout;
+                    }
+                    else if (state.IsKeyDown(mapping.ZoomIn))
+                    {
+                        cameraTarget.Zoom += 1;
+                        ZoomTimeout = MaxZoomTimeout;
+                    }                    
+                }
             }
 
             if (_grounded.Has(entity))
             {
                 if(JumpTimeout > 0) 
                     JumpTimeout--;
+
                 if (state.IsKeyDown(mapping.Jump) && JumpTimeout == 0)
                 {
                     _grounded.Delete(entity);
