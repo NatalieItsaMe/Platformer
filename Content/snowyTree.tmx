@@ -79,7 +79,7 @@
     <property name="AngularDamping" value="80"/>
     <property name="BodyType" value="Dynamic"/>
     <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:-0.5}, &quot;Zoom&quot;:72}"/>
-    <property name="Density" type="float" value="0.72"/>
+    <property name="Density" type="float" value="0.74"/>
     <property name="Friction" type="float" value="500"/>
     <property name="KeyboardMapping" value="{}"/>
     <property name="Restitution" type="float" value="0.16"/>
