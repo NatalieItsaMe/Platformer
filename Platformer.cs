@@ -6,11 +6,11 @@ using MonoGame.Extended.Entities;
 using MonoGame.Extended.Serialization;
 using MonoGame.Extended.Sprites;
 using MonoGame.Extended.Tiled;
+using Newtonsoft.Json;
 using Platformer.Component;
 using Platformer.Factories;
 using Platformer.Systems;
 using System.Linq;
-using System.Text.Json;
 using World = MonoGame.Extended.Entities.World;
 
 namespace Platformer
@@ -67,22 +67,22 @@ namespace Platformer
                 }
                 if (mapObject.Properties.ContainsKey("CameraTarget"))
                 {
-                    var cameraTarget = JsonSerializer.Deserialize<CameraTarget>(mapObject.Properties["CameraTarget"]);
+                    var cameraTarget = JsonConvert.DeserializeObject<CameraTarget>(mapObject.Properties["CameraTarget"]);
                     entity.Attach(cameraTarget);
                 }
                 if (mapObject.Properties.ContainsKey("KeyboardMapping"))
                 {
-                    var keyboardMapping = JsonSerializer.Deserialize<KeyboardController>(mapObject.Properties["KeyboardMapping"]);
+                    var keyboardMapping = JsonConvert.DeserializeObject<KeyboardController>(mapObject.Properties["KeyboardMapping"]);
                     entity.Attach(keyboardMapping);
                 }
                 if (mapObject.Properties.ContainsKey("OneWayPlatform"))
                 {
-                    var oneWay = JsonSerializer.Deserialize<OneWayPlatform>(mapObject.Properties["OneWayPlatform"]);
+                    var oneWay = JsonConvert.DeserializeObject<OneWayPlatform>(mapObject.Properties["OneWayPlatform"]);
                     entity.Attach(oneWay);
                 }
                 if (mapObject.Properties.ContainsKey("SpringComponent"))
                 {
-                    var spring = JsonSerializer.Deserialize<SpringComponent>(mapObject.Properties["SpringComponent"]);
+                    var spring = JsonConvert.DeserializeObject<SpringComponent>(mapObject.Properties["SpringComponent"]);
                     entity.Attach(spring);
                 }
                 if (mapObject.Properties.ContainsKey("SpriteSheet"))

@@ -46,6 +46,9 @@
     <ProjectReference Include="..\MonoGame.Extended\src\cs\MonoGame.Extended.Graphics\MonoGame.Extended.Graphics.csproj" />
     <ProjectReference Include="..\MonoGame.Extended\src\cs\MonoGame.Extended.Tiled\MonoGame.Extended.Tiled.csproj" />
     <ProjectReference Include="..\MonoGame.Extended\src\cs\MonoGame.Extended\MonoGame.Extended.csproj" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\MonoGame.Extended\src\cs\MonoGame.Extended.Content.Pipeline\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Resource Include="Assets\Tilemap\tiles.png" />
 	<Content Update="**/mgfxc" Visible="false" />
   </ItemGroup>
