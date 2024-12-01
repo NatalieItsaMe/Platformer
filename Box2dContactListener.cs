@@ -2,15 +2,13 @@
 using Box2DSharp.Collision.Shapes;
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Contacts;
-using MonoGame.Extended.Entities;
-using MonoGame.Extended.Entities.Systems;
-using MonoGame.Extended.Sprites;
-using MonoGame.Extended.Tiled;
 using Platformer.Component;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using MonoGame.Extended.Graphics;
+using MonoGame.Extended.ECS;
+using MonoGame.Extended.ECS.Systems;
 
 namespace Platformer
 {
@@ -81,7 +79,7 @@ namespace Platformer
             
             var sprite = animatedSprites.Get((int)springFixture.Body.UserData);
 
-            sprite.Play("sproing");
+            sprite.SetAnimation("sproing");
         }
 
         private void AttachGroundedComponents(Contact contact)

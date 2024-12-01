@@ -1,18 +1,16 @@
 ﻿using Box2DSharp.Dynamics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended.Content;
-using MonoGame.Extended.Entities;
-using MonoGame.Extended.Serialization;
-using MonoGame.Extended.Sprites;
+using MonoGame.Extended.ECS;
+using MonoGame.Extended.Graphics;
+using MonoGame.Extended.Serialization.Json;
 using MonoGame.Extended.Tiled;
 using Newtonsoft.Json;
 using Platformer.Component;
 using Platformer.Factories;
 using Platformer.Systems;
 using System.Linq;
-using World = MonoGame.Extended.Entities.World;
-
+using World = MonoGame.Extended.ECS.World;
 namespace Platformer
 {
     public class Platformer : Game

@@ -2,7 +2,7 @@
 using Box2DSharp.Dynamics;
 using Box2DSharp.Dynamics.Joints;
 using Microsoft.Xna.Framework;
-using MonoGame.Extended.Entities.Systems;
+using MonoGame.Extended.ECS.Systems;
 using System.Collections.Generic;
 using Vector2 = System.Numerics.Vector2;
 
