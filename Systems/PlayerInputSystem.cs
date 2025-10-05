@@ -18,7 +18,7 @@ namespace Platformer
         private const ushort MaxJumpTimeout = 4;
         private const ushort MaxZoomTimeout = 6;
 
-        private Platformer _game;
+        private PlatformerGame _game;
         private ComponentMapper<KeyboardController> _keyboards;
         private ComponentMapper<Body> _bodies;
         private ComponentMapper<GroundedComponent> _grounded;
@@ -28,7 +28,7 @@ namespace Platformer
         private ushort JumpTimeout;
         private ushort ZoomTimeout;
 
-        public PlayerInputSystem(Platformer game) : base(Aspect.One(typeof(Body), typeof(KeyboardController), typeof(DebugController)))
+        public PlayerInputSystem(PlatformerGame game) : base(Aspect.One(typeof(Body), typeof(KeyboardController), typeof(DebugController)))
         {
             _game = game;
         }

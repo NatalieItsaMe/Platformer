@@ -2,7 +2,7 @@
 
 namespace Platformer.Component
 {
-    internal class KeyboardController
+    internal class KeyboardController : Interfaces.IInputMapping
     {
         public Keys Up = Keys.W, 
             Down = Keys.S, 
