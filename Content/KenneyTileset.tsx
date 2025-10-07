@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.4" name="KenneyTileset" tilewidth="18" tileheight="18" spacing="2" margin="1" tilecount="152" columns="19" objectalignment="topleft">
+<tileset version="1.10" tiledversion="1.10.2" name="KenneyTileset" tilewidth="18" tileheight="18" spacing="2" margin="1" tilecount="152" columns="19" objectalignment="topleft">
  <image source="tiles.png" width="398" height="178"/>
  <tile id="0" type="Solid">
   <objectgroup draworder="index" id="2">
@@ -352,9 +352,15 @@
   </objectgroup>
  </tile>
  <tile id="99" type="Solid">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;DynamicBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="18" height="18"/>
-   <object id="2" x="0" y="0" width="18" height="18"/>
+   <object id="2" x="0" y="0" width="18" height="18">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;Density&quot;:0.72,&quot;Friction&quot;:72,&quot;Restitution&quot;:0, &quot;IsSensor&quot;:false }"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="102">
@@ -368,8 +374,15 @@
   </objectgroup>
  </tile>
  <tile id="106">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="18" height="18"/>
+   <object id="1" x="0" y="0" width="18" height="18">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;IsSensor&quot;:true }"/>
+    </properties>
+   </object>
   </objectgroup>
   <animation>
    <frame tileid="106" duration="680"/>
@@ -418,7 +431,11 @@
  </tile>
  <tile id="125">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="6" height="18"/>
+   <object id="1" x="0" y="0" width="6" height="18">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;IsSensor&quot;:true }"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="126" type="Solid">
@@ -462,8 +479,14 @@
   </objectgroup>
  </tile>
  <tile id="138">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;DynamicBody&quot;,&quot;AngularDamping&quot;:80 }"/>
+  </properties>
   <objectgroup draworder="index" id="5">
    <object id="4" x="3" y="6" width="12" height="12">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;Density&quot;:0.74,&quot;Friction&quot;:500,&quot;Restitution&quot;:0.16 }"/>
+    </properties>
     <ellipse/>
    </object>
   </objectgroup>
@@ -489,8 +512,14 @@
   </objectgroup>
  </tile>
  <tile id="144">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="4">
    <object id="3" x="3" y="3" width="12" height="12">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;IsSensor&quot;:true }"/>
+    </properties>
     <ellipse/>
    </object>
   </objectgroup>
@@ -501,7 +530,10 @@
  </tile>
  <tile id="145">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="12" height="12">
+   <object id="1" x="4" y="3" width="10" height="12">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;IsSensor&quot;:true }"/>
+    </properties>
     <ellipse/>
    </object>
   </objectgroup>

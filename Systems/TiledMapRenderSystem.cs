@@ -41,6 +41,8 @@ namespace Platformer.Systems
             _box2dDrawer = new Box2dDebugDrawer(_spriteBatch);
         }
 
+        public TiledMap GetTiledMap() => _tiledMap;
+
         public override void Initialize(IComponentMapperService mapperService)
         {
             _bodies = mapperService.GetMapper<Body>();
@@ -90,13 +92,17 @@ namespace Platformer.Systems
                 if (_sprites.Has(entity))
                 {
                     var sprite = _sprites.Get(entity);
-                    _spriteBatch.Draw(sprite, position, rotation, _tiledMap.GetScale());
+                    _spriteBatch.Draw(sprite, position, rotation, scale);
                 }
 
                 if (_animatedSprites.Has(entity))
                 {
                     var sprite = _animatedSprites.Get(entity);
-                    _spriteBatch.Draw(sprite, position, rotation, _tiledMap.GetScale());
+                    var corners = sprite.GetCorners(position, rotation, scale);
+                    var rectangle = sprite.GetBoundingRectangle(new Transform2(position, rotation, scale));
+                    var pos = body.GetPosition();
+                    var size = new Vector2(sprite.TextureRegion.Size.Width, sprite.TextureRegion.Size.Height);
+                    _spriteBatch.Draw(sprite, position - size * scale / 2f, rotation, scale);
                 }
 
                 if (_cameraTargets.Has(entity))

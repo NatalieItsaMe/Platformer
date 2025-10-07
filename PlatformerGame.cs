@@ -7,7 +7,6 @@ using Newtonsoft.Json;
 using Platformer.Component;
 using Platformer.Factories;
 using Platformer.Systems;
-using System.Collections.Generic;
 using System;
 using System.Linq;
 using World = MonoGame.Extended.ECS.World;
@@ -37,7 +36,7 @@ namespace Platformer
         {
             _physicsSystem = new PhysicsSystem();
             _renderSystem = new TiledMapRenderSystem();
-            Box2dContactListener contactSystem = new Box2dContactListener();
+            var contactSystem = new Box2dContactListener();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
@@ -54,30 +53,44 @@ namespace Platformer
         {
             const string mapName = "snowyTree";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
-            TiledBodyFactory bodyFactory = new(_physicsSystem.Box2DWorld, tiledMap);
+            _renderSystem.SetTiledMap(GraphicsDevice, tiledMap);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 Entity entity = _world.CreateEntity();
-                Body body = bodyFactory.CreateBodyFromTiledObject(mapObject);
-                body.UserData = entity.Id;
-                entity.Attach(body);
                 if (mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
+                {
                     entity.Attach(tileObject);
+                    CreateComponentsFromProperties(tileObject, tileObject.Tile.Properties, entity);
+                }
 
-                CreateComponentsFromMapObject(mapObject.Properties, entity);
+                CreateComponentsFromProperties(mapObject, mapObject.Properties, entity);
             }
-
-            _renderSystem.SetTiledMap(GraphicsDevice, tiledMap);
         }
 
-        private void CreateComponentsFromMapObject(TiledMapProperties properties, Entity entity)
+        private void CreateComponentsFromProperties(TiledMapObject mapObject, TiledMapProperties properties, Entity entity)
         {
-            AnimatedSpriteFactory spriteFactory = null;
+            var bodyFactory = new TiledBodyFactory(_renderSystem.GetTiledMap().GetScale());
+            var spriteFactory = new AnimatedSpriteFactory(Content);
             foreach (var prop in properties)
             {
                 switch (prop.Key)
                 {
+                    case nameof(BodyDef):
+                        BodyDef bodyDef = JsonConvert.DeserializeObject<BodyDef>(prop.Value);
+                        bodyDef.Position = (mapObject.Position.ToNumerics() + mapObject.Size.ToNumerics() / 2) * _renderSystem.GetTiledMap().GetScale();
+                        bodyDef.Angle = mapObject.Rotation * (float)Math.PI / 180f;
+
+                        Body body = _physicsSystem.CreateBody(bodyDef);
+                        body.UserData = entity.Id;
+
+                        if(mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
+                            bodyFactory.BuildFixturesFromTiledObject(tileObject, body);
+                        else
+                            bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
+
+                        entity.Attach(body);
+                        break;
                     case nameof(CameraTarget):
                         entity.Attach(JsonConvert.DeserializeObject<CameraTarget>(prop.Value));
                         break;
@@ -91,7 +104,6 @@ namespace Platformer
                         entity.Attach(JsonConvert.DeserializeObject<SpringComponent>(prop.Value));
                         break;
                     case nameof(AnimatedSprite):
-                        spriteFactory ??= new AnimatedSpriteFactory(Content);
                         var model = Content.Load<AnimatedSpriteModel>(prop.Value);
                         //var model = JsonConvert.DeserializeObject<Models.AnimatedSpriteModel>(json);
 

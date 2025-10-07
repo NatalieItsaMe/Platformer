@@ -28,24 +28,24 @@
     "TextureRegions": [
       {
         "Name": "spring_0",
-        "X": 0,
-        "Y": 0,
-        "Width": 16,
-        "Height": 16
+        "X": 141,
+        "Y": 101,
+        "Width": 18,
+        "Height": 18
       },
       {
         "Name": "spring_1",
-        "X": 16,
-        "Y": 0,
-        "Width": 16,
-        "Height": 16
+        "X": 161,
+        "Y": 101,
+        "Width": 18,
+        "Height": 18
       },
       {
         "Name": "spring_2",
-        "X": 32,
-        "Y": 0,
-        "Width": 16,
-        "Height": 16
+        "X": 141,
+        "Y": 101,
+        "Width": 18,
+        "Height": 18
       }
     ]
   }
