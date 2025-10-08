@@ -78,18 +78,17 @@ namespace Platformer
                 {
                     case nameof(BodyDef):
                         BodyDef bodyDef = JsonConvert.DeserializeObject<BodyDef>(prop.Value);
-                        if(bodyDef.Position == Vector2.Zero)
-                            bodyDef.Position = (mapObject.Position.ToNumerics() + mapObject.Size.ToNumerics() / 2f) * _renderSystem.GetTiledMap().GetScale();
+                        bodyDef.Position = (mapObject.Position.ToNumerics() + mapObject.Size.ToNumerics() / 2f) * _renderSystem.GetTiledMap().GetScale();
                         bodyDef.Angle = mapObject.Rotation * (float)Math.PI / 180f;
 
                         Body body = _physicsSystem.CreateBody(bodyDef);
-                        body.UserData = entity.Id;
 
                         if(mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
                             bodyFactory.BuildFixturesFromTiledObject(tileObject, body);
                         else
                             bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
 
+                        body.UserData = entity.Id;
                         entity.Attach(body);
                         break;
                     case nameof(CameraTarget):

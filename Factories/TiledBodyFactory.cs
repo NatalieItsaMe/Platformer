@@ -23,8 +23,8 @@ namespace Platformer.Factories
             foreach (var innerObject in obj.Tile.Objects)
             {
                 //offset points from the topleft (Tiled) to the center (Box2D)
-                //var offset = (innerObject.Size - obj.Size).ToNumerics() / 2 + innerObject.Position.ToNumerics();
-                FixtureDef fixture = CreateFixtureDefFromTiledObject(innerObject);
+                var offset = (innerObject.Size - obj.Size).ToNumerics() / 2 + innerObject.Position.ToNumerics();
+                FixtureDef fixture = CreateFixtureDefFromTiledObject(innerObject, offset);
                 body.CreateFixture(fixture);
             }
         }

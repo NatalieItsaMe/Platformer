@@ -430,6 +430,9 @@
   </objectgroup>
  </tile>
  <tile id="125">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="6" height="18">
     <properties>
