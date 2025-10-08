@@ -73,8 +73,8 @@ namespace Platformer.Systems
             foreach (var entity in ActiveEntities)
             {
                 var body = _bodies.Get(entity);
-                var rotation = body.GetAngle();
-                var position = body.GetWorldCenter();
+                var rotation = body.GetTransform().Rotation.Angle;
+                var position = body.GetTransform().Position;
 
                 if (_tileObjects.Has(entity))
                 {

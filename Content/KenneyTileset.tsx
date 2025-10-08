@@ -191,23 +191,51 @@
   </objectgroup>
  </tile>
  <tile id="45" type="Solid">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="18" height="18"/>
+   <object id="1" x="0" y="0" width="18" height="18">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;Friction&quot;:1,&quot;IsSensor&quot;:false }"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="46" type="Solid">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="18" height="18"/>
+   <object id="1" x="0" y="0" width="18" height="18">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;Friction&quot;:1,&quot;IsSensor&quot;:false }"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="47" type="Solid">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="18" height="18"/>
+   <object id="1" x="0" y="0" width="18" height="18">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;Friction&quot;:1,&quot;IsSensor&quot;:false }"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="48" type="Solid">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+  </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0" y="0" width="18" height="18"/>
+   <object id="1" x="0" y="0" width="18" height="18">
+    <properties>
+     <property name="FixtureDef" value="{ &quot;Friction&quot;:1,&quot;IsSensor&quot;:false }"/>
+    </properties>
+   </object>
   </objectgroup>
  </tile>
  <tile id="51">
@@ -358,7 +386,7 @@
   <objectgroup draworder="index" id="2">
    <object id="2" x="0" y="0" width="18" height="18">
     <properties>
-     <property name="FixtureDef" value="{ &quot;Density&quot;:0.72,&quot;Friction&quot;:72,&quot;Restitution&quot;:0, &quot;IsSensor&quot;:false }"/>
+     <property name="FixtureDef" value="{ &quot;Density&quot;:0.72,&quot;Friction&quot;:0.5,&quot;Restitution&quot;:0, &quot;IsSensor&quot;:false }"/>
     </properties>
    </object>
   </objectgroup>
@@ -486,9 +514,9 @@
    <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;DynamicBody&quot;,&quot;AngularDamping&quot;:80 }"/>
   </properties>
   <objectgroup draworder="index" id="5">
-   <object id="4" x="3" y="6" width="12" height="12">
+   <object id="4" x="3" y="4" width="12" height="12">
     <properties>
-     <property name="FixtureDef" value="{ &quot;Density&quot;:0.74,&quot;Friction&quot;:500,&quot;Restitution&quot;:0.16 }"/>
+     <property name="FixtureDef" value="{ &quot;Density&quot;:0.74,&quot;Friction&quot;:20,&quot;Restitution&quot;:0.16 }"/>
     </properties>
     <ellipse/>
    </object>

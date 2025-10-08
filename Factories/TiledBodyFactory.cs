@@ -2,8 +2,7 @@
 using Box2DSharp.Dynamics;
 using MonoGame.Extended.Tiled;
 using Newtonsoft.Json;
-using Platformer.Models;
-using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -23,7 +22,7 @@ namespace Platformer.Factories
             foreach (var innerObject in obj.Tile.Objects)
             {
                 //offset points from the topleft (Tiled) to the center (Box2D)
-                var offset = (innerObject.Size - obj.Size).ToNumerics() / 2 + innerObject.Position.ToNumerics();
+                var offset = (innerObject.Size - obj.Size).ToNumerics() / 2f + innerObject.Position.ToNumerics();
                 FixtureDef fixture = CreateFixtureDefFromTiledObject(innerObject, offset);
                 body.CreateFixture(fixture);
             }
@@ -65,10 +64,13 @@ namespace Platformer.Factories
             }
             else if (obj is TiledMapEllipseObject ellipse)
             {
+                var size = ellipse.Radius * Scale;
+                Debug.WriteLineIf(size.X != size.Y, "Ellipses are not supported!");
+
                 CircleShape shape = new()
                 {
                     Position = offset * Scale,
-                    Radius = (ellipse.Radius * Scale).Length()
+                    Radius = size.X
                 };
 
                 return shape;

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://aka.ms/vs/debugger-managed-favorites-schema",
+  "types": {
+    "Box2DSharp.Dynamics.FixtureDef": {
+      "favorites": [
+        "Density",
+        "Restitution",
+        "Friction"
+      ]
+    }
+  }
+}
