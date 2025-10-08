@@ -98,11 +98,7 @@ namespace Platformer.Systems
                 if (_animatedSprites.Has(entity))
                 {
                     var sprite = _animatedSprites.Get(entity);
-                    var corners = sprite.GetCorners(position, rotation, scale);
-                    var rectangle = sprite.GetBoundingRectangle(new Transform2(position, rotation, scale));
-                    var pos = body.GetPosition();
-                    var size = new Vector2(sprite.TextureRegion.Size.Width, sprite.TextureRegion.Size.Height);
-                    _spriteBatch.Draw(sprite, position - size * scale / 2f, rotation, scale);
+                    _spriteBatch.Draw(sprite, position, rotation, scale);
                 }
 
                 if (_cameraTargets.Has(entity))

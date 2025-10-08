@@ -31,21 +31,24 @@
         "X": 141,
         "Y": 101,
         "Width": 18,
-        "Height": 18
+        "Height": 18,
+        "Origin": [ 9.0, 13.0 ]
       },
       {
         "Name": "spring_1",
         "X": 161,
         "Y": 101,
         "Width": 18,
-        "Height": 18
+        "Height": 18,
+        "Origin": [ 9.0, 13.0 ]
       },
       {
         "Name": "spring_2",
         "X": 141,
         "Y": 101,
         "Width": 18,
-        "Height": 18
+        "Height": 18,
+        "Origin": [ 9.0, 13.0 ]
       }
     ]
   }

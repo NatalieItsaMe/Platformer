@@ -1,5 +1,7 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using MonoGame.Extended.Graphics;
 using Platformer.Models;
 
@@ -39,7 +41,11 @@ namespace Platformer.Factories
 
             foreach (var region in model.TextureRegions)
             {
-                atlas.CreateRegion(region.X, region.Y, region.Width, region.Height, region.Name);
+                var bounds = new Rectangle(region.X, region.Y, region.Width, region.Height);
+                var size = new Size(region.Width, region.Height);
+                Vector2? originNormalized = (region.Origin == null || region.Origin.Length != 2) ? null : new Vector2(region.Origin[0] / region.Width, region.Origin[1] / region.Height);
+            
+                atlas.CreateRegion(bounds, region.IsRotated, size, Vector2.Zero, originNormalized, region.Name);
             }
 
             return atlas;

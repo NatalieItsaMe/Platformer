@@ -78,7 +78,8 @@ namespace Platformer
                 {
                     case nameof(BodyDef):
                         BodyDef bodyDef = JsonConvert.DeserializeObject<BodyDef>(prop.Value);
-                        bodyDef.Position = (mapObject.Position.ToNumerics() + mapObject.Size.ToNumerics() / 2) * _renderSystem.GetTiledMap().GetScale();
+                        if(bodyDef.Position == Vector2.Zero)
+                            bodyDef.Position = (mapObject.Position.ToNumerics() + mapObject.Size.ToNumerics() / 2f) * _renderSystem.GetTiledMap().GetScale();
                         bodyDef.Angle = mapObject.Rotation * (float)Math.PI / 180f;
 
                         Body body = _physicsSystem.CreateBody(bodyDef);
@@ -96,6 +97,9 @@ namespace Platformer
                         break;
                     case nameof(KeyboardController):
                         entity.Attach(JsonConvert.DeserializeObject<KeyboardController>(prop.Value));
+                        break;
+                    case nameof(DebugController):
+                        entity.Attach(JsonConvert.DeserializeObject<DebugController>(prop.Value));
                         break;
                     case nameof(OneWayPlatform):
                         entity.Attach(JsonConvert.DeserializeObject<OneWayPlatform>(prop.Value));
