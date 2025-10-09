@@ -17,7 +17,6 @@ namespace Platformer
 {
     public class PlatformerGame : Game
     {
-        private readonly GraphicsDeviceManager _graphics;
         internal TiledMapRenderSystem _renderSystem;
         private PhysicsSystem _physicsSystem;
         private World _world;
@@ -25,7 +24,7 @@ namespace Platformer
         public PlatformerGame()
         {
             Window.AllowUserResizing = true;
-            _graphics = new GraphicsDeviceManager(this)
+            var graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = 1280,
                 PreferredBackBufferHeight = 960
