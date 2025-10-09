@@ -7,14 +7,9 @@ using Platformer.Models;
 
 namespace Platformer.Factories
 {
-    class AnimatedSpriteFactory
+    class AnimatedSpriteFactory(ContentManager contentManager)
     {
-        private ContentManager _contentManager { get; }
-
-        public AnimatedSpriteFactory(ContentManager contentManager)
-        {
-            _contentManager = contentManager;
-        }
+        private readonly ContentManager _contentManager = contentManager;
 
         public AnimatedSprite BuildAnimatedSprite(AnimatedSpriteModel model)
         {

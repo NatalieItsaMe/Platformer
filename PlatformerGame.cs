@@ -25,9 +25,11 @@ namespace Platformer
         public PlatformerGame()
         {
             Window.AllowUserResizing = true;
-            _graphics = new GraphicsDeviceManager(this);
-            _graphics.PreferredBackBufferWidth = 1280;
-            _graphics.PreferredBackBufferHeight = 960;
+            _graphics = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = 1280,
+                PreferredBackBufferHeight = 960
+            };
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }

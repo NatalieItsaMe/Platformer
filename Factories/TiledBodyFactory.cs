@@ -8,14 +8,9 @@ using System.Numerics;
 
 namespace Platformer.Factories
 {
-    internal class TiledBodyFactory
+    internal class TiledBodyFactory(Vector2 scale)
     {
-        private Vector2 Scale { get; }
-
-        public TiledBodyFactory(Vector2 scale)
-        {
-            Scale = scale;
-        }
+        private readonly Vector2 _scale = scale;
 
         public void BuildFixturesFromTiledObject(TiledMapTileObject obj, Body body)
         {
@@ -49,14 +44,15 @@ namespace Platformer.Factories
             {
                 //Concave polygons are not supported
                 PolygonShape shape = new();
-                shape.Set(polygon.Points.Select(p => (p.ToNumerics() + offset) * Scale).ToArray());
+                Vector2[] vertices = [.. polygon.Points.Select(p => (p.ToNumerics() + offset) * _scale)];
+                shape.Set(vertices);
                 return shape;
             }
             else if (obj is TiledMapPolylineObject polyline)
             {
                 EdgeShape shape = new();
-                Vector2 start = (polyline.Points[0].ToNumerics() + offset) * Scale;
-                Vector2 end = (polyline.Points[1].ToNumerics() + offset) * Scale;
+                Vector2 start = (polyline.Points[0].ToNumerics() + offset) * _scale;
+                Vector2 end = (polyline.Points[1].ToNumerics() + offset) * _scale;
                 //v0 and v3 are "ghost vertices", if the segment were to continue in either direction
                 shape.SetOneSided(start, start, end, end);
 
@@ -64,12 +60,12 @@ namespace Platformer.Factories
             }
             else if (obj is TiledMapEllipseObject ellipse)
             {
-                var size = ellipse.Radius * Scale;
+                var size = ellipse.Radius * _scale;
                 Debug.WriteLineIf(size.X != size.Y, "Ellipses are not supported!");
 
                 CircleShape shape = new()
                 {
-                    Position = offset * Scale,
+                    Position = offset * _scale,
                     Radius = size.X
                 };
 
@@ -77,8 +73,8 @@ namespace Platformer.Factories
             }
 
             PolygonShape box = new();
-            Vector2 h = obj.Size.ToNumerics() * Scale / 2f;
-            box.SetAsBox(h.X, h.Y, offset * Scale, 0);
+            Vector2 h = obj.Size.ToNumerics() * _scale / 2f;
+            box.SetAsBox(h.X, h.Y, offset * _scale, 0);
 
             return box;
         }

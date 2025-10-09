@@ -8,9 +8,9 @@ using Platformer.Component;
 using System;
 using System.Linq;
 
-namespace Platformer
+namespace Platformer.Systems
 {
-    internal class PlayerInputSystem : EntityUpdateSystem
+    internal class PlayerInputSystem(PlatformerGame game) : EntityUpdateSystem(Aspect.One(typeof(Body), typeof(KeyboardController), typeof(DebugController)))
     {
         private const float HorizontalMovementForce = 36f;
         private const float MaxHorizontalSpeed = 4.2f;
@@ -18,7 +18,7 @@ namespace Platformer
         private const ushort MaxJumpTimeout = 4;
         private const ushort MaxZoomTimeout = 6;
 
-        private PlatformerGame _game;
+        private readonly PlatformerGame _game = game;
         private ComponentMapper<KeyboardController> _keyboards;
         private ComponentMapper<Body> _bodies;
         private ComponentMapper<GroundedComponent> _grounded;
@@ -27,11 +27,6 @@ namespace Platformer
         private ComponentMapper<CameraTarget> _cameraTarget;
         private ushort JumpTimeout;
         private ushort ZoomTimeout;
-
-        public PlayerInputSystem(PlatformerGame game) : base(Aspect.One(typeof(Body), typeof(KeyboardController), typeof(DebugController)))
-        {
-            _game = game;
-        }
 
         public override void Initialize(IComponentMapperService mapperService)
         {

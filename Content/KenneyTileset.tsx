@@ -514,7 +514,7 @@
    <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;DynamicBody&quot;,&quot;AngularDamping&quot;:80 }"/>
   </properties>
   <objectgroup draworder="index" id="5">
-   <object id="4" x="3" y="4" width="12" height="12">
+   <object id="4" x="2" y="3" width="14" height="14">
     <properties>
      <property name="FixtureDef" value="{ &quot;Density&quot;:0.74,&quot;Friction&quot;:20,&quot;Restitution&quot;:0.16 }"/>
     </properties>
