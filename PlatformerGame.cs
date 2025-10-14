@@ -52,7 +52,7 @@ namespace Platformer
 
         protected override void LoadContent()
         {
-            const string mapName = "snowyTree";
+            const string mapName = "MoveAndJump";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
             _renderSystem.SetTiledMap(GraphicsDevice, tiledMap);
 
@@ -83,11 +83,7 @@ namespace Platformer
                         bodyDef.Angle = mapObject.Rotation * (float)Math.PI / 180f;
 
                         Body body = _physicsSystem.CreateBody(bodyDef);
-
-                        if(mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
-                            bodyFactory.BuildFixturesFromTiledObject(tileObject, body);
-                        else
-                            bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
+                        bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
 
                         body.UserData = entity.Id;
                         entity.Attach(body);

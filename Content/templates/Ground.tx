@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="Ground" width="256" height="48">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;:&quot;StaticBody&quot; }"/>
+   <property name="FixtureDef" value="{ &quot;Friction&quot;:1 }"/>
+  </properties>
+ </object>
+</template>

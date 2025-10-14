@@ -12,21 +12,21 @@ namespace Platformer.Factories
     {
         private readonly Vector2 _scale = scale;
 
-        public void BuildFixturesFromTiledObject(TiledMapTileObject obj, Body body)
-        {
-            foreach (var innerObject in obj.Tile.Objects)
-            {
-                //offset points from the topleft (Tiled) to the center (Box2D)
-                var offset = (innerObject.Size - obj.Size).ToNumerics() / 2f + innerObject.Position.ToNumerics();
-                FixtureDef fixture = CreateFixtureDefFromTiledObject(innerObject, offset);
-                body.CreateFixture(fixture);
-            }
-        }
-
         public void BuildFixturesFromTiledObject(TiledMapObject obj, Body body)
         {
-            FixtureDef fixture = CreateFixtureDefFromTiledObject(obj);
-            body.CreateFixture(fixture);
+            if (obj is TiledMapTileObject tileObject && tileObject.Tile != null)
+                foreach (var innerObject in tileObject.Tile.Objects)
+                {
+                    //offset points from the topleft (Tiled) to the center (Box2D)
+                    var offset = (innerObject.Size - obj.Size).ToNumerics() / 2f + innerObject.Position.ToNumerics();
+                    FixtureDef fixture = CreateFixtureDefFromTiledObject(innerObject, offset);
+                    body.CreateFixture(fixture);
+                }
+            else
+            {
+                FixtureDef fixture = CreateFixtureDefFromTiledObject(obj);
+                body.CreateFixture(fixture);
+            }
         }
 
         private FixtureDef CreateFixtureDefFromTiledObject(TiledMapObject obj, Vector2 offset = new())

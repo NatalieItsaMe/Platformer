@@ -1,0 +1,32 @@
+{
+    "activeFile": "MoveAndJump.tmx",
+    "expandedProjectPaths": [
+        "."
+    ],
+    "fileStates": {
+        "Legacy Fantasy - High Forest.tsx": {
+            "scaleInDock": 1
+        },
+        "MoveAndJump.tmx": {
+            "scale": 2,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 102,
+                "y": 225.75
+            }
+        },
+        "Props-Rocks.tsx": {
+            "scaleInDock": 1
+        }
+    },
+    "last.imagePath": "C:/Users/stuar/source/repos/Platformer/Content",
+    "last.objectTemplatePath": "C:/Users/stuar/source/repos/Platformer/Content/templates",
+    "openFiles": [
+        "MoveAndJump.tmx"
+    ],
+    "project": "Platformer.tiled-project",
+    "property.type": "string",
+    "recentFiles": [
+        "MoveAndJump.tmx"
+    ]
+}
