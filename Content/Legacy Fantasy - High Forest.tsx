@@ -3,44 +3,36 @@
  <image source="Tiles.png" trans="000000" width="474" height="474"/>
  <tile id="496">
   <properties>
-   <property name="BodyDef" value="{ &quot;BodyType&quot;: &quot;DynamicBody&quot; }"/>
+   <property name="BodyType" value="Dynamic"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="3" y="0">
-    <properties>
-     <property name="FixtureDef" value="{ &quot;Friction&quot;: 1, &quot;Density&quot;: 0.6 }"/>
-    </properties>
     <polygon points="0,0 0,6 -3,9 -3,13 0,16 10,16 13,13 13,9 10,6 10,0"/>
    </object>
   </objectgroup>
  </tile>
  <tile id="498">
   <properties>
-   <property name="BodyDef" value="{ &quot;BodyType&quot;: &quot;DynamicBody&quot; }"/>
+   <property name="BodyType" value="Dynamic"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="2" x="0" y="0" width="16" height="16">
-    <properties>
-     <property name="FixtureDef" value="{ &quot;Friction&quot;: 1, &quot;Density&quot;: 0.6 }"/>
-    </properties>
     <ellipse/>
    </object>
   </objectgroup>
  </tile>
  <tile id="521">
   <properties>
-   <property name="BodyDef" value="{ &quot;BodyType&quot;: &quot;DynamicBody&quot; }"/>
+   <property name="BodyType" value="Dynamic"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="6" y="0" width="4" height="8">
     <properties>
-     <property name="FixtureDef" value="{ &quot;Friction&quot;: 1, &quot;Density&quot;: 0.6 }"/>
+     <property name="Density" type="float" value="0.6"/>
+     <property name="Friction" type="float" value="1"/>
     </properties>
    </object>
    <object id="2" x="3" y="6" width="10" height="10">
-    <properties>
-     <property name="FixtureDef" value="{ &quot;Friction&quot;: 1, &quot;Density&quot;: 0.6 }"/>
-    </properties>
     <ellipse/>
    </object>
   </objectgroup>

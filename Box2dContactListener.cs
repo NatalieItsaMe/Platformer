@@ -1,28 +1,30 @@
-﻿using Box2DSharp.Collision.Collider;
-using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Dynamics;
-using Box2DSharp.Dynamics.Contacts;
+﻿using nkast.Aether.Physics2D.Collision;
+using nkast.Aether.Physics2D.Collision.Shapes;
+using nkast.Aether.Physics2D.Dynamics;
+using nkast.Aether.Physics2D.Dynamics.Contacts;
 using Platformer.Component;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
+using Microsoft.Xna.Framework;
+using nkast.Aether.Physics2D.Common;
 
 namespace Platformer
 {
-    internal class Box2dContactListener : EntitySystem, IContactListener
+    internal class Box2dContactListener : EntitySystem
     {
         private const float GroundNormal = 0.5f;
         private readonly List<Contact> DisabledContacts = new();
         private readonly Dictionary<Contact, float> SpringContacts = new();
-        private WorldManifold worldManifold;
 
         private ComponentMapper<OneWayPlatform> oneWays;
         private ComponentMapper<GroundedComponent> grounded;
         private ComponentMapper<SpringComponent> springs;
         private ComponentMapper<AnimatedSprite> animatedSprites;
+        private FixedArray2<Vector2> points;
+        private Vector2 normal;
 
         public Box2dContactListener() : base(Aspect.All())
         { }
@@ -37,11 +39,11 @@ namespace Platformer
 
         public void BeginContact(Contact contact)
         {
-            contact.GetWorldManifold(out worldManifold);
+            contact.GetWorldManifold(out normal, out points);
 
             DisableOneWayContact(contact);
 
-            if (contact.IsEnabled)
+            if (contact.Enabled)
             {
                 DerestituteSpringContact(contact);
                 AttachGroundedComponents(contact);
@@ -53,31 +55,25 @@ namespace Platformer
             //reset the default state of the contact in case it comes back for more
             SpringContacts.Remove(contact);
             DisabledContacts.Remove(contact);
-            contact.SetEnabled(true);
-
-            DetachGroundedComponents(contact, contact.FixtureA.Body);
-            DetachGroundedComponents(contact, contact.FixtureB.Body);
+            contact.Enabled = true;
+            DetachGroundedComponents(contact, (int)contact.FixtureA.Body.Tag);
+            DetachGroundedComponents(contact, (int)contact.FixtureB.Body.Tag);
         }
 
         public void PreSolve(Contact contact, in Manifold oldManifold) 
         {
             if (DisabledContacts.Contains(contact))
-                contact.SetEnabled(false);
+                contact.Enabled = false;
             if (SpringContacts.ContainsKey(contact))
-                contact.SetRestitution(SpringContacts[contact]);
-        }
-
-        public void PostSolve(Contact contact, in ContactImpulse impulse) 
-        {
-
+                contact.Restitution = SpringContacts[contact];
         }
 
         private void AnimateSpring(Fixture springFixture)
         {
-            if (!animatedSprites.Has((int)springFixture.Body.UserData))
+            if (!animatedSprites.Has((int)springFixture.Body.Tag))
                 return;
             
-            var sprite = animatedSprites.Get((int)springFixture.Body.UserData);
+            var sprite = animatedSprites.Get((int)springFixture.Body.Tag);
 
             sprite.SetAnimation("sproing");
         }
@@ -85,24 +81,22 @@ namespace Platformer
         private void AttachGroundedComponents(Contact contact)
         {
             //fixure A is the start, -normal points towards A
-            if (worldManifold.Normal.Y > GroundNormal)
+            if (normal.Y > GroundNormal)
             {
-                grounded.Put((int)contact.FixtureA.Body.UserData, new GroundedComponent(contact));
+                grounded.Put((int)contact.FixtureA.Body.Tag, new GroundedComponent(contact));
             }
             //fixure B is the end, normal points towards B
-            if (-worldManifold.Normal.Y > GroundNormal)
+            if (-normal.Y > GroundNormal)
             {
-                grounded.Put((int)contact.FixtureB.Body.UserData, new GroundedComponent(contact));
+                grounded.Put((int)contact.FixtureB.Body.Tag, new GroundedComponent(contact));
             }
         }
 
-        private void DetachGroundedComponents(Contact contact, Body body)
+        private void DetachGroundedComponents(Contact contact, int entityID)
         {
-            int e = (int)body.UserData;
-            //fixure A is the start, -normal points towards A
-            if (grounded.Has(e) && grounded.Get(e).Contact == contact)
+            if (grounded.Has(entityID) && grounded.Get(entityID).Contact == contact)
             {
-                grounded.Delete(e);
+                grounded.Delete(entityID);
             }
         }
 
@@ -111,12 +105,12 @@ namespace Platformer
             //check if one of the fixtures is the platform
             Fixture platformFixture = null;
             Fixture otherFixture = null;
-            if (oneWays.Has((int)contact.FixtureA.Body.UserData))
+            if (oneWays.Has((int)contact.FixtureA.Body.Tag))
             {
                 platformFixture = contact.FixtureA;
                 otherFixture = contact.FixtureB;
             }
-            else if (oneWays.Has((int)contact.FixtureB.Body.UserData))
+            else if (oneWays.Has((int)contact.FixtureB.Body.Tag))
             {
                 platformFixture = contact.FixtureB;
                 otherFixture = contact.FixtureA;
@@ -125,10 +119,10 @@ namespace Platformer
             if (platformFixture == null)
                 return;
 
-            OneWayPlatform oneWay = oneWays.Get((int)platformFixture.Body.UserData);
+            OneWayPlatform oneWay = oneWays.Get((int)platformFixture.Body.Tag);
             for (int i = 0; i < contact.Manifold.PointCount; i++)
             {
-                Vector2 pointVel = otherFixture.Body.GetLinearVelocityFromWorldPoint(worldManifold.Points[i]);
+                var pointVel = otherFixture.Body.GetLinearVelocityFromWorldPoint(points[i]);
                 switch (oneWay.Direction)
                 {
                     case OneWayPlatform.PlatformDirection.LEFT:
@@ -147,7 +141,7 @@ namespace Platformer
             }
 
             //no points are moving downward, contact should not be solid
-            contact.SetEnabled(false);
+            contact.Enabled = false;
             DisabledContacts.Add(contact);
         }
 
@@ -157,12 +151,12 @@ namespace Platformer
             //collisions with the face of the spring
             Fixture springFixture = null;
             Fixture otherFixture = null;
-            if (springs.Has((int)contact.FixtureA.Body.UserData))
+            if (springs.Has((int)contact.FixtureA.Body.Tag))
             {
                 springFixture = contact.FixtureA;
                 otherFixture = contact.FixtureB;
             }
-            if (springs.Has((int)contact.FixtureB.Body.UserData))
+            if (springs.Has((int)contact.FixtureB.Body.Tag))
             {
                 springFixture = contact.FixtureB;
                 otherFixture = contact.FixtureA;
@@ -174,7 +168,7 @@ namespace Platformer
             {
                 //if the other fixture is moving into the springy top
                 //return without changing the restitution
-                Vector2 springPoint = springFixture.Body.GetLocalPoint(worldManifold.Points[i]);
+                var springPoint = springFixture.Body.GetLocalPoint(points[i]);
                 float minY = ((PolygonShape)springFixture.Shape).Vertices.Min(v => v.Y);
 
                 if (springPoint.Y < minY)
@@ -186,7 +180,7 @@ namespace Platformer
 
             //cancel out the spring's restitution
             SpringContacts.Add(contact, otherFixture.Restitution);
-            contact.SetRestitution(otherFixture.Restitution);
+            contact.Restitution = otherFixture.Restitution;
         }
     }
 }

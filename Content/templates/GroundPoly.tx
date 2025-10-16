@@ -2,7 +2,7 @@
 <template>
  <object name="Ground 1">
   <properties>
-   <property name="BodyDef" value="{ &quot;BodyType&quot;: &quot;StaticBody&quot; }"/>
+   <property name="BodyType" value="Static"/>
   </properties>
   <polygon points="0,0 32,-16 106,-16 106,48 0,48"/>
  </object>

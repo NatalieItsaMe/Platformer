@@ -25,7 +25,7 @@
         "MoveAndJump.tmx"
     ],
     "project": "Platformer.tiled-project",
-    "property.type": "string",
+    "property.type": "float",
     "recentFiles": [
         "MoveAndJump.tmx"
     ]

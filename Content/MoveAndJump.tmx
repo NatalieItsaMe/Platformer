@@ -78,15 +78,12 @@
 </data>
  </layer>
  <objectgroup id="6" name="Object Layer">
-  <object id="1" name="Player_Feet" x="64" y="256" width="14" height="14">
+  <object id="2" name="Player" x="64" y="231" width="14" height="32">
    <properties>
-    <property name="FixtureDef" value="{ &quot;IsSensor&quot;: false, &quot;Density&quot;: 0.72, &quot;Friction&quot;: 5, &quot;Restitution&quot;: 0.1 }"/>
-   </properties>
-   <ellipse/>
-  </object>
-  <object id="2" template="templates/Player.tx" x="64" y="231">
-   <properties>
-    <property name="Fixture" type="object" value="1"/>
+    <property name="BodyType" value="Dynamic"/>
+    <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:-0.5}, &quot;Zoom&quot;:72}"/>
+    <property name="DebugController" value="{}"/>
+    <property name="KeyboardController" value="{}"/>
    </properties>
   </object>
   <object id="3" template="templates/Ground.tx" x="0" y="272"/>
@@ -95,7 +92,7 @@
   </object>
   <object id="5" name="Ground 2" x="480" y="272">
    <properties>
-    <property name="BodyDef" value="{ &quot;BodyType&quot;: &quot;StaticBody&quot; }"/>
+    <property name="BodyType" value="Static"/>
    </properties>
    <polygon points="0,0 0,48 -128,48 -128,16 -96,0"/>
   </object>

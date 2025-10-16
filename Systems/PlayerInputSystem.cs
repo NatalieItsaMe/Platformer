@@ -1,4 +1,4 @@
-﻿using Box2DSharp.Dynamics;
+﻿using nkast.Aether.Physics2D.Dynamics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
@@ -84,19 +84,19 @@ namespace Platformer.Systems
                 if (state.IsKeyDown(mapping.Jump) && JumpTimeout == 0)
                 {
                     _grounded.Delete(entity);
-                    body.ApplyForceToCenter(new(0, JumpForce), true);
+                    body.ApplyForce(new(0, JumpForce));
                     JumpTimeout = MaxJumpTimeout;
                 }
 
                 if (state.IsKeyDown(mapping.Right))
-                    body.ApplyForceToCenter(new(HorizontalMovementForce, 0), true);
+                    body.ApplyForce(new(HorizontalMovementForce, 0));
                 if (state.IsKeyDown(mapping.Left))
-                    body.ApplyForceToCenter(new(-HorizontalMovementForce, 0), true);
+                    body.ApplyForce(new(-HorizontalMovementForce, 0));
             }
 
             if (Math.Abs(body.LinearVelocity.X) > MaxHorizontalSpeed)
             {
-                body.SetLinearVelocity(new(Math.Sign(body.LinearVelocity.X) * MaxHorizontalSpeed, body.LinearVelocity.Y));
+                body.LinearVelocity.SetX(Math.Sign(body.LinearVelocity.X) * MaxHorizontalSpeed);
             }
         }
         private void UpdateDebugEntity(int entity)
@@ -135,11 +135,11 @@ namespace Platformer.Systems
                 var bodiesUnderMouse = _game.GetBodiesAt(worldMouse.X, worldMouse.Y);
                 foreach (var body in bodiesUnderMouse)
                 {
-                    System.Diagnostics.Debug.WriteLine($"-----------body: {body.UserData}");
-                    System.Diagnostics.Debug.WriteLine($"          local: {body.GetLocalPoint(worldMouse.ToNumerics())}");
-                    System.Diagnostics.Debug.WriteLine($"       Position: {body.GetPosition()}");
-                    System.Diagnostics.Debug.WriteLine($"      IsEnabled: {body.IsEnabled}");
-                    System.Diagnostics.Debug.WriteLine($"        IsAwake: {body.IsAwake}");
+                    System.Diagnostics.Debug.WriteLine($"---------entity: {body.Tag}");
+                    System.Diagnostics.Debug.WriteLine($"          local: {body.GetLocalPoint(worldMouse)}");
+                    System.Diagnostics.Debug.WriteLine($"       Position: {body.Position}");
+                    System.Diagnostics.Debug.WriteLine($"      IsEnabled: {body.Enabled}");
+                    System.Diagnostics.Debug.WriteLine($"        IsAwake: {body.Awake}");
                     System.Diagnostics.Debug.WriteLine($"           Mass: {body.Mass}");
                     System.Diagnostics.Debug.WriteLine($" LinearVelocity: {body.LinearVelocity}");
                     System.Diagnostics.Debug.WriteLine($"AngularVelocity: {body.AngularVelocity}");
@@ -147,8 +147,8 @@ namespace Platformer.Systems
 
                     foreach (var fixture in body.FixtureList)
                     {
-                        System.Diagnostics.Debug.WriteLine($"        Fixture: {fixture.ShapeType}");
-                        System.Diagnostics.Debug.WriteLine($"        Density: {fixture.Density}");
+                        System.Diagnostics.Debug.WriteLine($"        Fixture: {fixture.Shape.ShapeType}");
+                        System.Diagnostics.Debug.WriteLine($"        Density: {fixture.Shape.Density}");
                         System.Diagnostics.Debug.WriteLine($"       Friction: {fixture.Friction}");
                         System.Diagnostics.Debug.WriteLine($"    Restitution: {fixture.Restitution}");
                     }

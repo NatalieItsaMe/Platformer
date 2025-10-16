@@ -1,10 +1,10 @@
-﻿using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Dynamics;
+﻿using nkast.Aether.Physics2D.Collision.Shapes;
+using nkast.Aether.Physics2D.Dynamics;
+using nkast.Aether.Physics2D.Common;
+using Microsoft.Xna.Framework;
 using MonoGame.Extended.Tiled;
-using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Linq;
-using System.Numerics;
 
 namespace Platformer.Factories
 {
@@ -18,63 +18,75 @@ namespace Platformer.Factories
                 foreach (var innerObject in tileObject.Tile.Objects)
                 {
                     //offset points from the topleft (Tiled) to the center (Box2D)
-                    var offset = (innerObject.Size - obj.Size).ToNumerics() / 2f + innerObject.Position.ToNumerics();
-                    FixtureDef fixture = CreateFixtureDefFromTiledObject(innerObject, offset);
-                    body.CreateFixture(fixture);
+                    var offset = (innerObject.Size - obj.Size).ToVector2() / 2f + innerObject.Position;
+                    var shape = CreateShapeFromTiledObject(innerObject, offset);
+                    var fixture = body.CreateFixture(shape);
+                    ApplyTiledPropertiesToFixture(innerObject.Properties, ref fixture);
                 }
             else
             {
-                FixtureDef fixture = CreateFixtureDefFromTiledObject(obj);
-                body.CreateFixture(fixture);
+                var shape = CreateShapeFromTiledObject(obj);
+                var fixture = body.CreateFixture(shape);
+                ApplyTiledPropertiesToFixture(obj.Properties, ref fixture);
             }
         }
 
-        private FixtureDef CreateFixtureDefFromTiledObject(TiledMapObject obj, Vector2 offset = new())
+        private static void ApplyTiledPropertiesToFixture(TiledMapProperties properties, ref Fixture fixture)
         {
-            obj.Properties.TryGetValue(nameof(FixtureDef), out string fixtureProperty);
-            FixtureDef fixture = string.IsNullOrEmpty(fixtureProperty) ? new()
-                : JsonConvert.DeserializeObject<FixtureDef>(fixtureProperty);
-            fixture.Shape = CreateShapeFromTiledObject(obj, offset);
-            return fixture;
+            if (properties.TryGetValue(nameof(Fixture.Restitution), out string restitutionProperty))
+                fixture.Restitution = float.Parse(restitutionProperty);
+            if (properties.TryGetValue(nameof(Fixture.Friction), out string frictionProperty))
+                fixture.Friction = float.Parse(frictionProperty);
+            if (properties.TryGetValue(nameof(Fixture.IsSensor), out string isSensorProperty))
+                fixture.IsSensor = bool.Parse(isSensorProperty);
         }
 
         private Shape CreateShapeFromTiledObject(TiledMapObject obj, Vector2 offset = new())
         {
+            var density = obj.Properties.TryGetValue("Density", out TiledMapPropertyValue densityProperty)
+                ? float.TryParse(densityProperty.Value, out float densityValue) ? densityValue : 1.0f
+                : 1.0f;
+
             if (obj is TiledMapPolygonObject polygon)
             {
                 //Concave polygons are not supported
-                PolygonShape shape = new();
-                Vector2[] vertices = [.. polygon.Points.Select(p => (p.ToNumerics() + offset) * _scale)];
-                shape.Set(vertices);
+                var vertices = new Vertices();
+                vertices.AddRange(polygon.Points.Select(p => (p + offset) * _scale));
+                var shape = new PolygonShape(vertices, density);
                 return shape;
             }
-            else if (obj is TiledMapPolylineObject polyline)
+            if (obj is TiledMapPolylineObject polyline)
             {
-                EdgeShape shape = new();
-                Vector2 start = (polyline.Points[0].ToNumerics() + offset) * _scale;
-                Vector2 end = (polyline.Points[1].ToNumerics() + offset) * _scale;
+                Vector2 start = (polyline.Points[0] + offset) * _scale;
+                Vector2 end = (polyline.Points[1] + offset) * _scale;
+                var shape = new EdgeShape(start, end);
                 //v0 and v3 are "ghost vertices", if the segment were to continue in either direction
-                shape.SetOneSided(start, start, end, end);
-
                 return shape;
             }
-            else if (obj is TiledMapEllipseObject ellipse)
+            if (obj is TiledMapEllipseObject ellipse)
             {
-                var size = ellipse.Radius * _scale;
-                Debug.WriteLineIf(size.X != size.Y, "Ellipses are not supported!");
+                var radius = ellipse.Radius * _scale;
+                Debug.WriteLineIf(radius.X != radius.Y, "Ellipses are not supported!");
 
-                CircleShape shape = new()
+                var shape = new CircleShape(radius.X, density)
                 {
                     Position = offset * _scale,
-                    Radius = size.X
+                    Radius = radius.X
                 };
 
                 return shape;
             }
 
-            PolygonShape box = new();
-            Vector2 h = obj.Size.ToNumerics() * _scale / 2f;
-            box.SetAsBox(h.X, h.Y, offset * _scale, 0);
+            Vector2 h = obj.Size.ToVector2() * _scale / 2f;
+            var vertices1 = new Vertices(4)
+            {
+                new(-h.X, -h.Y),
+                new(-h.X, h.Y),
+                new(h.X, h.Y),
+                new(h.X, -h.Y)
+            };
+
+            var box = new PolygonShape(vertices1, density);
 
             return box;
         }

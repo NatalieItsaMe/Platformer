@@ -1,7 +1,7 @@
 {
   "$schema": "https://aka.ms/vs/debugger-managed-favorites-schema",
   "types": {
-    "Box2DSharp.Dynamics.FixtureDef": {
+    "nkast.Aether.Physics2D.Dynamics.FixtureDef": {
       "favorites": [
         "Density",
         "Restitution",

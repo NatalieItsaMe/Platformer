@@ -1,38 +1,31 @@
-﻿using Box2DSharp.Collision.Shapes;
-using Box2DSharp.Common;
-using Box2DSharp.Dynamics;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
-using System;
-using System.Numerics;
+using nkast.Aether.Physics2D.Collision.Shapes;
+using nkast.Aether.Physics2D.Common;
+using nkast.Aether.Physics2D.Diagnostics;
+using nkast.Aether.Physics2D.Dynamics;
 
 namespace Platformer
 {
-    internal class Box2dDebugDrawer : IDrawer
+    internal class Box2dDebugDrawer : DebugViewBase
     {
         private readonly SpriteBatch _spriteBatch;
         private readonly float DebugThickness;
 
-        public Box2dDebugDrawer(SpriteBatch spriteBatch, float debugThickness = 0.1f)
+        public Box2dDebugDrawer(World world, SpriteBatch spriteBatch, float debugThickness = 0.1f) : base(world)
         {
             _spriteBatch = spriteBatch;
             DebugThickness = debugThickness;
-            Flags = DrawFlag.DrawShape & DrawFlag.DrawCenterOfMass;
+            Flags = DebugViewFlags.Shape & DebugViewFlags.CenterOfMass;
         }
 
-        public DrawFlag Flags { get; set; }
-
-        public void DrawCircle(in Vector2 center, float radius, in Color color)
+        public override void DrawCircle(Vector2 center, float radius, Color color)
         {
-            _spriteBatch.DrawCircle(center, radius, 24, color.ToXna(), thickness: DebugThickness);
+            _spriteBatch.DrawCircle(center, radius, 24, color, thickness: DebugThickness);
         }
 
-        public void DrawPoint(in Vector2 p, float size, in Color color)
-        {
-            _spriteBatch.DrawPoint(p, color.ToXna(), size);
-        }
-
-        public void DrawPolygon(Span<Vector2> vertices, int vertexCount, in Color color)
+        public override void DrawPolygon(Vector2[] vertices, int vertexCount, Color color, bool closed = true)
         {
             for (int i = 0; i < vertexCount; i++)
             {
@@ -42,106 +35,95 @@ namespace Platformer
             }
         }
 
-        public void DrawSegment(in Vector2 p1, in Vector2 p2, in Color color)
+        public override void DrawSegment(Vector2 p1, Vector2 p2, Color color)
         {
-            _spriteBatch.DrawLine(p1, p2, color.ToXna(), thickness: DebugThickness);
+            _spriteBatch.DrawLine(p1, p2, color, thickness: DebugThickness);
         }
 
-        public void DrawSolidCircle(in Vector2 center, float radius, in Vector2 axis, in Color color)
+        public override void DrawSolidCircle(Vector2 center, float radius, Vector2 axis, Color color)
         {
             DrawCircle(center, radius, color);
         }
 
-        public void DrawSolidPolygon(Span<Vector2> vertices, int vertexCount, in Color color)
+        public override void DrawSolidPolygon(Vector2[] vertices, int vertexCount, Color color)
         {
             DrawPolygon(vertices, vertexCount, color);
         }
 
-        public void DrawTransform(in Transform xf)
+        public override void DrawTransform(ref Transform xf)
         {
-            DrawPoint(xf.Position, DebugThickness, new Color());
+            _spriteBatch.DrawPoint(xf.p, Color.Blue, DebugThickness);
         }
 
-        internal void Draw(Body body)
+        public void Draw()
         {
-            Color color = GetColor(body);
-            Transform transform = body.GetTransform();
-            foreach (var fixture in body.FixtureList)
+            foreach(var body in World.BodyList)
             {
-                switch (fixture.ShapeType)
-                {
-                    case ShapeType.Circle:
-                        CircleShape circle = (CircleShape)fixture.Shape;
-                        Vector2 center = MathUtils.Mul(in transform, in circle.Position);
-                        float radius = circle.Radius;
-                        ref readonly Rotation rotation = ref transform.Rotation;
-                        Vector2 v = Vector2.UnitX;
-                        Vector2 axis = MathUtils.Mul(in rotation, in v);
-                        DrawSolidCircle(center, radius, axis, color);
-                        break;
-                    case ShapeType.Polygon:
-                        PolygonShape polygon = (PolygonShape)fixture.Shape;
-                        int count = polygon.Count;
-                        Span<Vector2> vertices = new Vector2[count];
-                        for (int i = 0; i < count; i++)
-                        {
-                            vertices[i] = MathUtils.Mul(in transform, in polygon.Vertices[i]);
-                        }
-                        DrawPolygon(vertices, count, color);
-                        break;
-                    case ShapeType.Edge:
-                        EdgeShape edge = (EdgeShape)fixture.Shape;
-                        Vector2 p3 = MathUtils.Mul(in transform, in edge.Vertex1);
-                        Vector2 p4 = MathUtils.Mul(in transform, in edge.Vertex2);
-                        DrawSegment(in p3, in p4, in color);
-                        if (!edge.OneSided)
-                        {
-                            DrawPoint(in p3, 4f, in color);
-                            DrawPoint(in p4, 4f, in color);
-                        }
-                        break;
-                    case ShapeType.Chain:
-                        ChainShape chain = (ChainShape)fixture.Shape;
-                        int count2 = chain.Count;
-                        Vector2[] vertices2 = chain.Vertices;
-                        Vector2 p = MathUtils.Mul(in transform, in vertices2[0]);
-                        for (int j = 1; j < count2; j++)
-                        {
-                            Vector2 p2 = MathUtils.Mul(in transform, in vertices2[j]);
-                            DrawSegment(in p, in p2, in color);
-                            p = p2;
-                        }
-                        break;
-                }
+                foreach (var fixture in body.FixtureList)
+                    Draw(fixture);
+            }
+        }
+
+        public void Draw(Fixture fixture)
+        {
+            Color color = GetColor(fixture.Body);
+            Transform transform = fixture.Body.GetTransform();
+
+            switch (fixture.Shape.ShapeType)
+            {
+                case ShapeType.Circle:
+                    CircleShape circle = (CircleShape)fixture.Shape;
+                    Vector2 center = Transform.Multiply(circle.Position, ref transform);
+                    float radius = circle.Radius;
+                    Vector2 axis = Vector2.UnitX;
+                    axis.Rotate(fixture.Body.Rotation);
+                    DrawSolidCircle(center, radius, axis, color);
+                    break;
+                case ShapeType.Polygon:
+                    PolygonShape polygon = (PolygonShape)fixture.Shape;
+                    int count = polygon.Vertices.Count;
+                    Vector2[] vertices = new Vector2[count];
+                    for (int i = 0; i < count; i++)
+                    {
+                        vertices[i] = Transform.Multiply(polygon.Vertices[i], ref transform);
+                    }
+                    DrawPolygon(vertices, count, color);
+                    break;
+                case ShapeType.Edge:
+                    EdgeShape edge = (EdgeShape)fixture.Shape;
+                    Vector2 p3 = Transform.Multiply(edge.Vertex1, ref transform);
+                    Vector2 p4 = Transform.Multiply(edge.Vertex2, ref transform);
+                    DrawSegment(p3, p4, color);
+                    break;
+                case ShapeType.Chain:
+                    ChainShape chain = (ChainShape)fixture.Shape;
+                    int count2 = chain.Vertices.Count;
+                    Vector2[] vertices2 = [.. chain.Vertices];
+                    Vector2 p = Transform.Multiply(vertices2[0], ref transform);
+                    for (int j = 1; j < count2; j++)
+                    {
+                        Vector2 p2 = Transform.Multiply(vertices2[j], ref transform);
+                        DrawSegment(p, p2, color);
+                        p = p2;
+                    }
+                    break;
             }
         }
 
         private static Color GetColor(Body value)
         {
-            if (value.BodyType == BodyType.DynamicBody && value.Mass.Equals(0f))
-            {
-                return Color.FromArgb(1f, 0f, 0f);
-            }
-            else if (!value.IsEnabled)
-            {
-                return Color.FromArgb(128, 128, 77);
-            }
-            else if (value.BodyType == BodyType.StaticBody)
-            {
-                return Color.FromArgb(127, 230, 127);
-            }
-            else if (value.BodyType == BodyType.KinematicBody)
-            {
-                return Color.FromArgb(127, 127, 230);
-            }
-            else if (!value.IsAwake)
-            {
-                return Color.FromArgb(153, 153, 153);
-            }
-            else
-            {
-                return Color.FromArgb(230, 179, 179);
-            }
+            if (value.BodyType == BodyType.Dynamic && value.Mass.Equals(0f))
+                return Color.IndianRed;
+            if (!value.Enabled)
+                return Color.DimGray;
+            if (value.BodyType == BodyType.Static)
+                return Color.LightGreen;
+            if (value.BodyType == BodyType.Kinematic)
+                return Color.Goldenrod;
+            if (!value.Awake)
+                return Color.SlateGray;
+            
+           return Color.White;
         }
     }
 }

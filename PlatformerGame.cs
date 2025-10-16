@@ -1,4 +1,4 @@
-﻿using Box2DSharp.Dynamics;
+﻿using nkast.Aether.Physics2D.Dynamics;
 using Microsoft.Xna.Framework;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.Graphics;
@@ -12,6 +12,8 @@ using System.Linq;
 using World = MonoGame.Extended.ECS.World;
 using Platformer.Models;
 using System.Diagnostics;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace Platformer
 {
@@ -36,7 +38,11 @@ namespace Platformer
         protected override void Initialize()
         {
             _physicsSystem = new PhysicsSystem();
-            _renderSystem = new TiledMapRenderSystem();
+            var spriteBatch = new SpriteBatch(GraphicsDevice);
+            _renderSystem = new TiledMapRenderSystem(spriteBatch);
+#if DEBUG
+            _renderSystem.PhysicsDebugDrawer = new Box2dDebugDrawer(_physicsSystem.Box2DWorld, spriteBatch);
+#endif
             var contactSystem = new Box2dContactListener();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
@@ -45,7 +51,7 @@ namespace Platformer
                 .AddSystem(contactSystem)
                 .Build();
 
-            _physicsSystem.SetContactListener(contactSystem);
+            //_physicsSystem.SetContactListener(contactSystem);
 
             base.Initialize();
         }
@@ -54,7 +60,7 @@ namespace Platformer
         {
             const string mapName = "MoveAndJump";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
-            _renderSystem.SetTiledMap(GraphicsDevice, tiledMap);
+            _renderSystem.SetTiledMap(tiledMap);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
@@ -62,30 +68,29 @@ namespace Platformer
                 if (mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
                 {
                     entity.Attach(tileObject);
-                    CreateComponentsFromProperties(tileObject, tileObject.Tile.Properties, entity);
+                    CreateComponentsFromProperties(tileObject, tileObject.Tile.Properties, entity, tiledMap.GetScale());
                 }
 
-                CreateComponentsFromProperties(mapObject, mapObject.Properties, entity);
+                CreateComponentsFromProperties(mapObject, mapObject.Properties, entity, tiledMap.GetScale());
             }
         }
 
-        private void CreateComponentsFromProperties(TiledMapObject mapObject, TiledMapProperties properties, Entity entity)
+        private void CreateComponentsFromProperties(TiledMapObject mapObject, TiledMapProperties properties, Entity entity, Vector2 scale)
         {
-            var bodyFactory = new TiledBodyFactory(_renderSystem.GetTiledMap().GetScale());
+            var bodyFactory = new TiledBodyFactory(scale);
             var spriteFactory = new AnimatedSpriteFactory(Content);
             foreach (var prop in properties)
             {
                 switch (prop.Key)
                 {
-                    case nameof(BodyDef):
-                        BodyDef bodyDef = JsonConvert.DeserializeObject<BodyDef>(prop.Value);
-                        bodyDef.Position = (mapObject.Position.ToNumerics() + mapObject.Size.ToNumerics() / 2f) * _renderSystem.GetTiledMap().GetScale();
-                        bodyDef.Angle = mapObject.Rotation * (float)Math.PI / 180f;
+                    case nameof(BodyType):
+                        var bodyType = Enum.Parse<BodyType>(prop.Value);
+                        var position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * scale;
+                        var rotation = mapObject.Rotation * (float)Math.PI / 180f;
 
-                        Body body = _physicsSystem.CreateBody(bodyDef);
+                        Body body = _physicsSystem.Box2DWorld.CreateBody(position, rotation, bodyType);
                         bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
-
-                        body.UserData = entity.Id;
+                        body.Tag = entity.Id;
                         entity.Attach(body);
                         break;
                     case nameof(CameraTarget):
@@ -134,6 +139,6 @@ namespace Platformer
 
         internal Vector2 GetWorldCoordinates(float x, float y) => _renderSystem.GetWorldCoordinates(x, y);
 
-        internal Body[] GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
+        internal IEnumerable<Body> GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
     }
 }
