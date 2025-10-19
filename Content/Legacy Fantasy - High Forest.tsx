@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.11.2" name="Legacy Fantasy - High Forest" tilewidth="16" tileheight="16" spacing="3" margin="1" tilecount="625" columns="25">
+<tileset version="1.10" tiledversion="1.11.2" name="Legacy Fantasy - High Forest" tilewidth="16" tileheight="16" spacing="3" margin="1" tilecount="625" columns="25" objectalignment="topleft">
  <image source="Tiles.png" trans="000000" width="474" height="474"/>
  <tile id="496">
   <properties>
@@ -7,6 +7,10 @@
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="3" y="0">
+    <properties>
+     <property name="Density" type="float" value="0.6"/>
+     <property name="Friction" type="float" value="1"/>
+    </properties>
     <polygon points="0,0 0,6 -3,9 -3,13 0,16 10,16 13,13 13,9 10,6 10,0"/>
    </object>
   </objectgroup>
@@ -33,6 +37,10 @@
     </properties>
    </object>
    <object id="2" x="3" y="6" width="10" height="10">
+    <properties>
+     <property name="Density" type="float" value="0.6"/>
+     <property name="Friction" type="float" value="1"/>
+    </properties>
     <ellipse/>
    </object>
   </objectgroup>

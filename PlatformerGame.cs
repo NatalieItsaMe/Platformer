@@ -86,10 +86,7 @@ namespace Platformer
                 {
                     case nameof(BodyType):
                         var bodyType = Enum.Parse<BodyType>(prop.Value);
-                        Vector2 position = mapObject.Position.ToNumerics();
-                        position.X += mapObject.Size.Width / 2f;
-                        position.Y -= mapObject.Size.Height / 2f;
-                        position *= scale;
+                        Vector2 position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * scale;
                         var rotation = mapObject.Rotation * (float)Math.PI / 180f;
 
                         Body body = _physicsSystem.PhysicsWorld.CreateBody(position, rotation, bodyType);

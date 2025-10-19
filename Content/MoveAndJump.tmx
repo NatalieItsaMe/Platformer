@@ -78,7 +78,7 @@
 </data>
  </layer>
  <objectgroup id="6" name="Object Layer">
-  <object id="2" name="Player" x="64" y="231" width="14" height="32">
+  <object id="2" name="Player" x="64" y="240" width="14" height="32">
    <properties>
     <property name="BodyType" value="Dynamic"/>
     <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:-0.5}, &quot;Zoom&quot;:72}"/>
@@ -105,9 +105,9 @@
   <object id="8" template="templates/OneWayPlatform.tx" x="102" y="144">
    <polyline points="0,0 135,0"/>
   </object>
-  <object id="12" gid="497" x="192" y="142" width="16" height="16"/>
-  <object id="13" gid="499" x="169" y="141" width="16" height="16"/>
-  <object id="14" gid="522" x="136" y="143" width="16" height="16"/>
+  <object id="12" gid="497" x="191" y="123" width="16" height="16"/>
+  <object id="13" gid="499" x="165" y="127" width="16" height="16"/>
+  <object id="14" gid="522" x="99" y="127" width="16" height="16"/>
  </objectgroup>
  <layer id="5" name="Cover Layer" width="30" height="20">
   <data encoding="csv">
