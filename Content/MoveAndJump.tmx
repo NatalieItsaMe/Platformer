@@ -83,6 +83,9 @@
     <property name="BodyType" value="Dynamic"/>
     <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:-0.5}, &quot;Zoom&quot;:72}"/>
     <property name="DebugController" value="{}"/>
+    <property name="Density" type="float" value="0.3"/>
+    <property name="FixedRotation" type="bool" value="true"/>
+    <property name="Friction" type="float" value="2"/>
     <property name="KeyboardController" value="{}"/>
    </properties>
   </object>

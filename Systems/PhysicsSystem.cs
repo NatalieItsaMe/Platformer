@@ -9,7 +9,7 @@ namespace Platformer.Systems
 {
     internal class PhysicsSystem : UpdateSystem
     {
-        public Vector2 Gravity = new (0, 1f);
+        public Vector2 Gravity = new (0, 21f);
         public World PhysicsWorld { get; }
 
         public PhysicsSystem()

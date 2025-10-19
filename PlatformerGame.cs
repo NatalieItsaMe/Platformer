@@ -90,6 +90,8 @@ namespace Platformer
                         var rotation = mapObject.Rotation * (float)Math.PI / 180f;
 
                         Body body = _physicsSystem.PhysicsWorld.CreateBody(position, rotation, bodyType);
+                        if (properties.TryGetValue("FixedRotation", out string fixedRotation))
+                            body.FixedRotation = bool.Parse(fixedRotation);
                         bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
                         body.Tag = entity.Id;
                         entity.Attach(body);
