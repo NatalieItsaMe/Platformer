@@ -1,24 +1,26 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using MonoGame.Extended.ECS.Systems;
 using nkast.Aether.Physics2D.Dynamics;
+using Platformer.ContactListeners;
 using System.Collections.Generic;
 
 namespace Platformer.Systems
 {
     internal class PhysicsSystem : UpdateSystem
     {
-        public Vector2 Gravity = new (0, 21f);
-        public World Box2DWorld { get; }
+        public Vector2 Gravity = new (0, 1f);
+        public World PhysicsWorld { get; }
 
         public PhysicsSystem()
         {
-            Box2DWorld = new World(Gravity);
+            PhysicsWorld = new World(Gravity);
         }
 
         public override void Update(GameTime gameTime)
         {
-            Box2DWorld.Step(gameTime.ElapsedGameTime);
-            Box2DWorld.ClearForces();
+            PhysicsWorld.Step(gameTime.ElapsedGameTime);
+            PhysicsWorld.ClearForces();
         }
 
         internal IEnumerable<Body> GetBodiesAt(float x, float y)
@@ -27,12 +29,19 @@ namespace Platformer.Systems
             var aabb = new nkast.Aether.Physics2D.Collision.AABB(point, point);
 
             var hits = new List<Body>();
-            Box2DWorld.QueryAABB(f =>
+            PhysicsWorld.QueryAABB(f =>
             {
                 hits.Add(f.Body);
                 return true;
             }, aabb);
             return hits;
+        }
+
+        public void RegisterContactListener(IContactListener contactListener)
+        {
+            PhysicsWorld.ContactManager.BeginContact += contactListener.BeginContact;
+            PhysicsWorld.ContactManager.EndContact += contactListener.EndContact;
+            PhysicsWorld.ContactManager.PreSolve += contactListener.PreSolve;
         }
     }
 }

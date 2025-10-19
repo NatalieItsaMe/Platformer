@@ -3,13 +3,13 @@
     public static class ExtensionMethods
     {
         public static Microsoft.Xna.Framework.Vector2 ToVector2(this MonoGame.Extended.SizeF s) =>
-            new Microsoft.Xna.Framework.Vector2(s.Width, s.Height);
+            new(s.Width, s.Height);
 
         public static Microsoft.Xna.Framework.Vector2 ToPhysics2D(this Microsoft.Xna.Framework.Vector2 v) =>
-            new Microsoft.Xna.Framework.Vector2(v.X, v.Y);
+            new(v.X, v.Y);
 
         public static Microsoft.Xna.Framework.Vector2 GetScale(this MonoGame.Extended.Tiled.TiledMap t) =>
-             new Microsoft.Xna.Framework.Vector2(1f / t.TileWidth, 1f / t.TileHeight);
+             new(1f / t.TileWidth, 1f / t.TileHeight);
 
         public static void LerpToPosition(this MonoGame.Extended.OrthographicCamera camera, Microsoft.Xna.Framework.Vector2 position)
         {

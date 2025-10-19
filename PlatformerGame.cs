@@ -14,6 +14,7 @@ using Platformer.Models;
 using System.Diagnostics;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
+using Platformer.ContactListeners;
 
 namespace Platformer
 {
@@ -41,17 +42,17 @@ namespace Platformer
             var spriteBatch = new SpriteBatch(GraphicsDevice);
             _renderSystem = new TiledMapRenderSystem(spriteBatch);
 #if DEBUG
-            _renderSystem.PhysicsDebugDrawer = new Box2dDebugDrawer(_physicsSystem.Box2DWorld, spriteBatch);
+            _renderSystem.PhysicsDebugDrawer = new Box2dDebugDrawer(_physicsSystem.PhysicsWorld, spriteBatch);
 #endif
-            var contactSystem = new Box2dContactListener();
             _world = new WorldBuilder()
                 .AddSystem(_renderSystem)
                 .AddSystem(new PlayerInputSystem(this))
                 .AddSystem(_physicsSystem)
-                .AddSystem(contactSystem)
                 .Build();
 
-            //_physicsSystem.SetContactListener(contactSystem);
+            _physicsSystem.RegisterContactListener(new OneWayContactListener(_world));
+            _physicsSystem.RegisterContactListener(new GroundedContactListener(_world));
+            _physicsSystem.RegisterContactListener(new SpringContactListener(_world));
 
             base.Initialize();
         }
@@ -85,10 +86,13 @@ namespace Platformer
                 {
                     case nameof(BodyType):
                         var bodyType = Enum.Parse<BodyType>(prop.Value);
-                        var position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * scale;
+                        Vector2 position = mapObject.Position.ToNumerics();
+                        position.X += mapObject.Size.Width / 2f;
+                        position.Y -= mapObject.Size.Height / 2f;
+                        position *= scale;
                         var rotation = mapObject.Rotation * (float)Math.PI / 180f;
 
-                        Body body = _physicsSystem.Box2DWorld.CreateBody(position, rotation, bodyType);
+                        Body body = _physicsSystem.PhysicsWorld.CreateBody(position, rotation, bodyType);
                         bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
                         body.Tag = entity.Id;
                         entity.Attach(body);
