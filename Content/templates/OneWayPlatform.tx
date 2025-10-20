@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="OneWay">
+  <properties>
+   <property name="BodyType" value="Static"/>
+   <property name="Friction" type="float" value="1"/>
+   <property name="OneWayPlatform" value="{ &quot;Direction&quot;:&quot;1&quot;}"/>
+  </properties>
+  <polyline points="0,0 18,0"/>
+ </object>
+</template>

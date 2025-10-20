@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="Player" width="14" height="32">
+  <properties>
+   <property name="BodyDef" value="{ &quot;BodyType&quot;: &quot;DynamicBody&quot;, &quot;FixedRotation&quot;: true, &quot;EnableSleep&quot;: false }"/>
+   <property name="CameraTarget" value="{ &quot;Offset&quot;:{&quot;x&quot;:0.0,&quot;y&quot;:-0.5}, &quot;Zoom&quot;:72}"/>
+   <property name="DebugController" value="{}"/>
+   <property name="FixtureDef" value="{ &quot;IsSensor&quot;: false, &quot;Density&quot;: 0.72, &quot;Friction&quot;: 5, &quot;Restitution&quot;: 0.1 }"/>
+   <property name="KeyboardController" value="{}"/>
+  </properties>
+ </object>
+</template>

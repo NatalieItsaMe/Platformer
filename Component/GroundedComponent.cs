@@ -1,14 +1,9 @@
-﻿using Box2DSharp.Dynamics.Contacts;
+﻿using nkast.Aether.Physics2D.Dynamics.Contacts;
 
 namespace Platformer.Component
 {
-    public class GroundedComponent
+    public class GroundedComponent(Contact contact)
     {
-        public Contact Contact { get; }
-
-        public GroundedComponent(Contact contact)
-        {
-            Contact = contact;
-        }
+        public Contact Contact { get; } = contact;
     }
 }

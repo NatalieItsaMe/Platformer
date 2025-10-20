@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template>
+ <object name="Ground" width="256" height="48">
+  <properties>
+   <property name="BodyType" value="Static"/>
+  </properties>
+ </object>
+</template>
