@@ -23,18 +23,19 @@ namespace Platformer
 {
     public class PlatformerGame : Game
     {
-        private DebugView _debugView;
-        private PhysicsSystem _physicsSystem;
         private World _world;
+        private PhysicsSystem _physicsSystem;
 
         private OrthographicCamera _camera;
+        private MyTiledMapRenderer _tiledRenderer;
+        private DebugView _debugView;
         private SpriteBatch _worldSpriteBatch;
         private SpriteBatch _uiSpriteBatch;
+
         private Matrix _projectionMatrix;
         private Matrix _scaleMatrix;
         private Matrix _reflectionMatrix = Matrix.CreateReflection(new Plane(0f, 1f, 0f, 0f));
 
-        private MyTiledMapRenderer _tiledRenderer;
 
         public PlatformerGame()
         {
@@ -51,14 +52,17 @@ namespace Platformer
         protected override void Initialize()
         {
             _camera = new OrthographicCamera(GraphicsDevice);
+            _projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0.0f, 1.0f);
             _worldSpriteBatch = new SpriteBatch(GraphicsDevice);
             _uiSpriteBatch = new SpriteBatch(GraphicsDevice);
             _physicsSystem = new PhysicsSystem();
+
             _world = new WorldBuilder()
                 .AddSystem( new SpriteDrawSystem(_worldSpriteBatch))
                 .AddSystem(new PlayerInputSystem(this))
                 .AddSystem(_physicsSystem)
                 .AddSystem(new CameraTargetSystem(_camera))
+                .AddSystem(new DebugControllerSystem(this) { Camera = _camera, PhysicsSystem = _physicsSystem })
                 .Build();
 
             _physicsSystem.RegisterContactListener(new OneWayContactListener(_world));
@@ -75,9 +79,8 @@ namespace Platformer
             const string mapName = "MoveAndJump";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
             _tiledRenderer = new MyTiledMapRenderer(GraphicsDevice, tiledMap);
-
-            _projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0.0f, 1.0f);
             _scaleMatrix = Matrix.CreateScale(tiledMap.TileWidth, tiledMap.TileHeight, 1.0f);
+            _debugView.LoadContent(GraphicsDevice, Content);
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
@@ -87,8 +90,6 @@ namespace Platformer
                 else
                     CreateComponentsFromProperties(tiledMap, mapObject, mapObject.Properties, entity);
             }
-
-            _debugView.LoadContent(GraphicsDevice, Content);
         }
 
         private void CreateComponentsFromProperties(TiledMap map, TiledMapObject mapObject, TiledMapProperties properties, Entity entity)
@@ -155,11 +156,7 @@ namespace Platformer
         {
             _tiledRenderer.Update(gameTime);
             _world.Update(gameTime);
-
-            UpdateDebug();
-
-            _debugView.UpdatePerformanceGraph(gameTime.ElapsedGameTime);
-            
+            _debugView.UpdatePerformanceGraph(gameTime.ElapsedGameTime);            
             base.Update(gameTime);
         }
 
@@ -186,44 +183,5 @@ namespace Platformer
 
             base.Draw(gameTime);
         }
-
-        internal Vector2 GetWorldCoordinates(float x, float y) => _camera.ScreenToWorld(x, y);
-        internal IEnumerable<Body> GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
-
-        private void UpdateDebug()
-        {
-            MouseState mouse = Mouse.GetState();
-            KeyboardState keyboard = Keyboard.GetState();
-
-            if (keyboard.IsKeyDown(Keys.Escape))
-                Exit();
-
-            if (mouse.LeftButton == ButtonState.Pressed)
-            {
-                Vector2 worldMouse = GetWorldCoordinates(mouse.X, mouse.Y);
-                var bodiesUnderMouse = GetBodiesAt(worldMouse.X, worldMouse.Y);
-                foreach (var body in bodiesUnderMouse)
-                {
-                    System.Diagnostics.Debug.WriteLine($"---------entity: {body.Tag}");
-                    System.Diagnostics.Debug.WriteLine($"          local: {body.GetLocalPoint(worldMouse)}");
-                    System.Diagnostics.Debug.WriteLine($"       Position: {body.Position}");
-                    System.Diagnostics.Debug.WriteLine($"      IsEnabled: {body.Enabled}");
-                    System.Diagnostics.Debug.WriteLine($"        IsAwake: {body.Awake}");
-                    System.Diagnostics.Debug.WriteLine($"           Mass: {body.Mass}");
-                    System.Diagnostics.Debug.WriteLine($" LinearVelocity: {body.LinearVelocity}");
-                    System.Diagnostics.Debug.WriteLine($"AngularVelocity: {body.AngularVelocity}");
-                    System.Diagnostics.Debug.WriteLine($"-------Fixtures: {body.FixtureList.Count}");
-
-                    foreach (var fixture in body.FixtureList)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"        Fixture: {fixture.Shape.ShapeType}");
-                        System.Diagnostics.Debug.WriteLine($"        Density: {fixture.Shape.Density}");
-                        System.Diagnostics.Debug.WriteLine($"       Friction: {fixture.Friction}");
-                        System.Diagnostics.Debug.WriteLine($"    Restitution: {fixture.Restitution}");
-                    }
-                }
-            }
-        }
-
     }
 }
