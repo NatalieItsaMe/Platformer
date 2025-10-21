@@ -108,8 +108,8 @@
   <object id="8" template="templates/OneWayPlatform.tx" x="102" y="144">
    <polyline points="0,0 135,0"/>
   </object>
-  <object id="12" gid="497" x="191" y="123" width="16" height="16"/>
-  <object id="13" gid="499" x="165" y="127" width="16" height="16"/>
+  <object id="12" gid="497" x="256" y="175" width="16" height="16"/>
+  <object id="13" gid="499" x="350" y="238" width="16" height="16"/>
   <object id="14" gid="522" x="99" y="127" width="16" height="16"/>
  </objectgroup>
  <layer id="5" name="Cover Layer" width="30" height="20">

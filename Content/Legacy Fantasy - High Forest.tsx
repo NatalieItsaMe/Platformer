@@ -20,8 +20,12 @@
    <property name="BodyType" value="Dynamic"/>
   </properties>
   <objectgroup draworder="index" id="2">
-   <object id="2" x="0" y="0" width="16" height="16">
-    <ellipse/>
+   <object id="3" x="3" y="0">
+    <properties>
+     <property name="Density" type="float" value="0.6"/>
+     <property name="Friction" type="float" value="1"/>
+    </properties>
+    <polygon points="0,0 0,6 -3,9 -3,13 0,16 10,16 13,13 13,9 10,6 10,0"/>
    </object>
   </objectgroup>
  </tile>
@@ -30,18 +34,15 @@
    <property name="BodyType" value="Dynamic"/>
   </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="6" y="0" width="4" height="8">
-    <properties>
-     <property name="Density" type="float" value="0.6"/>
-     <property name="Friction" type="float" value="1"/>
-    </properties>
+   <object id="3" x="5" y="0">
+    <polygon points="0,0 -2,9 -2,14 0,16 6,16 8,14 8,9 6,0"/>
    </object>
-   <object id="2" x="3" y="6" width="10" height="10">
-    <properties>
-     <property name="Density" type="float" value="0.6"/>
-     <property name="Friction" type="float" value="1"/>
-    </properties>
-    <ellipse/>
+  </objectgroup>
+ </tile>
+ <tile id="523">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="5" y="0">
+    <polygon points="0,0 -2,9 -2,14 0,16 6,16 8,14 8,9 6,0"/>
    </object>
   </objectgroup>
  </tile>
