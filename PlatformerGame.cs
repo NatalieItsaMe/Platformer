@@ -5,9 +5,7 @@ using MonoGame.Extended;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.Graphics;
 using MonoGame.Extended.Tiled;
-using MonoGame.Extended.Tiled.Renderers;
 using Newtonsoft.Json;
-using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Diagnostics;
 using nkast.Aether.Physics2D.Dynamics;
 using Platformer.Component;
@@ -19,7 +17,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Xml.Linq;
 using World = MonoGame.Extended.ECS.World;
 
 namespace Platformer
@@ -37,10 +34,7 @@ namespace Platformer
         private Matrix _scaleMatrix;
         private Matrix _reflectionMatrix = Matrix.CreateReflection(new Plane(0f, 1f, 0f, 0f));
 
-        //private Matrix _scaleMatrix;
-        private TiledMapRenderer _tiledRenderer;
-        private RectangleF CameraBounds = new();
-        private Vector2 _cameraTarget;
+        private MyTiledMapRenderer _tiledRenderer;
 
         public PlatformerGame()
         {
@@ -64,6 +58,7 @@ namespace Platformer
                 .AddSystem( new SpriteDrawSystem(_worldSpriteBatch))
                 .AddSystem(new PlayerInputSystem(this))
                 .AddSystem(_physicsSystem)
+                .AddSystem(new CameraTargetSystem(_camera))
                 .Build();
 
             _physicsSystem.RegisterContactListener(new OneWayContactListener(_world));
@@ -79,27 +74,26 @@ namespace Platformer
         {
             const string mapName = "MoveAndJump";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
-            _tiledRenderer = new TiledMapRenderer(GraphicsDevice, tiledMap);
+            _tiledRenderer = new MyTiledMapRenderer(GraphicsDevice, tiledMap);
+
             _projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0.0f, 1.0f);
             _scaleMatrix = Matrix.CreateScale(tiledMap.TileWidth, tiledMap.TileHeight, 1.0f);
-            CameraBounds.Width = tiledMap.WidthInPixels;
-            CameraBounds.Height = tiledMap.HeightInPixels;
 
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 Entity entity = _world.CreateEntity();
                 if (mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
-                    CreateComponentsFromProperties(tileObject, tileObject.Tile.Properties, entity, tiledMap.GetScale());
+                    CreateComponentsFromProperties(tiledMap, tileObject, tileObject.Tile.Properties, entity);
                 else
-                    CreateComponentsFromProperties(mapObject, mapObject.Properties, entity, tiledMap.GetScale());
+                    CreateComponentsFromProperties(tiledMap, mapObject, mapObject.Properties, entity);
             }
 
             _debugView.LoadContent(GraphicsDevice, Content);
         }
 
-        private void CreateComponentsFromProperties(TiledMapObject mapObject, TiledMapProperties properties, Entity entity, Vector2 scale)
+        private void CreateComponentsFromProperties(TiledMap map, TiledMapObject mapObject, TiledMapProperties properties, Entity entity)
         {
-            var bodyFactory = new TiledBodyFactory(scale);
+            var bodyFactory = new TiledBodyFactory(map.GetScale());
             var spriteFactory = new AnimatedSpriteFactory(Content);
             foreach (var prop in properties)
             {
@@ -107,7 +101,7 @@ namespace Platformer
                 {
                     case nameof(BodyType):
                         var bodyType = Enum.Parse<BodyType>(prop.Value);
-                        Vector2 position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * scale;
+                        Vector2 position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * map.GetScale();
                         var rotation = mapObject.Rotation * (float)Math.PI / 180f;
 
                         Body body = _physicsSystem.PhysicsWorld.CreateBody(position, rotation, bodyType);
@@ -118,7 +112,10 @@ namespace Platformer
                         entity.Attach(body);
                         break;
                     case nameof(CameraTarget):
-                        entity.Attach(JsonConvert.DeserializeObject<CameraTarget>(prop.Value));
+                        var cameraTarget = JsonConvert.DeserializeObject<CameraTarget>(prop.Value);
+                        cameraTarget.CameraBounds = new(0, 0, map.WidthInPixels, map.HeightInPixels);
+                        cameraTarget.ScaleMatrix = Matrix.CreateScale(map.TileWidth, map.TileHeight, 1f);
+                        entity.Attach(cameraTarget);
                         break;
                     case nameof(KeyboardController):
                         entity.Attach(JsonConvert.DeserializeObject<KeyboardController>(prop.Value));
@@ -162,10 +159,7 @@ namespace Platformer
             UpdateDebug();
 
             _debugView.UpdatePerformanceGraph(gameTime.ElapsedGameTime);
-
-            _camera.LerpToPosition(_cameraTarget);
-            ClampCameraWithinBounds();
-
+            
             base.Update(gameTime);
         }
 
@@ -174,13 +168,14 @@ namespace Platformer
             GraphicsDevice.Clear(Color.Black);
 
             //draw tiled background
-            _tiledRenderer.Draw(_camera.GetViewMatrix());
+            _tiledRenderer.DrawBackgroundLayers(_camera.GetViewMatrix());
 
             _worldSpriteBatch.Begin(transformMatrix: _camera.GetViewMatrix());
             _world.Draw(gameTime);
             _worldSpriteBatch.End();
-            
+
             //draw tiled foreground
+            _tiledRenderer.DrawForegroundLayers(_camera.GetViewMatrix());
 
             _uiSpriteBatch.Begin();
             //draw the ui
@@ -195,42 +190,6 @@ namespace Platformer
         internal Vector2 GetWorldCoordinates(float x, float y) => _camera.ScreenToWorld(x, y);
         internal IEnumerable<Body> GetBodiesAt(float x, float y) => _physicsSystem.GetBodiesAt(x, y);
 
-        public void ClampCameraWithinBounds()
-        {
-            Vector2 d = new();
-            if (_camera.BoundingRectangle.Width > CameraBounds.Width)
-            {
-                d.X = (CameraBounds.Center.X - _camera.BoundingRectangle.Center.X);
-            }
-            else
-            {
-                if (_camera.BoundingRectangle.Left < CameraBounds.Left)
-                {
-                    d.X = (CameraBounds.Left - _camera.BoundingRectangle.Left);
-                }
-                if (_camera.BoundingRectangle.Right > CameraBounds.Right)
-                {
-                    d.X = (CameraBounds.Right - _camera.BoundingRectangle.Right);
-                }
-            }
-            if (_camera.BoundingRectangle.Height > CameraBounds.Height)
-            {
-                d.Y = (CameraBounds.Center.Y - _camera.BoundingRectangle.Center.Y);
-            }
-            else
-            {
-                if (_camera.BoundingRectangle.Top < CameraBounds.Top)
-                {
-                    d.Y = (CameraBounds.Top - _camera.BoundingRectangle.Top);
-                }
-                if (_camera.BoundingRectangle.Bottom > CameraBounds.Bottom)
-                {
-                    d.Y = (CameraBounds.Bottom - _camera.BoundingRectangle.Bottom);
-                }
-            }
-            _camera.Move(d);
-        }
-
         private void UpdateDebug()
         {
             MouseState mouse = Mouse.GetState();
@@ -238,23 +197,6 @@ namespace Platformer
 
             if (keyboard.IsKeyDown(Keys.Escape))
                 Exit();
-
-            if (keyboard.IsKeyDown(Keys.Left))
-                _cameraTarget.X -= 1.0f;
-
-            if (keyboard.IsKeyDown(Keys.Right))
-                _cameraTarget.X += 1.0f;
-
-            if (keyboard.IsKeyDown(Keys.Down))
-                _cameraTarget.Y += 1.0f;
-
-            if (keyboard.IsKeyDown(Keys.Up))
-                _cameraTarget.Y -= 1.0f;
-
-            if (keyboard.IsKeyDown(Keys.PageDown))
-                _camera.Zoom *= 0.9f;
-            if (keyboard.IsKeyDown(Keys.PageUp))
-                _camera.Zoom *= 1.1f;
 
             if (mouse.LeftButton == ButtonState.Pressed)
             {
