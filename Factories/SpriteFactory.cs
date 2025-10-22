@@ -3,16 +3,30 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using MonoGame.Extended.Graphics;
+using MonoGame.Extended.Tiled;
 using Platformer.Models;
 
 namespace Platformer.Factories
 {
-    class AnimatedSpriteFactory(ContentManager contentManager)
+    class SpriteFactory(ContentManager contentManager)
     {
         private readonly ContentManager _contentManager = contentManager;
 
-        public AnimatedSprite BuildAnimatedSprite(AnimatedSpriteModel model)
+        public Sprite BuildSprite(TiledMapTileObject tileObject)
         {
+            var id = tileObject.Tile is TiledMapTilesetAnimatedTile animated
+                    ? animated.CurrentAnimationFrame.LocalTileIdentifier
+                    : tileObject.Tile.LocalTileIdentifier;
+            var tileRegion = tileObject.Tileset.GetTileRegion(id);
+            var texture = tileObject.Tileset.Texture;
+            var textureRegion = new Texture2DRegion(texture, tileRegion.X, tileRegion.Y, tileRegion.Width, tileRegion.Height,
+                false, tileRegion.Size, Vector2.Zero, Vector2.One * 0.5f, tileObject.Name);
+            return new Sprite(textureRegion);
+        }
+
+        public AnimatedSprite BuildAnimatedSprite(string value)
+        {
+            var model = _contentManager.Load<AnimatedSpriteModel>(value);
             var atlas = BuildTexture2DAtlas(model.TextureAtlas);
 
             var spriteSheet = new SpriteSheet(model.Name, atlas);

@@ -24,7 +24,6 @@ namespace Platformer
     public class PlatformerGame : Game
     {
         private World _world;
-        private PhysicsSystem _physicsSystem;
 
         private OrthographicCamera _camera;
         private MyTiledMapRenderer _tiledRenderer;
@@ -55,21 +54,6 @@ namespace Platformer
             _projectionMatrix = Matrix.CreateOrthographic(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 0.0f, 1.0f);
             _worldSpriteBatch = new SpriteBatch(GraphicsDevice);
             _uiSpriteBatch = new SpriteBatch(GraphicsDevice);
-            _physicsSystem = new PhysicsSystem();
-
-            _world = new WorldBuilder()
-                .AddSystem( new SpriteDrawSystem(_worldSpriteBatch))
-                .AddSystem(new PlayerInputSystem(this))
-                .AddSystem(_physicsSystem)
-                .AddSystem(new CameraTargetSystem(_camera))
-                .AddSystem(new DebugControllerSystem(this) { Camera = _camera, PhysicsSystem = _physicsSystem })
-                .Build();
-
-            _physicsSystem.RegisterContactListener(new OneWayContactListener(_world));
-            _physicsSystem.RegisterContactListener(new GroundedContactListener(_world));
-            _physicsSystem.RegisterContactListener(new SpringContactListener(_world));
-            _debugView = new DebugView(_physicsSystem.PhysicsWorld);
-            _debugView.AppendFlags(DebugViewFlags.Shape | DebugViewFlags.ContactPoints | DebugViewFlags.ContactNormals);
 
             base.Initialize();
         }
@@ -78,78 +62,29 @@ namespace Platformer
         {
             const string mapName = "MoveAndJump";
             TiledMap tiledMap = Content.Load<TiledMap>(mapName);
-            _tiledRenderer = new MyTiledMapRenderer(GraphicsDevice, tiledMap);
             _scaleMatrix = Matrix.CreateScale(tiledMap.TileWidth, tiledMap.TileHeight, 1.0f);
+            _tiledRenderer = new MyTiledMapRenderer(GraphicsDevice, tiledMap);
+
+            var physicsSystem = new PhysicsSystem();
+
+            _world = new WorldBuilder()
+                .AddSystem(new SpriteDrawSystem(_worldSpriteBatch))
+                .AddSystem(new PlayerInputSystem(this))
+                .AddSystem(physicsSystem)
+                .AddSystem(new CameraTargetSystem(_camera) { WorldBounds = new(0, 0, tiledMap.WidthInPixels, tiledMap.HeightInPixels), ScaleMatrix = _scaleMatrix})
+                .AddSystem(new DebugControllerSystem(this) { Camera = _camera, PhysicsSystem = physicsSystem })
+                .Build();
+
+            physicsSystem.RegisterContactListener(new OneWayContactListener(_world));
+            physicsSystem.RegisterContactListener(new GroundedContactListener(_world));
+            physicsSystem.RegisterContactListener(new SpringContactListener(_world));
+
+            _debugView = new DebugView(physicsSystem);
+            _debugView.AppendFlags(DebugViewFlags.Shape | DebugViewFlags.ContactPoints | DebugViewFlags.ContactNormals);
             _debugView.LoadContent(GraphicsDevice, Content);
 
-            foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
-            {
-                Entity entity = _world.CreateEntity();
-                if (mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
-                    CreateComponentsFromProperties(tiledMap, tileObject, tileObject.Tile.Properties, entity);
-                else
-                    CreateComponentsFromProperties(tiledMap, mapObject, mapObject.Properties, entity);
-            }
-        }
-
-        private void CreateComponentsFromProperties(TiledMap map, TiledMapObject mapObject, TiledMapProperties properties, Entity entity)
-        {
-            var bodyFactory = new TiledBodyFactory(map.GetScale());
-            var spriteFactory = new AnimatedSpriteFactory(Content);
-            foreach (var prop in properties)
-            {
-                switch (prop.Key)
-                {
-                    case nameof(BodyType):
-                        var bodyType = Enum.Parse<BodyType>(prop.Value);
-                        Vector2 position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * map.GetScale();
-                        var rotation = mapObject.Rotation * (float)Math.PI / 180f;
-
-                        Body body = _physicsSystem.PhysicsWorld.CreateBody(position, rotation, bodyType);
-                        if (properties.TryGetValue("FixedRotation", out string fixedRotation))
-                            body.FixedRotation = bool.Parse(fixedRotation);
-                        bodyFactory.BuildFixturesFromTiledObject(mapObject, body);
-                        body.Tag = entity.Id;
-                        entity.Attach(body);
-                        break;
-                    case nameof(CameraTarget):
-                        var cameraTarget = JsonConvert.DeserializeObject<CameraTarget>(prop.Value);
-                        cameraTarget.CameraBounds = new(0, 0, map.WidthInPixels, map.HeightInPixels);
-                        cameraTarget.ScaleMatrix = Matrix.CreateScale(map.TileWidth, map.TileHeight, 1f);
-                        entity.Attach(cameraTarget);
-                        break;
-                    case nameof(KeyboardController):
-                        entity.Attach(JsonConvert.DeserializeObject<KeyboardController>(prop.Value));
-                        break;
-                    case nameof(DebugController):
-                        entity.Attach(JsonConvert.DeserializeObject<DebugController>(prop.Value));
-                        break;
-                    case nameof(OneWayPlatform):
-                        entity.Attach(JsonConvert.DeserializeObject<OneWayPlatform>(prop.Value));
-                        break;
-                    case nameof(SpringComponent):
-                        entity.Attach(JsonConvert.DeserializeObject<SpringComponent>(prop.Value));
-                        break;
-                    case nameof(AnimatedSprite):
-                        var model = Content.Load<AnimatedSpriteModel>(prop.Value);
-                        entity.Attach(spriteFactory.BuildAnimatedSprite(model));
-                        break;
-                    default:
-                        Debug.WriteLine($"No such component: {prop.Key}");
-                        break;
-                }
-            }
-            if (mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
-            {
-                var id = tileObject.Tile is TiledMapTilesetAnimatedTile animated
-                    ? animated.CurrentAnimationFrame.LocalTileIdentifier
-                    : tileObject.Tile.LocalTileIdentifier;
-                var tileRegion = tileObject.Tileset.GetTileRegion(id);
-                var texture = tileObject.Tileset.Texture;
-                var textureRegion = new Texture2DRegion(texture, tileRegion.X, tileRegion.Y, tileRegion.Width, tileRegion.Height, 
-                    false, tileRegion.Size, Vector2.Zero, Vector2.One * 0.5f, tileObject.Name);
-                entity.Attach(new Sprite(textureRegion));
-            }
+            var entityFactory = new EntityComponentsFactory(_world, physicsSystem, this);
+            entityFactory.BuildEntitiesFromTiledMap(tiledMap);
         }
 
         protected override void Update(GameTime gameTime)

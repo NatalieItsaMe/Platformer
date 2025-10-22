@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using MonoGame.Extended.ECS.Systems;
 using nkast.Aether.Physics2D.Dynamics;
 using Platformer.ContactListeners;
@@ -7,20 +6,18 @@ using System.Collections.Generic;
 
 namespace Platformer.Systems
 {
-    internal class PhysicsSystem : UpdateSystem
+    internal class PhysicsSystem : World, IUpdateSystem
     {
-        public Vector2 Gravity = new (0, 21f);
-        public World PhysicsWorld { get; }
+        private static readonly Vector2 DEFAULT_GRAVITY = new (0, 21f);
 
-        public PhysicsSystem()
+        public PhysicsSystem() : base(DEFAULT_GRAVITY)
         {
-            PhysicsWorld = new World(Gravity);
         }
 
-        public override void Update(GameTime gameTime)
+        public void Update(GameTime gameTime)
         {
-            PhysicsWorld.Step(gameTime.ElapsedGameTime);
-            PhysicsWorld.ClearForces();
+            Step(gameTime.ElapsedGameTime);
+            ClearForces();
         }
 
         internal IEnumerable<Body> GetBodiesAt(float x, float y)
@@ -29,7 +26,7 @@ namespace Platformer.Systems
             var aabb = new nkast.Aether.Physics2D.Collision.AABB(point, point);
 
             var hits = new List<Body>();
-            PhysicsWorld.QueryAABB(f =>
+            QueryAABB(f =>
             {
                 hits.Add(f.Body);
                 return true;
@@ -39,9 +36,19 @@ namespace Platformer.Systems
 
         public void RegisterContactListener(IContactListener contactListener)
         {
-            PhysicsWorld.ContactManager.BeginContact += contactListener.BeginContact;
-            PhysicsWorld.ContactManager.EndContact += contactListener.EndContact;
-            PhysicsWorld.ContactManager.PreSolve += contactListener.PreSolve;
+            ContactManager.BeginContact += contactListener.BeginContact;
+            ContactManager.EndContact += contactListener.EndContact;
+            ContactManager.PreSolve += contactListener.PreSolve;
+        }
+
+        public void Initialize(MonoGame.Extended.ECS.World world)
+        {
+            
+        }
+
+        public void Dispose()
+        {
+            base.Clear();
         }
     }
 }

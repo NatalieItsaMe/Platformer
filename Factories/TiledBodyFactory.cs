@@ -1,33 +1,74 @@
-﻿using nkast.Aether.Physics2D.Collision.Shapes;
-using nkast.Aether.Physics2D.Dynamics;
-using nkast.Aether.Physics2D.Common;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended.Tiled;
+using nkast.Aether.Physics2D.Collision.Shapes;
+using nkast.Aether.Physics2D.Common;
+using nkast.Aether.Physics2D.Dynamics;
+using Platformer.Systems;
+using System;
 using System.Diagnostics;
 using System.Linq;
 
 namespace Platformer.Factories
 {
-    internal class TiledBodyFactory(Vector2 scale)
+    internal class TiledBodyFactory(PhysicsSystem physicsSystem)
     {
-        private readonly Vector2 _scale = scale;
+        private Vector2 _scale;
 
-        public void BuildFixturesFromTiledObject(TiledMapObject obj, Body body)
+        internal void SetTiledMap(TiledMap tiledMap)
         {
-            if (obj is TiledMapTileObject tileObject && tileObject.Tile != null)
-                foreach (var innerObject in tileObject.Tile.Objects)
-                {
-                    //offset points from the topleft (Tiled) to the center (Box2D)
-                    var offset = (innerObject.Size - obj.Size).ToVector2() / 2f + innerObject.Position;
-                    var shape = CreateShapeFromTiledObject(innerObject, offset);
-                    var fixture = body.CreateFixture(shape);
-                    ApplyTiledPropertiesToFixture(innerObject.Properties, ref fixture);
-                }
-            else
+            _scale = tiledMap.GetScale();
+        }
+
+        public Body BuildBodyFromMapObject(TiledMapObject mapObject)
+        {
+            Vector2 position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * _scale;
+            var rotation = mapObject.Rotation * (float)Math.PI / 180f;
+            var bodyType = mapObject.Properties.TryGetValue(nameof(BodyType), out TiledMapPropertyValue bodyTypeString)
+                ? Enum.Parse<BodyType>(bodyTypeString)
+                : BodyType.Static;
+
+            Body body = physicsSystem.CreateBody(position, rotation, bodyType);
+
+            if (mapObject.Properties.TryGetValue("FixedRotation", out string fixedRotation))
+                body.FixedRotation = bool.Parse(fixedRotation);
+
+            BuildFixturesFromMapObject(mapObject, body);
+            return body;
+        }
+
+        public Body BuildBodyFromTileObject(TiledMapTileObject tileObject)
+        {
+            Vector2 position = (tileObject.Position.ToPoint() + tileObject.Size / 2f) * _scale;
+            var rotation = tileObject.Rotation * (float)Math.PI / 180f;
+            var bodyType = tileObject.Tile.Properties.TryGetValue(nameof(BodyType), out TiledMapPropertyValue bodyTypeString)
+                ? Enum.Parse<BodyType>(bodyTypeString)
+                : BodyType.Static;
+
+            Body body = physicsSystem.CreateBody(position, rotation, bodyType);
+
+            if (tileObject.Tile.Properties.TryGetValue("FixedRotation", out string fixedRotation))
+                body.FixedRotation = bool.Parse(fixedRotation);
+
+            BuildFixturesFromTileObject(tileObject, body);
+            return body;
+        }
+
+        public void BuildFixturesFromMapObject(TiledMapObject mapObject, Body body)
+        {
+            var shape = CreateShapeFromTiledObject(mapObject);
+            var fixture = body.CreateFixture(shape);
+            ApplyTiledPropertiesToFixture(mapObject.Properties, ref fixture);
+        }
+
+        public void BuildFixturesFromTileObject(TiledMapTileObject tileObject, Body body)
+        {
+            foreach (var innerObject in tileObject.Tile.Objects)
             {
-                var shape = CreateShapeFromTiledObject(obj);
+                //offset points from the topleft (Tiled) to the center (Box2D)
+                var offset = (innerObject.Size - tileObject.Size).ToVector2() / 2f + innerObject.Position;
+                var shape = CreateShapeFromTiledObject(innerObject, offset);
                 var fixture = body.CreateFixture(shape);
-                ApplyTiledPropertiesToFixture(obj.Properties, ref fixture);
+                ApplyTiledPropertiesToFixture(innerObject.Properties, ref fixture);
             }
         }
 

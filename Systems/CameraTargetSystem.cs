@@ -10,16 +10,13 @@ using System.Linq;
 
 namespace Platformer.Systems
 {
-    internal class CameraTargetSystem : EntityUpdateSystem
+    internal class CameraTargetSystem(OrthographicCamera camera) : EntityUpdateSystem(Aspect.All(typeof(CameraTarget)).One(typeof(Body), typeof(Transform), typeof(Point)))
     {
+        public Rectangle WorldBounds { get; set; }
+        public Matrix? ScaleMatrix { get; set; } = null;
+
         private ComponentMapper<CameraTarget> _cameraTargets;
         private ComponentMapper<Body> _bodies;
-        private readonly OrthographicCamera _camera;
-        
-        public CameraTargetSystem(OrthographicCamera camera) : base(Aspect.All(typeof(CameraTarget)).One(typeof(Body), typeof(Transform), typeof(Point)))
-        {
-            _camera = camera;
-        }
 
         public override void Initialize(IComponentMapperService mapperService)
         {
@@ -42,48 +39,48 @@ namespace Platformer.Systems
 
             Vector2 position = body.Position + target.Offset;
 
-            if (target.ScaleMatrix.HasValue)
-                position = Vector2.Transform(position, target.ScaleMatrix.Value);
+            if (ScaleMatrix.HasValue)
+                position = Vector2.Transform(position, ScaleMatrix.Value);
 
-            _camera.Zoom = target.Zoom;
-            _camera.LerpToPosition(position);
-            ClampCameraWithinBounds(target.CameraBounds);
+            camera.Zoom = target.Zoom;
+            camera.LerpToPosition(position);
+            ClampCameraWithinBounds();
         }
 
-        public void ClampCameraWithinBounds(Rectangle bounds)
+        public void ClampCameraWithinBounds()
         {
             Vector2 d = new();
-            if (_camera.BoundingRectangle.Width > bounds.Width)
+            if (camera.BoundingRectangle.Width > WorldBounds.Width)
             {
-                d.X = (bounds.Center.X - _camera.BoundingRectangle.Center.X);
+                d.X = (WorldBounds.Center.X - camera.BoundingRectangle.Center.X);
             }
             else
             {
-                if (_camera.BoundingRectangle.Left < bounds.Left)
+                if (camera.BoundingRectangle.Left < WorldBounds.Left)
                 {
-                    d.X = (bounds.Left - _camera.BoundingRectangle.Left);
+                    d.X = (WorldBounds.Left - camera.BoundingRectangle.Left);
                 }
-                if (_camera.BoundingRectangle.Right > bounds.Right)
+                if (camera.BoundingRectangle.Right > WorldBounds.Right)
                 {
-                    d.X = (bounds.Right - _camera.BoundingRectangle.Right);
+                    d.X = (WorldBounds.Right - camera.BoundingRectangle.Right);
                 }
             }
-            if (_camera.BoundingRectangle.Height > bounds.Height)
+            if (camera.BoundingRectangle.Height > WorldBounds.Height)
             {
-                d.Y = (bounds.Center.Y - _camera.BoundingRectangle.Center.Y);
+                d.Y = (WorldBounds.Center.Y - camera.BoundingRectangle.Center.Y);
             }
             else
             {
-                if (_camera.BoundingRectangle.Top < bounds.Top)
+                if (camera.BoundingRectangle.Top < WorldBounds.Top)
                 {
-                    d.Y = (bounds.Top - _camera.BoundingRectangle.Top);
+                    d.Y = (WorldBounds.Top - camera.BoundingRectangle.Top);
                 }
-                if (_camera.BoundingRectangle.Bottom > bounds.Bottom)
+                if (camera.BoundingRectangle.Bottom > WorldBounds.Bottom)
                 {
-                    d.Y = (bounds.Bottom - _camera.BoundingRectangle.Bottom);
+                    d.Y = (WorldBounds.Bottom - camera.BoundingRectangle.Bottom);
                 }
             }
-            _camera.Move(d);
+            camera.Move(d);
         }
 
         public static void DebugUpdateTarget(CameraTarget target)
