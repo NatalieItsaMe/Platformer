@@ -99,10 +99,14 @@ namespace Platformer
         {
             GraphicsDevice.Clear(Color.Black);
 
+            GraphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+            GraphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
+            GraphicsDevice.SamplerStates[2] = SamplerState.PointClamp;
+
             //draw tiled background
             _tiledRenderer.DrawBackgroundLayers(_camera.GetViewMatrix());
 
-            _worldSpriteBatch.Begin(transformMatrix: _camera.GetViewMatrix());
+            _worldSpriteBatch.Begin(transformMatrix: _camera.GetViewMatrix(), samplerState: SamplerState.PointClamp);
             _world.Draw(gameTime);
             _worldSpriteBatch.End();
 
