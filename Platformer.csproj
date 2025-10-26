@@ -31,6 +31,7 @@
   <ItemGroup>
     <PackageReference Include="Aether.Physics2D.Diagnostics.MG" Version="2.2.0" />
     <PackageReference Include="Aether.Physics2D.MG" Version="2.2.0" />
+    <PackageReference Include="Gum.MonoGame" Version="2025.9.27.1" />
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.4" />
     <PackageReference Include="MonoGame.Extended" Version="5.1.0" />
     <PackageReference Include="MonoGame.Extended.Content.Pipeline" Version="5.1.0" />

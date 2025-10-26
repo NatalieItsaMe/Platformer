@@ -2,7 +2,7 @@
 
 namespace Platformer.Component
 {
-    internal class KeyboardController : Interfaces.IInputMapping
+    internal class KeyboardController : PlayerControllerBase, Interfaces.IInputMapping
     {
         public Keys Up = Keys.W, 
             Down = Keys.S, 
@@ -12,6 +12,5 @@ namespace Platformer.Component
             Exit = Keys.Escape,
             ZoomIn = Keys.PageDown,
             ZoomOut = Keys.PageUp;
-
     }
 }

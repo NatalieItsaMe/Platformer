@@ -6,18 +6,11 @@ using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
 using Platformer.Component;
 using System;
-using System.Linq;
 
 namespace Platformer.Systems
 {
-    internal class PlayerInputSystem(PlatformerGame game) : EntityUpdateSystem(Aspect.All(typeof(Body), typeof(KeyboardController)))
+    internal class PlayerInputSystem(PlatformerGame game) : EntityUpdateSystem(Aspect.All(typeof(Body)).One(typeof(KeyboardController)))
     {
-        private const float HorizontalMovementForce = 36f;
-        private const float MaxHorizontalSpeed = 4.2f;
-        private const float JumpForce = -360f;
-        private const ushort MaxJumpTimeout = 4;
-        private const ushort MaxZoomTimeout = 6;
-
         private readonly PlatformerGame _game = game;
         private ComponentMapper<KeyboardController> _keyboards;
         private ComponentMapper<Body> _bodies;
@@ -40,10 +33,10 @@ namespace Platformer.Systems
         private void UpdatePlayerEntity(int entity)
         {
             Body body = _bodies.Get(entity);
-            var mapping = _keyboards.Get(entity);
+            var controller = _keyboards.Get(entity);
             var state = Keyboard.GetState();
 
-            if (state.IsKeyDown(mapping.Exit))
+            if (state.IsKeyDown(controller.Exit))
                 _game.Exit();
 
             if (_grounded.Has(entity))
@@ -51,22 +44,22 @@ namespace Platformer.Systems
                 if(JumpTimeout > 0) 
                     JumpTimeout--;
 
-                if (state.IsKeyDown(mapping.Jump) && JumpTimeout == 0)
+                if (state.IsKeyDown(controller.Jump) && JumpTimeout == 0)
                 {
                     _grounded.Delete(entity);
-                    body.ApplyForce(new(0, JumpForce));
-                    JumpTimeout = MaxJumpTimeout;
+                    body.ApplyForce(new(0, controller.JumpForce));
+                    JumpTimeout = controller.MaxJumpTimeout;
                 }
 
-                if (state.IsKeyDown(mapping.Right))
-                    body.ApplyForce(new(HorizontalMovementForce, 0));
-                if (state.IsKeyDown(mapping.Left))
-                    body.ApplyForce(new(-HorizontalMovementForce, 0));
+                if (state.IsKeyDown(controller.Right))
+                    body.ApplyForce(new(controller.HorizontalMovementForce, 0));
+                if (state.IsKeyDown(controller.Left))
+                    body.ApplyForce(new(-controller.HorizontalMovementForce, 0));
             }
 
-            if (Math.Abs(body.LinearVelocity.X) > MaxHorizontalSpeed)
+            if (Math.Abs(body.LinearVelocity.X) > controller.MaxHorizontalSpeed)
             {
-                body.LinearVelocity.SetX(Math.Sign(body.LinearVelocity.X) * MaxHorizontalSpeed);
+                body.LinearVelocity.SetX(Math.Sign(body.LinearVelocity.X) * controller.MaxHorizontalSpeed);
             }
         }
     }

@@ -1,73 +1,61 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using MonoGame.Extended.ECS;
 using MonoGame.Extended.ECS.Systems;
-using System.Diagnostics;
+using MonoGameGum;
+using nkast.Aether.Physics2D.Dynamics;
 using Platformer.Component;
-using System;
-using System.Collections.Generic;
+using Platformer.UI;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Platformer.Systems
 {
-    internal class DebugControllerSystem : UpdateSystem
+    internal class DebugControllerSystem : EntityUpdateSystem
     {
-        public PlatformerGame Game { get; set; }
+        private ComponentMapper<Body> _bodies;
+        private ComponentMapper<KeyboardController> _playerControllers;
+
+        public DebugControllerSystem() : base(Aspect.One(typeof(Body), typeof(KeyboardController)))
+        {
+        }
+
         public OrthographicCamera Camera { get; set; }
         public PhysicsSystem PhysicsSystem { get; set; }
+        public Matrix CameraToPhysicsMatrix { get; set; }
+        public GumService GumUI => GumService.Default;
 
-        public DebugControllerSystem(PlatformerGame game)
+        public override void Initialize(IComponentMapperService mapperService)
         {
-            Game = game;
+            _bodies = mapperService.GetMapper<Body>();
+            _playerControllers = mapperService.GetMapper<KeyboardController>();
         }
 
         public override void Update(GameTime gameTime)
         {
-            MouseState mouse = Mouse.GetState();
-            KeyboardState keyboard = Keyboard.GetState();
+            if (GumUI.Cursor.WindowOver != null)
+                return;
 
-            if (keyboard.IsKeyDown(Keys.Escape))
-                Game.Exit();
-
-            if (mouse.LeftButton == ButtonState.Pressed)
-            {
-                OutputBodyReport(mouse.X, mouse.Y);
-            }
+            if (GumUI.Cursor.PrimaryClick)
+                OutputBodyReport(GumUI.Cursor.X, GumUI.Cursor.Y);
         }
 
         private void OutputBodyReport(float x, float y)
         {
-            Vector2 worldMouse = Camera.ScreenToWorld(x, y);
+            Vector2 worldMouse = Vector2.Transform( Camera.ScreenToWorld(x, y), CameraToPhysicsMatrix);
             var bodiesUnderMouse = PhysicsSystem.GetBodiesAt(worldMouse.X, worldMouse.Y);
 
             if (!bodiesUnderMouse.Any())
                 return;
 
-            Debug.WriteLine("------------LIST BEGIN-----------");
             foreach (var body in bodiesUnderMouse)
             {
-                Debug.WriteLine($"---------entity: {body.Tag}");
-                Debug.WriteLine($"          local: {body.GetLocalPoint(worldMouse)}");
-                Debug.WriteLine($"       Position: {body.Position}");
-                Debug.WriteLine($"      IsEnabled: {body.Enabled}");
-                Debug.WriteLine($"        IsAwake: {body.Awake}");
-                Debug.WriteLine($"           Mass: {body.Mass}");
-                Debug.WriteLine($" LinearVelocity: {body.LinearVelocity}");
-                Debug.WriteLine($"AngularVelocity: {body.AngularVelocity}");
-                Debug.WriteLine($"-------Fixtures: {body.FixtureList.Count}");
+                var dialog = new BodyEditorPanel(body);
+                dialog.AddToRoot();
+                dialog.Visual.Dock(Gum.Wireframe.Dock.Right);
 
-                foreach (var fixture in body.FixtureList)
-                {
-                    Debug.WriteLine($"        Fixture: {fixture.Shape.ShapeType}");
-                    Debug.WriteLine($"        Density: {fixture.Shape.Density}");
-                    Debug.WriteLine($"       Friction: {fixture.Friction}");
-                    Debug.WriteLine($"    Restitution: {fixture.Restitution}");
-                }
+                if (_playerControllers.TryGet((int)body.Tag, out var playerController))
+                    dialog.AddPlayerControls(playerController); 
             }
-            Debug.WriteLine("------------LIST END-----------");
         }
     }
 }
