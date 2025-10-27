@@ -10,10 +10,10 @@
         },
         "MoveAndJump.tmx": {
             "scale": 3,
-            "selectedLayer": 5,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 154.33333333333334,
-                "y": 250.83333333333331
+                "x": 88.33333333333331,
+                "y": 282.8333333333333
             }
         },
         "Props-Rocks.tsx": {

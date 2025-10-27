@@ -39,28 +39,26 @@ namespace Platformer.Systems
             if (state.IsKeyDown(controller.Exit))
                 _game.Exit();
 
-            if (_grounded.Has(entity))
+            if (!_grounded.Has(entity))
+                return;
+
+            if (JumpTimeout > 0)
+                JumpTimeout--;
+
+            if (state.IsKeyDown(controller.Jump) && JumpTimeout == 0)
             {
-                if(JumpTimeout > 0) 
-                    JumpTimeout--;
-
-                if (state.IsKeyDown(controller.Jump) && JumpTimeout == 0)
-                {
-                    _grounded.Delete(entity);
-                    body.ApplyForce(new(0, controller.JumpForce));
-                    JumpTimeout = controller.MaxJumpTimeout;
-                }
-
-                if (state.IsKeyDown(controller.Right))
-                    body.ApplyForce(new(controller.HorizontalMovementForce, 0));
-                if (state.IsKeyDown(controller.Left))
-                    body.ApplyForce(new(-controller.HorizontalMovementForce, 0));
+                _grounded.Delete(entity);
+                body.ApplyForce(new(0, controller.JumpForce));
+                JumpTimeout = controller.MaxJumpTimeout;
             }
 
             if (Math.Abs(body.LinearVelocity.X) > controller.MaxHorizontalSpeed)
-            {
-                body.LinearVelocity.SetX(Math.Sign(body.LinearVelocity.X) * controller.MaxHorizontalSpeed);
-            }
+                return;
+
+            if (state.IsKeyDown(controller.Right))
+                body.ApplyForce(new(controller.HorizontalMovementForce, 0));
+            if (state.IsKeyDown(controller.Left))
+                body.ApplyForce(new(-controller.HorizontalMovementForce, 0));
         }
     }
 }
