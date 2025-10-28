@@ -75,11 +75,11 @@ namespace Platformer.UI
 
             var positionTextBox = new TextBox
             {
-                Text = JsonConvert.SerializeObject(body.Position),
-                Width = 0
+                Text = JsonConvert.SerializeObject(body.Position)
             };
             bodyStack.AddChild(positionTextBox);
-            positionTextBox.Visual.WidthUnits = Gum.DataTypes.DimensionUnitType.RelativeToParent;
+            positionTextBox.Visual.WidthUnits = Gum.DataTypes.DimensionUnitType.PercentageOfParent;
+            positionTextBox.Visual.Width = 100;
             positionTextBox.LostFocus += (_, _) =>
             {
                 try
@@ -92,6 +92,13 @@ namespace Platformer.UI
                     Debug.WriteLine(e);
                 }
             };
+
+            bodyStack.AddChild(new Label { Text = "Angular Damping" });
+
+            var angularDampingBox = new NumberBox() { Value = body.AngularDamping, Minimum = 0, TicksFrequency = 0.05f };
+            bodyStack.AddChild(angularDampingBox);
+            angularDampingBox.ValueChanged += () =>
+                body.AngularDamping = (float)angularDampingBox.Value;
 
             var isEnabledCheckBox = new CheckBox() { Text = $"Is Enabled", IsChecked = body.Enabled };
             bodyStack.AddChild(isEnabledCheckBox);

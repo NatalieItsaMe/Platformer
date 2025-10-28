@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using MonoGame.Extended.Tiled;
+using Newtonsoft.Json;
 using nkast.Aether.Physics2D.Collision.Shapes;
 using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
@@ -21,35 +22,28 @@ namespace Platformer.Factories
 
         public Body BuildBodyFromMapObject(TiledMapObject mapObject)
         {
+            var properties = mapObject is TiledMapTileObject
+                ? ((TiledMapTileObject)mapObject).Tile.Properties
+                : mapObject.Properties;
+
             Vector2 position = (mapObject.Position.ToPoint() + mapObject.Size / 2f) * _scale;
             var rotation = mapObject.Rotation * (float)Math.PI / 180f;
-            var bodyType = mapObject.Properties.TryGetValue(nameof(BodyType), out TiledMapPropertyValue bodyTypeString)
+            var bodyType = properties.TryGetValue(nameof(BodyType), out TiledMapPropertyValue bodyTypeString)
                 ? Enum.Parse<BodyType>(bodyTypeString)
                 : BodyType.Static;
 
             Body body = physicsSystem.CreateBody(position, rotation, bodyType);
 
-            if (mapObject.Properties.TryGetValue("FixedRotation", out string fixedRotation))
+            if (properties.TryGetValue(nameof(Body.FixedRotation), out string fixedRotation))
                 body.FixedRotation = bool.Parse(fixedRotation);
 
-            BuildFixturesFromMapObject(mapObject, body);
-            return body;
-        }
+            if (properties.TryGetValue(nameof(Body.AngularDamping), out string angularDamping))
+                body.AngularDamping = float.Parse(angularDamping);
 
-        public Body BuildBodyFromTileObject(TiledMapTileObject tileObject)
-        {
-            Vector2 position = (tileObject.Position.ToPoint() + tileObject.Size / 2f) * _scale;
-            var rotation = tileObject.Rotation * (float)Math.PI / 180f;
-            var bodyType = tileObject.Tile.Properties.TryGetValue(nameof(BodyType), out TiledMapPropertyValue bodyTypeString)
-                ? Enum.Parse<BodyType>(bodyTypeString)
-                : BodyType.Static;
-
-            Body body = physicsSystem.CreateBody(position, rotation, bodyType);
-
-            if (tileObject.Tile.Properties.TryGetValue("FixedRotation", out string fixedRotation))
-                body.FixedRotation = bool.Parse(fixedRotation);
-
-            BuildFixturesFromTileObject(tileObject, body);
+            if (mapObject is TiledMapTileObject tileObject)
+                BuildFixturesFromTileObject(tileObject, body);
+            else
+                BuildFixturesFromMapObject(mapObject, body);
             return body;
         }
 
@@ -84,7 +78,7 @@ namespace Platformer.Factories
 
         private Shape CreateShapeFromTiledObject(TiledMapObject obj, Vector2 offset = new())
         {
-            var density = obj.Properties.TryGetValue("Density", out TiledMapPropertyValue densityProperty)
+            var density = obj.Properties.TryGetValue(nameof(Shape.Density), out TiledMapPropertyValue densityProperty)
                 ? float.TryParse(densityProperty.Value, out float densityValue) ? densityValue : 1.0f
                 : 1.0f;
 

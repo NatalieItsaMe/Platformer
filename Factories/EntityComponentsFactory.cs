@@ -21,19 +21,17 @@ namespace Platformer.Factories
             foreach (var mapObject in tiledMap.ObjectLayers.SelectMany(l => l.Objects))
             {
                 Entity entity = world.CreateEntity();
+                var body = bodyFactory.BuildBodyFromMapObject(mapObject);
+                body.Tag = entity.Id;
+                entity.Attach(body);
+
                 if (mapObject is TiledMapTileObject tileObject && tileObject.Tile != null)
                 {
-                    var body = bodyFactory.BuildBodyFromTileObject(tileObject);
-                    body.Tag = entity.Id;
-                    entity.Attach(body);
                     entity.Attach(spriteFactory.BuildSprite(tileObject));
                     BuildComponentsFromProperties(entity, tileObject.Tile.Properties);
                 }
                 else
                 {
-                    var body = bodyFactory.BuildBodyFromMapObject(mapObject);
-                    body.Tag = entity.Id;
-                    entity.Attach(body);
                     BuildComponentsFromProperties(entity, mapObject.Properties);
                 }
             }
