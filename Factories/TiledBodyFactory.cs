@@ -6,6 +6,7 @@ using nkast.Aether.Physics2D.Common;
 using nkast.Aether.Physics2D.Dynamics;
 using Platformer.Systems;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -112,13 +113,13 @@ namespace Platformer.Factories
                 return shape;
             }
 
-            Vector2 h = obj.Size.ToVector2() * _scale / 2f;
+            Vector2 h = obj.Size.ToVector2() / 2f * _scale;
             var vertices1 = new Vertices(4)
             {
-                new(-h.X, -h.Y),
-                new(-h.X, h.Y),
-                new(h.X, h.Y),
-                new(h.X, -h.Y)
+                Vector2.Add(new(-h.X, -h.Y), offset * _scale),
+                Vector2.Add(new(-h.X, h.Y), offset * _scale),
+                Vector2.Add(new(h.X, h.Y), offset * _scale),
+                Vector2.Add(new(h.X, -h.Y), offset * _scale)
             };
 
             var box = new PolygonShape(vertices1, density);
