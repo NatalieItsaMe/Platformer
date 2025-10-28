@@ -118,33 +118,28 @@ namespace Platformer.UI
 
             fixturePanel.AddChild(new Label() { Text = "Density: " });
 
-            var densityTextBox = new TextBox() { Text = fixture.Shape.Density.ToString() };
+            var densityTextBox = new NumberBox() { Value = fixture.Shape.Density, TicksFrequency = 0.05f };
             fixturePanel.AddChild(densityTextBox);
-            densityTextBox.LostFocus += (_, _) =>
+            densityTextBox.ValueChanged += () =>
             {
-                if (!float.TryParse(densityTextBox.Text, out float value))
-                {
-                    densityTextBox.Text = fixture.Shape.Density.ToString();
-                    return;
-                }
-                fixture.Shape.Density = value;
+                fixture.Shape.Density = (float)densityTextBox.Value;
                 fixture.Body.ResetMassData();
             };
 
             fixturePanel.AddChild(new Label() { Text = "Friction: " });
 
-            var frictionSlider = new Slider() { Minimum = 0, Maximum = 1.0f, Value = fixture.Friction, TicksFrequency = 0.05f, IsSnapToTickEnabled = true };
+            var frictionSlider = new NumberBox() { Minimum = 0, Value = fixture.Friction, TicksFrequency = 0.05f };
             fixturePanel.AddChild(frictionSlider);
-            frictionSlider.ValueChanged += (_, _) =>
+            frictionSlider.ValueChanged += () =>
             {
                 fixture.Friction = (float)frictionSlider.Value;
             };
 
             fixturePanel.AddChild(new Label() { Text = "Restitution: " });
 
-            var restitutionSlider = new Slider() { Minimum = 0, Maximum = 1.0f, Value = fixture.Restitution, TicksFrequency = 0.05f, IsSnapToTickEnabled = true };
+            var restitutionSlider = new NumberBox() { Minimum = 0, Maximum = 1.0f, Value = fixture.Restitution, TicksFrequency = 0.05f };
             fixturePanel.AddChild(restitutionSlider);
-            restitutionSlider.ValueChanged += (_, _) =>
+            restitutionSlider.ValueChanged += () =>
             {
                 fixture.Restitution = (float)restitutionSlider.Value;
             };
@@ -156,32 +151,24 @@ namespace Platformer.UI
             InnerStackPanel.AddChild(playerStack);
 
             playerStack.AddChild(new Label() { Text = "X-Movement Force:" });
-            var horizontalMovementForceSlider = new Slider() { Minimum = 0f, Maximum = 50f, TicksFrequency = 0.5f };
+            var horizontalMovementForceSlider = new NumberBox() { Minimum = 0, TicksFrequency = 0.5f };
             playerStack.AddChild(horizontalMovementForceSlider);
             horizontalMovementForceSlider.Value = playerController.HorizontalMovementForce;
-            horizontalMovementForceSlider.ValueChangeCompleted += (_, _) 
+            horizontalMovementForceSlider.ValueChanged += () 
                 => playerController.HorizontalMovementForce = (float)horizontalMovementForceSlider.Value;
 
             playerStack.AddChild(new Label() { Text = "Max X-Velocity:" });
-            var maxHorizontalMovementSpeedSlider = new Slider() { Minimum = 0f, Maximum = 10f, TicksFrequency = 0.1f };
-            playerStack.AddChild(maxHorizontalMovementSpeedSlider);
-            maxHorizontalMovementSpeedSlider.Value = playerController.MaxHorizontalSpeed;
-            maxHorizontalMovementSpeedSlider.ValueChangeCompleted += (_, _)
-                => playerController.MaxHorizontalSpeed = (float)maxHorizontalMovementSpeedSlider.Value;
-
+            var maxXSpeedNumberBox = new NumberBox() { Value = playerController.MaxHorizontalSpeed, Minimum = 0, TicksFrequency = 0.5f };
+            playerStack.AddChild(maxXSpeedNumberBox);
+            maxXSpeedNumberBox.Value = playerController.MaxHorizontalSpeed;
+            maxXSpeedNumberBox.ValueChanged += ()
+                => playerController.MaxHorizontalSpeed = (float)maxXSpeedNumberBox.Value;
 
             playerStack.AddChild(new Label() { Text = "Jump Force:" });
-            var jumpForceTextBox = new TextBox() { Text = playerController.JumpForce.ToString() };
+            var jumpForceTextBox = new NumberBox() { Value = playerController.JumpForce, Minimum = 0 };
             playerStack.AddChild(jumpForceTextBox);
-            jumpForceTextBox.TextChanged += (_, _) =>
-            {
-                if (!float.TryParse(jumpForceTextBox.Text, out var jumpForce))
-                {
-                    jumpForceTextBox.Text = playerController.JumpForce.ToString();
-                    return;
-                }
-                playerController.JumpForce = jumpForce;
-            };
+            jumpForceTextBox.ValueChanged += () 
+                => playerController.JumpForce = (float)jumpForceTextBox.Value;
             //public ushort MaxJumpTimeout { get; set; } = 4;
             //public ushort MaxZoomTimeout { get; set; } = 6;
         }
