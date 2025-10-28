@@ -8,8 +8,7 @@
   <objectgroup draworder="index" id="2">
    <object id="1" x="3" y="0">
     <properties>
-     <property name="Density" type="float" value="0.6"/>
-     <property name="Friction" type="float" value="1"/>
+     <property name="Density" type="float" value="0.8"/>
     </properties>
     <polygon points="0,0 0,6 -3,9 -3,13 0,16 10,16 13,13 13,9 10,6 10,0"/>
    </object>
@@ -22,8 +21,7 @@
   <objectgroup draworder="index" id="2">
    <object id="3" x="3" y="0">
     <properties>
-     <property name="Density" type="float" value="0.6"/>
-     <property name="Friction" type="float" value="1"/>
+     <property name="Density" type="float" value="1"/>
     </properties>
     <polygon points="0,0 0,6 -3,9 -3,13 0,16 10,16 13,13 13,9 10,6 10,0"/>
    </object>

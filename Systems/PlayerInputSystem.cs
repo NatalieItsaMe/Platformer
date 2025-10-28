@@ -15,6 +15,7 @@ namespace Platformer.Systems
         private ComponentMapper<KeyboardController> _keyboards;
         private ComponentMapper<Body> _bodies;
         private ComponentMapper<GroundedComponent> _grounded;
+
         private ushort JumpTimeout;
 
         public override void Initialize(IComponentMapperService mapperService)
@@ -27,19 +28,29 @@ namespace Platformer.Systems
         public override void Update(GameTime gameTime)
         {
             foreach (var entity in ActiveEntities)
-                UpdatePlayerEntity(entity);
+            {
+                Body body = _bodies.Get(entity);
+                var controller = _keyboards.Get(entity);
+                var state = Keyboard.GetState();
+
+                if (state.IsKeyDown(controller.Exit))
+                    _game.Exit();
+
+                bool isGrounded = _grounded.Has(entity);
+                HorizontalMovement(body, controller, state);
+
+                VerticalMovement(body, controller, state, ref isGrounded);
+                if (!isGrounded)
+                    _grounded.Delete(entity);
+            }
         }
 
-        private void UpdatePlayerEntity(int entity)
+        private void VerticalMovement(Body body, KeyboardController controller, KeyboardState state, ref bool isGrounded)
         {
-            Body body = _bodies.Get(entity);
-            var controller = _keyboards.Get(entity);
-            var state = Keyboard.GetState();
+            if (state.IsKeyUp(controller.Jump) && body.LinearVelocity.Y < 0)
+                body.LinearVelocity = Vector2.Lerp(body.LinearVelocity.SetY(0), body.LinearVelocity, 0.33f);
 
-            if (state.IsKeyDown(controller.Exit))
-                _game.Exit();
-
-            if (!_grounded.Has(entity))
+            if (!isGrounded)
                 return;
 
             if (JumpTimeout > 0)
@@ -47,18 +58,33 @@ namespace Platformer.Systems
 
             if (state.IsKeyDown(controller.Jump) && JumpTimeout == 0)
             {
-                _grounded.Delete(entity);
-                body.ApplyForce(new(0, controller.JumpForce));
+                body.ApplyLinearImpulse(Vector2.UnitY * controller.JumpForce);
                 JumpTimeout = controller.MaxJumpTimeout;
+                isGrounded = false;
             }
+        }
 
-            if (Math.Abs(body.LinearVelocity.X) > controller.MaxHorizontalSpeed)
-                return;
+        private static void HorizontalMovement(Body body, KeyboardController controller, KeyboardState state)
+        {
+            if (state.IsKeyUp(controller.Right) && state.IsKeyUp(controller.Left))
+                body.LinearVelocity = Vector2.Lerp(body.LinearVelocity.SetX(0), body.LinearVelocity, 0.5f);
 
             if (state.IsKeyDown(controller.Right))
-                body.ApplyForce(new(controller.HorizontalMovementForce, 0));
+                body.ApplyForce(Vector2.UnitX * controller.HorizontalMovementForce);
             if (state.IsKeyDown(controller.Left))
-                body.ApplyForce(new(-controller.HorizontalMovementForce, 0));
+                body.ApplyForce(Vector2.UnitX * -controller.HorizontalMovementForce);
+
+            if (Math.Abs(body.LinearVelocity.X) > controller.MaxHorizontalSpeed)
+                body.LinearVelocity = body.LinearVelocity.SetX(Math.Sign(body.LinearVelocity.X) * controller.MaxHorizontalSpeed);
         }
+    }
+
+    public enum MovementState
+    {
+        Idle, 
+        ControlledJump, 
+        FreeJump, 
+        WalkingRight,
+        WalkingLeft
     }
 }
