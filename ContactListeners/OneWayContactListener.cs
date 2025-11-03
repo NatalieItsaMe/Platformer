@@ -15,8 +15,8 @@ namespace Platformer.ContactListeners
         {
             var entityA = world.GetEntity((int)contact.FixtureA.Body.Tag);
             var entityB = world.GetEntity((int)contact.FixtureB.Body.Tag);
-            if ((entityA.Has<OneWayPlatform>() && !IsContactSolid(contact, entityA.Get<OneWayPlatform>(), contact.FixtureB))
-                || (entityB.Has<OneWayPlatform>() && !IsContactSolid(contact, entityB.Get<OneWayPlatform>(), contact.FixtureA)))
+            if ((entityA.Has<OneWayPlatform>() && IgnoreContact(contact, entityA.Get<OneWayPlatform>(), contact.FixtureB))
+                || (entityB.Has<OneWayPlatform>() && IgnoreContact(contact, entityB.Get<OneWayPlatform>(), contact.FixtureA)))
             {
                 DisabledContacts.Add(contact);
                 contact.Enabled = false;
@@ -37,7 +37,7 @@ namespace Platformer.ContactListeners
                 contact.Enabled = false;
         }
 
-        private static bool IsContactSolid(Contact contact, OneWayPlatform oneWay, Fixture otherFixture)
+        private static bool IgnoreContact(Contact contact, OneWayPlatform oneWay, Fixture otherFixture)
         {
             contact.GetWorldManifold(out _, out var points);
             //no points are moving into the one-way's blocking direction, then contact should not be solid
@@ -47,20 +47,20 @@ namespace Platformer.ContactListeners
                 switch (oneWay.Direction)
                 {
                     case OneWayPlatform.PlatformDirection.LEFT:
-                        if (pointVel.X > 0) return true;
+                        if (pointVel.X > 0 && contact.Manifold.LocalNormal.X < 0) return false;
                         break;
                     case OneWayPlatform.PlatformDirection.RIGHT:
-                        if (pointVel.X < 0) return true;
+                        if (pointVel.X < 0 && contact.Manifold.LocalNormal.X > 0) return false;
                         break;
                     case OneWayPlatform.PlatformDirection.DOWN:
-                        if (pointVel.Y < 0) return true;
+                        if (pointVel.Y < 0 && contact.Manifold.LocalNormal.Y > 0) return false;
                         break;
                     case OneWayPlatform.PlatformDirection.UP:
-                        if (pointVel.Y > 0) return true;
+                        if (pointVel.Y > 0 && contact.Manifold.LocalNormal.Y < 0) return false;
                         break;
                 }
             }
-            return false;
+            return true;
         }
     }
 }
